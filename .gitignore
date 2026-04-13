@@ -1,0 +1,10 @@
+
+# Knowledge base — extracted files (regenerated from raw sources)
+raw/.extracted/
+
+# Knowledge base — binary source files (avoid bloating git history)
+raw/*.pdf
+raw/*.epub
+raw/*.docx
+raw/*.xlsx
+raw/*.pptx
