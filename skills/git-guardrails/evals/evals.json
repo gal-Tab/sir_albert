@@ -1,0 +1,41 @@
+{
+  "skill_name": "git-guardrails",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Hey, I want to protect my repo from accidental destructive git commands. Can you set up some guardrails? Install them just for this project.",
+      "expected_output": "The skill installs the hook script to .claude/hooks/, registers it in .claude/settings.json as a PreToolUse hook, and shows a summary of what's blocked. The script should be executable.",
+      "files": [],
+      "expectations": [
+        "A file .claude/hooks/block-dangerous-git.sh exists and is executable",
+        "The file .claude/settings.json contains a PreToolUse hook entry pointing to the script",
+        "The settings JSON is valid and doesn't overwrite any existing content",
+        "A summary of blocked commands is shown to the user"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Set up git guardrails for me globally, but I want to allow pushing to branches that start with 'feature/'. Everything else should stay blocked.",
+      "expected_output": "Installs globally to ~/.claude/, configures the allowlist to permit 'git push origin feature/*' while keeping all other dangerous patterns blocked.",
+      "files": [],
+      "expectations": [
+        "The hook script is installed at ~/.claude/hooks/block-dangerous-git.sh",
+        "The ALLOWED_PATTERNS array in the script contains a pattern for feature/ branches",
+        "The BLOCKED_PATTERNS still include git push and other dangerous commands",
+        "~/.claude/settings.json has the hook registered with the correct absolute path"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I just set up a new project. Can you add git safety hooks? Oh and I'm fine with rebasing, I do it all the time on my own branches. Just don't let Claude force-push or nuke my working tree.",
+      "expected_output": "Installs guardrails but removes 'git rebase' from the blocklist since the user explicitly said they're fine with it. Keeps force-push, reset --hard, clean, checkout ., restore ., branch -D blocked.",
+      "files": [],
+      "expectations": [
+        "The hook script is installed and registered correctly",
+        "git rebase is NOT in the BLOCKED_PATTERNS array",
+        "git push is still blocked (the user specifically mentioned force-push concerns)",
+        "git reset --hard, git clean, git checkout ., git restore . are all still blocked"
+      ]
+    }
+  ]
+}
