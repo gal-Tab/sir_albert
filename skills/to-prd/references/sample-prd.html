@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Lead Ingest Agent — PRD</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --color-bg: #000000;
+      --color-surface: #232427;
+      --color-surface-alt: #2D3035;
+      --color-text: #ffffff;
+      --color-text-secondary: #c3ced8;
+      --color-text-muted: #a0a0a0;
+      --color-border: rgba(255, 255, 255, 0.15);
+      --color-border-strong: rgba(255, 255, 255, 0.8);
+      --color-purple: #6164ff;
+      --color-purple-light: #8A99FF;
+      --color-green: #00c875;
+      --color-yellow: #ffcb00;
+      --color-red: #ff3d57;
+      --font-main: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'SF Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+      --weight-regular: 400;
+      --weight-semibold: 600;
+      --text-display: 4vmin;
+      --text-h1: 3.2vmin;
+      --text-h2: 2.6vmin;
+      --text-h3: 2.2vmin;
+      --text-body: 1.8vmin;
+      --text-body-sm: 1.5vmin;
+      --text-caption: 1.2vmin;
+      --space-1: 0.5vmin;
+      --space-2: 1vmin;
+      --space-3: 1.5vmin;
+      --space-4: 2vmin;
+      --space-5: 3vmin;
+      --space-6: 4vmin;
+      --space-7: 5vmin;
+      --space-8: 6vmin;
+      --space-9: 8vmin;
+      --space-10: 10vmin;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-full: 999px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-main);
+      font-weight: var(--weight-regular);
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      padding: var(--space-8) var(--space-6);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    h1, h2, h3, h4 {
+      font-weight: var(--weight-semibold);
+      line-height: 1.3;
+    }
+
+    /* ===== HEADER ===== */
+    .plan-header {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-7);
+      margin-bottom: var(--space-7);
+    }
+    .plan-title {
+      font-size: var(--text-display);
+      font-weight: var(--weight-semibold);
+      margin-bottom: var(--space-4);
+    }
+    .plan-goal {
+      font-size: var(--text-h3);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-5);
+      line-height: 1.7;
+    }
+    .meta-badges {
+      display: flex;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+    .badge {
+      background: var(--color-surface-alt);
+      color: var(--color-text-secondary);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+    }
+    .badge-purple { border: 1px solid var(--color-purple); color: var(--color-purple); }
+    .badge-green { border: 1px solid var(--color-green); color: var(--color-green); }
+    .badge-yellow { border: 1px solid var(--color-yellow); color: var(--color-yellow); }
+    .badge-red { border: 1px solid var(--color-red); color: var(--color-red); }
+
+    /* ===== PROGRESS ===== */
+    .progress-bar-container {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      padding: var(--space-4) var(--space-5);
+      margin-bottom: var(--space-7);
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+    .progress-label {
+      font-size: var(--text-body-sm);
+      color: var(--color-text-muted);
+      white-space: nowrap;
+    }
+    .progress-track {
+      flex: 1;
+      height: 8px;
+      background: var(--color-surface-alt);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--color-green);
+      border-radius: var(--radius-full);
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+
+    /* ===== SECTIONS ===== */
+    .section-heading {
+      font-size: var(--text-h2);
+      margin-bottom: var(--space-4);
+      margin-top: var(--space-7);
+    }
+
+    /* ===== DOD ===== */
+    .dod-section {
+      background: var(--color-surface);
+      border-left: 3px solid var(--color-purple);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      margin-bottom: var(--space-5);
+    }
+    .dod-section h2 {
+      font-size: var(--text-h2);
+      margin-bottom: var(--space-3);
+    }
+    .dod-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-2);
+      padding: var(--space-2) 0;
+      color: var(--color-text-secondary);
+      font-size: var(--text-body);
+    }
+    .dod-item input[type="checkbox"] {
+      accent-color: var(--color-purple);
+      margin-top: 3px;
+      flex-shrink: 0;
+    }
+
+    /* ===== SCOPE BOUNDARY ===== */
+    .scope-out {
+      border-left-color: var(--color-text-muted);
+    }
+    .scope-out .dod-item {
+      color: var(--color-text-muted);
+    }
+    .scope-x {
+      margin-right: var(--space-2);
+      color: var(--color-red);
+      font-weight: var(--weight-semibold);
+    }
+
+    /* ===== USER STORIES ===== */
+    .user-stories {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      margin-bottom: var(--space-5);
+    }
+    .user-stories h2 {
+      font-size: var(--text-h2);
+      margin-bottom: var(--space-4);
+    }
+    .story {
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-border);
+      font-size: var(--text-body-sm);
+      color: var(--color-text-secondary);
+      display: flex;
+      gap: var(--space-3);
+    }
+    .story:last-child { border-bottom: none; }
+    .story-number {
+      color: var(--color-purple);
+      font-weight: var(--weight-semibold);
+      min-width: 3ch;
+      flex-shrink: 0;
+    }
+    .story-role { color: var(--color-purple-light); font-weight: var(--weight-semibold); }
+    .story-want { color: var(--color-text); }
+    .story-so { color: var(--color-text-muted); }
+
+    /* ===== DIAGRAM ===== */
+    .diagram-container {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      margin: var(--space-5) 0;
+      overflow-x: auto;
+    }
+    .diagram-title {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-4);
+    }
+    .mermaid {
+      display: flex;
+      justify-content: center;
+    }
+
+    /* ===== COLLAPSIBLE SPEC SECTIONS ===== */
+    .spec-section {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-3);
+      overflow: hidden;
+    }
+    .spec-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4);
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s ease;
+    }
+    .spec-header:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .spec-chevron {
+      transition: transform 0.2s ease;
+      color: var(--color-text-muted);
+      flex-shrink: 0;
+    }
+    .spec-section.open .spec-chevron {
+      transform: rotate(90deg);
+    }
+    .spec-title {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      flex: 1;
+    }
+    .spec-body {
+      padding: 0 var(--space-4) var(--space-4);
+      display: none;
+    }
+    .spec-section.open .spec-body {
+      display: block;
+    }
+    .spec-body p {
+      font-size: var(--text-body-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-3);
+      line-height: 1.7;
+    }
+
+    /* ===== DATA TABLES ===== */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: var(--space-3) 0;
+      font-size: var(--text-body-sm);
+    }
+    .data-table th {
+      background: var(--color-surface-alt);
+      color: var(--color-purple-light);
+      font-weight: var(--weight-semibold);
+      text-align: left;
+      padding: var(--space-2) var(--space-3);
+      border-bottom: 2px solid var(--color-purple);
+      font-size: var(--text-caption);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .data-table td {
+      padding: var(--space-2) var(--space-3);
+      border-bottom: 1px solid var(--color-border);
+      color: var(--color-text-secondary);
+      font-family: var(--font-mono);
+    }
+    .data-table tr:hover td {
+      background: rgba(97, 100, 255, 0.04);
+    }
+    .data-table .skip {
+      color: var(--color-red);
+      font-weight: var(--weight-semibold);
+      font-family: var(--font-main);
+    }
+
+    /* ===== OPERATOR CALLOUT ===== */
+    .operator-callout {
+      border-left: 3px solid var(--color-yellow);
+      background: rgba(255, 203, 0, 0.06);
+      padding: var(--space-3) var(--space-4);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin: var(--space-3) 0;
+      font-size: var(--text-body-sm);
+      color: var(--color-text-secondary);
+    }
+    .operator-tag {
+      font-weight: var(--weight-semibold);
+      color: var(--color-yellow);
+      font-size: var(--text-caption);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-1);
+    }
+
+    /* ===== ACCEPTANCE CRITERIA ===== */
+    .acceptance-criteria {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      margin: var(--space-5) 0;
+    }
+    .acceptance-criteria h2 {
+      font-size: var(--text-h2);
+      margin-bottom: var(--space-4);
+    }
+    .ac-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-border);
+      font-size: var(--text-body-sm);
+      line-height: 1.7;
+    }
+    .ac-item:last-child { border-bottom: none; }
+    .ac-item input[type="checkbox"] {
+      accent-color: var(--color-green);
+      margin-top: 4px;
+      flex-shrink: 0;
+    }
+    .ac-number {
+      color: var(--color-purple);
+      font-weight: var(--weight-semibold);
+      min-width: 3ch;
+      flex-shrink: 0;
+    }
+    .ac-given { color: var(--color-text-muted); }
+    .ac-when { color: var(--color-purple-light); }
+    .ac-then { color: var(--color-green); }
+
+    /* ===== OPEN QUESTIONS ===== */
+    .open-question {
+      background: rgba(97, 100, 255, 0.06);
+      border-left: 3px solid var(--color-purple);
+      padding: var(--space-3) var(--space-4);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin: var(--space-3) 0;
+      font-size: var(--text-body-sm);
+      color: var(--color-text-secondary);
+    }
+    .question-owner {
+      font-size: var(--text-caption);
+      color: var(--color-purple-light);
+      margin-top: var(--space-1);
+    }
+
+    /* ===== MILESTONES ===== */
+    .milestone {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      margin-bottom: var(--space-5);
+    }
+    .milestone-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-3);
+    }
+    .milestone-title {
+      font-size: var(--text-h2);
+    }
+    .milestone-meta {
+      font-size: var(--text-caption);
+      color: var(--color-text-muted);
+    }
+    .milestone-done {
+      font-size: var(--text-body-sm);
+      color: var(--color-text-muted);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border);
+    }
+    .milestone-scope {
+      font-size: var(--text-body-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-3);
+    }
+
+    /* ===== PERFORMANCE SPEC ===== */
+    .perf-spec {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      margin: var(--space-5) 0;
+    }
+    .perf-spec h2 {
+      font-size: var(--text-h2);
+      margin-bottom: var(--space-4);
+    }
+    .perf-item {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--space-2) 0;
+      border-bottom: 1px solid var(--color-border);
+      font-size: var(--text-body-sm);
+    }
+    .perf-item:last-child { border-bottom: none; }
+    .perf-label { color: var(--color-text-muted); }
+    .perf-value {
+      color: var(--color-text);
+      font-weight: var(--weight-semibold);
+      font-family: var(--font-mono);
+    }
+
+    /* ===== CODE BLOCK ===== */
+    .code-block {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin: var(--space-3) 0;
+      overflow-x: auto;
+    }
+    .code-block pre {
+      font-family: var(--font-mono);
+      font-size: var(--text-body-sm);
+      line-height: 1.5;
+      color: var(--color-text-secondary);
+      white-space: pre;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <div class="plan-header">
+    <h1 class="plan-title">Event Lead Ingest Agent</h1>
+    <p class="plan-goal">
+      Automate the ingestion of event contact CSVs from monday.com into HubSpot using the Submissions API. The agent normalizes inconsistent headers from three distinct source formats into high-fidelity HubSpot records, unlocking precise attribution and automated sales sequencing.
+    </p>
+    <div class="meta-badges">
+      <span class="badge badge-purple">monday.com</span>
+      <span class="badge badge-purple">HubSpot API</span>
+      <span class="badge badge-purple">n8n</span>
+      <span class="badge badge-yellow">3 CSV formats</span>
+      <span class="badge badge-green">Effort: M (3-5 days)</span>
+    </div>
+  </div>
+
+  <!-- ===== PROGRESS ===== -->
+  <div class="progress-bar-container">
+    <span class="progress-label" id="progress-text">0 of 7 criteria met</span>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+
+  <!-- ===== DEFINITION OF DONE ===== -->
+  <div class="dod-section">
+    <h2>Definition of Done</h2>
+    <div class="dod-item"><input type="checkbox" class="dod-checkbox"> All 3 CSV source formats are correctly detected, mapped, and ingested into HubSpot</div>
+    <div class="dod-item"><input type="checkbox" class="dod-checkbox"> monday.com item status updates to <code>Done &#10003;</code> (no errors) or <code>Done &#9888; [N] errors</code></div>
+    <div class="dod-item"><input type="checkbox" class="dod-checkbox"> Slack notification sent with final Success / Skip / Fail totals</div>
+    <div class="dod-item"><input type="checkbox" class="dod-checkbox"> Agent handles 100 rows in ~70 minutes with zero HubSpot rate limit violations</div>
+  </div>
+
+  <!-- ===== SCOPE BOUNDARY ===== -->
+  <div class="dod-section scope-out">
+    <h2>Out of Scope</h2>
+    <div class="dod-item"><span class="scope-x">&#10005;</span> Deduplication of contacts already in HubSpot (handled by HubSpot's native dedup on email)</div>
+    <div class="dod-item"><span class="scope-x">&#10005;</span> Enrichment of contact data from third-party sources (Clearbit, ZoomInfo, etc.)</div>
+    <div class="dod-item"><span class="scope-x">&#10005;</span> Retroactive processing of historical event CSVs uploaded before agent launch</div>
+  </div>
+
+  <!-- ===== USER STORIES ===== -->
+  <div class="user-stories">
+    <h2>User Stories</h2>
+    <div class="story">
+      <span class="story-number">1.</span>
+      <span><span class="story-role">As an event marketing manager,</span> <span class="story-want">I want to upload a CSV of event contacts to a monday.com item,</span> <span class="story-so">so that the contacts are automatically pushed into HubSpot without manual data entry.</span></span>
+    </div>
+    <div class="story">
+      <span class="story-number">2.</span>
+      <span><span class="story-role">As an event marketing manager,</span> <span class="story-want">I want the agent to auto-detect which CSV format was uploaded (Standard, StrategyInsights, or Manual Scans),</span> <span class="story-so">so that I don't have to manually select a template or rename columns.</span></span>
+    </div>
+    <div class="story">
+      <span class="story-number">3.</span>
+      <span><span class="story-role">As a sales rep,</span> <span class="story-want">I want each contact's event lead notes and demo interest preserved in HubSpot,</span> <span class="story-so">so that I have context when following up after the event.</span></span>
+    </div>
+    <div class="story">
+      <span class="story-number">4.</span>
+      <span><span class="story-role">As an ops manager,</span> <span class="story-want">I want the monday.com item status to update automatically with a success/error count,</span> <span class="story-so">so that I can see at a glance whether the ingest completed cleanly.</span></span>
+    </div>
+    <div class="story">
+      <span class="story-number">5.</span>
+      <span><span class="story-role">As an ops manager,</span> <span class="story-want">I want a Slack notification with the final Success/Skip/Fail totals,</span> <span class="story-so">so that I don't have to check monday.com to know the result.</span></span>
+    </div>
+    <div class="story">
+      <span class="story-number">6.</span>
+      <span><span class="story-role">As an ops manager,</span> <span class="story-want">I want rows with invalid or missing emails to be skipped and logged (not crash the pipeline),</span> <span class="story-so">so that one bad row doesn't block the rest of the batch.</span></span>
+    </div>
+    <div class="story">
+      <span class="story-number">7.</span>
+      <span><span class="story-role">As a sales rep,</span> <span class="story-want">I want phone numbers normalized to E.164 format,</span> <span class="story-so">so that HubSpot's calling features work out of the box.</span></span>
+    </div>
+    <div class="story">
+      <span class="story-number">8.</span>
+      <span><span class="story-role">As an admin,</span> <span class="story-want">I want the agent to respect HubSpot's rate limits with a configurable delay,</span> <span class="story-so">so that we never get throttled or banned.</span></span>
+    </div>
+  </div>
+
+  <!-- ===== DATA FLOW ===== -->
+  <div class="diagram-container">
+    <div class="diagram-title">Data flow: CSV upload to HubSpot ingest</div>
+    <pre class="mermaid">
+flowchart LR
+  A["monday.com\n(CSV upload)"] -->|"webhook trigger"| B["n8n Agent"]
+  B -->|"detect format"| C["Normalizer"]
+  C -->|"validate & map"| D["HubSpot\nSubmissions API"]
+  D -->|"201 / 4xx"| B
+  B -->|"update status"| A
+  B -.->|"notify"| E["Slack"]
+
+  style A fill:#6164ff,color:#fff
+  style D fill:#232427,color:#c3ced8
+  style E fill:#00c875,color:#fff
+    </pre>
+  </div>
+
+  <!-- ===== TECHNICAL SPECIFICATION ===== -->
+  <h2 class="section-heading">Technical Specification</h2>
+
+  <!-- Spec: Source Format Mapping -->
+  <div class="spec-section open">
+    <div class="spec-header">
+      <span class="spec-chevron">&#9654;</span>
+      <span class="spec-title">Source Format Mapping (3 formats)</span>
+    </div>
+    <div class="spec-body">
+      <p>The agent must detect and map three distinct CSV formats. Detection is based on header matching — check for unique columns like "Saw a Product Demo?" (Format 1) or "Scanned by" (Format 3).</p>
+
+      <h3 style="font-size: var(--text-body); margin: var(--space-4) 0 var(--space-2);">Format 1: Standard Template</h3>
+      <table class="data-table">
+        <thead><tr><th>CSV Column</th><th>Normalized Field</th></tr></thead>
+        <tbody>
+          <tr><td>First Name</td><td>firstName</td></tr>
+          <tr><td>Last Name</td><td>lastName</td></tr>
+          <tr><td>Email</td><td>email</td></tr>
+          <tr><td>Company Name</td><td>companyName</td></tr>
+          <tr><td>Job Title</td><td>jobTitle</td></tr>
+          <tr><td>Country</td><td>country</td></tr>
+          <tr><td>Phone Number</td><td>phone</td></tr>
+          <tr><td>Event Name</td><td>eventName</td></tr>
+          <tr><td>Event Lead Notes</td><td>eventLeadNote</td></tr>
+          <tr><td>Saw a Product Demo?</td><td>productDemo</td></tr>
+          <tr><td>Talked to sales?</td><td>talkedToSales</td></tr>
+          <tr><td>Requested Demo?</td><td>requestedDemo</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="font-size: var(--text-body); margin: var(--space-4) 0 var(--space-2);">Format 3: Manual Scans</h3>
+      <table class="data-table">
+        <thead><tr><th>CSV Column</th><th>Normalized Field</th></tr></thead>
+        <tbody>
+          <tr><td>First Name</td><td>firstName</td></tr>
+          <tr><td>Last Name</td><td>lastName</td></tr>
+          <tr><td>Email</td><td>email</td></tr>
+          <tr><td>Company Name</td><td>companyName</td></tr>
+          <tr><td>Job title</td><td>jobTitle</td></tr>
+          <tr><td>Country</td><td>country</td></tr>
+          <tr><td>Phone Number</td><td>phone</td></tr>
+          <tr><td>Event Name</td><td>eventName</td></tr>
+          <tr><td>Event Lead Notes</td><td>eventLeadNote</td></tr>
+          <tr><td>Scanned by</td><td class="skip">SKIP</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Spec: HubSpot Property Mapping -->
+  <div class="spec-section">
+    <div class="spec-header">
+      <span class="spec-chevron">&#9654;</span>
+      <span class="spec-title">HubSpot Property Mapping</span>
+    </div>
+    <div class="spec-body">
+      <table class="data-table">
+        <thead><tr><th>Normalized Field</th><th>HubSpot Property</th></tr></thead>
+        <tbody>
+          <tr><td>firstName</td><td>firstname</td></tr>
+          <tr><td>lastName</td><td>lastname</td></tr>
+          <tr><td>email</td><td>email</td></tr>
+          <tr><td>phone</td><td>phone</td></tr>
+          <tr><td>companyName</td><td>company</td></tr>
+          <tr><td>jobTitle</td><td>event___job_title</td></tr>
+          <tr><td>eventName</td><td>event_name</td></tr>
+          <tr><td>region</td><td>region</td></tr>
+          <tr><td>eventLeadNote</td><td>event_lead_note</td></tr>
+          <tr><td>talkedToSales</td><td>talked_to_sales</td></tr>
+          <tr><td>requestedDemo</td><td>requested_demo</td></tr>
+          <tr><td>productDemo</td><td>event_product_booth</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Spec: Normalization Rules -->
+  <div class="spec-section">
+    <div class="spec-header">
+      <span class="spec-chevron">&#9654;</span>
+      <span class="spec-title">Normalization &amp; Validation Rules</span>
+    </div>
+    <div class="spec-body">
+      <p><strong>Email:</strong> Lowercase, trimmed. If missing or invalid (no <code>@</code>), row is skipped and logged to errors.</p>
+      <p><strong>Phone (E.164):</strong> Prepend country-specific prefix (US/CA: +1, FR: +33, IL: +972) and strip all non-numeric characters except <code>+</code>.</p>
+      <p><strong>Booleans:</strong> "Yes" maps to <code>true</code>; "No" or empty maps to <code>false</code>.</p>
+      <p><strong>Notes:</strong> Maximum 65,000 characters. Truncate with ellipsis if exceeded.</p>
+    </div>
+  </div>
+
+  <!-- Spec: API Configuration -->
+  <div class="spec-section">
+    <div class="spec-header">
+      <span class="spec-chevron">&#9654;</span>
+      <span class="spec-title">HubSpot API Configuration</span>
+    </div>
+    <div class="spec-body">
+      <p><strong>Endpoint:</strong> <code>POST https://api.hsforms.com/submissions/v3/integration/submit/{portalId}/{formGuid}</code></p>
+
+      <div class="operator-callout">
+        <div class="operator-tag">&#9888; Ask Operator</div>
+        What is your HubSpot <strong>Portal ID</strong>?
+      </div>
+
+      <div class="operator-callout">
+        <div class="operator-tag">&#9888; Ask Operator</div>
+        What is your HubSpot <strong>Form GUID</strong>?
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PERFORMANCE SPEC ===== -->
+  <div class="perf-spec">
+    <h2>Performance &amp; Rate Limits</h2>
+    <div class="perf-item">
+      <span class="perf-label">Execution Pattern</span>
+      <span class="perf-value">Serial (one-by-one)</span>
+    </div>
+    <div class="perf-item">
+      <span class="perf-label">Delay Between Submissions</span>
+      <span class="perf-value">40 seconds</span>
+    </div>
+    <div class="perf-item">
+      <span class="perf-label">Target Throughput</span>
+      <span class="perf-value">100 rows / ~70 min</span>
+    </div>
+    <div class="perf-item">
+      <span class="perf-label">Rate Limit Safety Margin</span>
+      <span class="perf-value">2x below HubSpot threshold</span>
+    </div>
+  </div>
+
+  <!-- ===== ACCEPTANCE CRITERIA ===== -->
+  <div class="acceptance-criteria">
+    <h2>Acceptance Criteria</h2>
+    <div class="ac-item">
+      <input type="checkbox" class="ac-checkbox">
+      <span class="ac-number">1.</span>
+      <span><span class="ac-given">GIVEN a Standard Template CSV is uploaded to a monday.com item,</span> <span class="ac-when">WHEN the agent runs,</span> <span class="ac-then">THEN all valid rows are submitted to HubSpot with correct field mapping.</span></span>
+    </div>
+    <div class="ac-item">
+      <input type="checkbox" class="ac-checkbox">
+      <span class="ac-number">2.</span>
+      <span><span class="ac-given">GIVEN a CSV row has no email or an email without <code>@</code>,</span> <span class="ac-when">WHEN the agent processes it,</span> <span class="ac-then">THEN the row is skipped and the error is logged to the summary.</span></span>
+    </div>
+    <div class="ac-item">
+      <input type="checkbox" class="ac-checkbox">
+      <span class="ac-number">3.</span>
+      <span><span class="ac-given">GIVEN a phone number "0541234567" with country "Israel",</span> <span class="ac-when">WHEN normalized,</span> <span class="ac-then">THEN the result is <code>+972541234567</code>.</span></span>
+    </div>
+    <div class="ac-item">
+      <input type="checkbox" class="ac-checkbox">
+      <span class="ac-number">4.</span>
+      <span><span class="ac-given">GIVEN a Manual Scans CSV with a "Scanned by" column,</span> <span class="ac-when">WHEN the agent maps it,</span> <span class="ac-then">THEN the "Scanned by" column is skipped entirely.</span></span>
+    </div>
+    <div class="ac-item">
+      <input type="checkbox" class="ac-checkbox">
+      <span class="ac-number">5.</span>
+      <span><span class="ac-given">GIVEN all rows are processed,</span> <span class="ac-when">WHEN the agent finishes,</span> <span class="ac-then">THEN the monday.com item status updates to "Done &#10003;" (0 errors) or "Done &#9888; [N] errors".</span></span>
+    </div>
+    <div class="ac-item">
+      <input type="checkbox" class="ac-checkbox">
+      <span class="ac-number">6.</span>
+      <span><span class="ac-given">GIVEN the agent finishes processing,</span> <span class="ac-when">WHEN results are tallied,</span> <span class="ac-then">THEN a Slack message is sent with Success / Skip / Fail counts.</span></span>
+    </div>
+    <div class="ac-item">
+      <input type="checkbox" class="ac-checkbox">
+      <span class="ac-number">7.</span>
+      <span><span class="ac-given">GIVEN 100 rows in a CSV,</span> <span class="ac-when">WHEN the agent runs with a 40-second delay,</span> <span class="ac-then">THEN processing completes in approximately 70 minutes with zero rate limit errors.</span></span>
+    </div>
+  </div>
+
+  <!-- ===== MILESTONES ===== -->
+  <h2 class="section-heading">Milestones</h2>
+
+  <div class="milestone">
+    <div class="milestone-header">
+      <h3 class="milestone-title">M1 &mdash; Format Detection &amp; Normalization</h3>
+      <span class="milestone-meta">~1.5 days</span>
+    </div>
+    <div class="milestone-scope">CSV format detection, header mapping for all 3 formats, field normalization (email, phone E.164, booleans).</div>
+    <div class="milestone-done">Done when: unit tests pass for all 3 formats, normalization produces correct output for all edge cases.</div>
+  </div>
+
+  <div class="milestone">
+    <div class="milestone-header">
+      <h3 class="milestone-title">M2 &mdash; HubSpot Submission &amp; Rate Limiting</h3>
+      <span class="milestone-meta">~1 day</span>
+    </div>
+    <div class="milestone-scope">HubSpot API integration, serial submission with 40s delay, error handling and retry logic.</div>
+    <div class="milestone-done">Done when: 100-row test CSV successfully submitted to HubSpot sandbox with correct field mapping and no rate limit violations.</div>
+  </div>
+
+  <div class="milestone">
+    <div class="milestone-header">
+      <h3 class="milestone-title">M3 &mdash; Status Reporting &amp; Notifications</h3>
+      <span class="milestone-meta">~0.5 days</span>
+    </div>
+    <div class="milestone-scope">monday.com status updates, Slack notification, error summary generation.</div>
+    <div class="milestone-done">Done when: monday.com item shows correct status, Slack message received with accurate totals.</div>
+  </div>
+
+  <!-- ===== OPEN QUESTIONS ===== -->
+  <h2 class="section-heading">Open Questions</h2>
+
+  <div class="open-question">
+    Should we retry failed submissions (e.g., HubSpot 429 or 5xx)? If so, how many retries and what backoff strategy?
+    <div class="question-owner">[ASK ENGINEERING]</div>
+  </div>
+
+  <div class="open-question">
+    Is there a preferred Slack channel for the completion notification, or should it go to a configurable webhook?
+    <div class="question-owner">[ASK OPERATOR]</div>
+  </div>
+
+  <script>
+    // Mermaid init with monday theme
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        primaryColor: '#6164ff',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#6164ff',
+        lineColor: '#c3ced8',
+        secondaryColor: '#232427',
+        tertiaryColor: '#2D3035',
+        fontFamily: 'Poppins, sans-serif',
+        fontSize: '14px',
+        nodeBorder: '#6164ff',
+        mainBkg: '#232427',
+        clusterBkg: '#2D3035',
+        edgeLabelBackground: '#232427'
+      }
+    });
+
+    // Collapsible spec sections
+    document.querySelectorAll('.spec-header').forEach(header => {
+      header.addEventListener('click', () => {
+        header.closest('.spec-section').classList.toggle('open');
+      });
+    });
+
+    // Progress tracking on acceptance criteria
+    const totalAC = document.querySelectorAll('.ac-checkbox').length;
+    function updateProgress() {
+      const checked = document.querySelectorAll('.ac-checkbox:checked').length;
+      const pct = Math.round((checked / totalAC) * 100);
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('progress-text').textContent = checked + ' of ' + totalAC + ' criteria met';
+    }
+    document.querySelectorAll('.ac-checkbox').forEach(cb => {
+      cb.addEventListener('change', updateProgress);
+    });
+  </script>
+</body>
+</html>
