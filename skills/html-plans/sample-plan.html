@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Threaded Comments on Task Cards — Implementation Plan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --color-bg: #000000;
+      --color-surface: #232427;
+      --color-surface-alt: #2D3035;
+      --color-text: #ffffff;
+      --color-text-secondary: #c3ced8;
+      --color-text-muted: #a0a0a0;
+      --color-border: rgba(255, 255, 255, 0.15);
+      --color-border-strong: rgba(255, 255, 255, 0.8);
+      --color-purple: #6164ff;
+      --color-purple-light: #8A99FF;
+      --color-green: #00c875;
+      --color-yellow: #ffcb00;
+      --color-red: #ff3d57;
+      --font-main: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'SF Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+      --weight-regular: 400;
+      --weight-semibold: 600;
+      --text-display: 4vmin;
+      --text-h1: 3.2vmin;
+      --text-h2: 2.6vmin;
+      --text-h3: 2.2vmin;
+      --text-body: 1.8vmin;
+      --text-body-sm: 1.5vmin;
+      --text-caption: 1.2vmin;
+      --space-1: 0.5vmin;
+      --space-2: 1vmin;
+      --space-3: 1.5vmin;
+      --space-4: 2vmin;
+      --space-5: 3vmin;
+      --space-6: 4vmin;
+      --space-7: 5vmin;
+      --space-8: 6vmin;
+      --space-9: 8vmin;
+      --space-10: 10vmin;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-full: 999px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-main);
+      font-weight: var(--weight-regular);
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      padding: var(--space-8) var(--space-6);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    h1, h2, h3, h4 {
+      font-weight: var(--weight-semibold);
+      line-height: 1.3;
+    }
+
+    /* Header */
+    .plan-header {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-7);
+      margin-bottom: var(--space-7);
+    }
+    .plan-title {
+      font-size: var(--text-display);
+      font-weight: var(--weight-semibold);
+      margin-bottom: var(--space-4);
+    }
+    .plan-goal {
+      font-size: var(--text-h3);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-5);
+    }
+    .plan-arch {
+      font-size: var(--text-body);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-5);
+      line-height: 1.7;
+    }
+    .meta-badges {
+      display: flex;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+    .badge {
+      background: var(--color-surface-alt);
+      color: var(--color-text-secondary);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+    }
+    .badge-purple { border: 1px solid var(--color-purple); color: var(--color-purple); }
+    .badge-green { border: 1px solid var(--color-green); color: var(--color-green); }
+    .badge-yellow { border: 1px solid var(--color-yellow); color: var(--color-yellow); }
+
+    /* Progress bar */
+    .progress-bar-container {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      padding: var(--space-4) var(--space-5);
+      margin-bottom: var(--space-7);
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+    .progress-label {
+      font-size: var(--text-body-sm);
+      color: var(--color-text-muted);
+      white-space: nowrap;
+    }
+    .progress-track {
+      flex: 1;
+      height: 8px;
+      background: var(--color-surface-alt);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--color-purple);
+      border-radius: var(--radius-full);
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+
+    /* DOD */
+    .dod-section {
+      background: var(--color-surface);
+      border-left: 3px solid var(--color-purple);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      margin-bottom: var(--space-7);
+    }
+    .dod-section h2 {
+      font-size: var(--text-h2);
+      margin-bottom: var(--space-3);
+    }
+    .dod-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-2);
+      padding: var(--space-2) 0;
+      color: var(--color-text-secondary);
+      font-size: var(--text-body);
+    }
+    .dod-item input[type="checkbox"] {
+      accent-color: var(--color-purple);
+      margin-top: 3px;
+      flex-shrink: 0;
+    }
+
+    /* Diagram */
+    .diagram-container {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      margin: var(--space-5) 0 var(--space-7) 0;
+      overflow-x: auto;
+    }
+    .diagram-title {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-4);
+    }
+    .mermaid {
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Milestones */
+    .milestone {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      margin-bottom: var(--space-5);
+    }
+    .milestone-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-4);
+    }
+    .milestone-title {
+      font-size: var(--text-h2);
+    }
+    .milestone-meta {
+      font-size: var(--text-caption);
+      color: var(--color-text-muted);
+    }
+    .milestone-done {
+      font-size: var(--text-body-sm);
+      color: var(--color-text-muted);
+      margin-top: var(--space-2);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border);
+    }
+
+    /* Tasks */
+    .task {
+      background: var(--color-surface-alt);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-3);
+      overflow: hidden;
+    }
+    .task-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4);
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s ease;
+    }
+    .task-header:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .task-chevron {
+      transition: transform 0.2s ease;
+      color: var(--color-text-muted);
+      flex-shrink: 0;
+    }
+    .task.open .task-chevron {
+      transform: rotate(90deg);
+    }
+    .task-number {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      color: var(--color-purple);
+      min-width: 3ch;
+    }
+    .task-name {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      flex: 1;
+    }
+    .task-files {
+      font-size: var(--text-caption);
+      color: var(--color-text-muted);
+    }
+    .task-body {
+      padding: 0 var(--space-4) var(--space-4);
+      display: none;
+    }
+    .task.open .task-body {
+      display: block;
+    }
+
+    /* Files list in task body */
+    .files-list {
+      margin-bottom: var(--space-4);
+    }
+    .files-list-title {
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-2);
+    }
+    .file-entry {
+      font-family: var(--font-mono);
+      font-size: var(--text-body-sm);
+      color: var(--color-text-secondary);
+      padding: var(--space-1) 0;
+    }
+    .file-action {
+      color: var(--color-green);
+      font-weight: var(--weight-semibold);
+      font-family: var(--font-main);
+      font-size: var(--text-caption);
+      margin-right: var(--space-2);
+    }
+    .file-action.modify { color: var(--color-yellow); }
+    .file-action.test { color: var(--color-purple-light); }
+
+    /* Code block */
+    .code-block {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin: var(--space-3) 0;
+      overflow-x: auto;
+    }
+    .code-block pre {
+      font-family: var(--font-mono);
+      font-size: var(--text-body-sm);
+      line-height: 1.5;
+      color: var(--color-text-secondary);
+      white-space: pre;
+      margin: 0;
+    }
+    .code-block .code-comment { color: var(--color-text-muted); }
+    .code-block .code-key { color: var(--color-purple-light); }
+    .code-block .code-value { color: var(--color-yellow); }
+    .code-block .code-keyword { color: var(--color-purple); }
+    .code-block .code-string { color: var(--color-green); }
+    .code-label {
+      font-family: var(--font-mono);
+      font-size: var(--text-caption);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-2);
+    }
+
+    /* Steps */
+    .step {
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .step:last-child { border-bottom: none; }
+    .step-label {
+      font-size: var(--text-body-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--color-purple-light);
+      margin-bottom: var(--space-2);
+    }
+    .step-text {
+      font-size: var(--text-body-sm);
+      color: var(--color-text-secondary);
+    }
+    .step-command {
+      font-family: var(--font-mono);
+      font-size: var(--text-body-sm);
+      background: var(--color-bg);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-sm);
+      color: var(--color-text-secondary);
+      margin: var(--space-2) 0;
+    }
+    .step-expected {
+      font-size: var(--text-caption);
+      color: var(--color-text-muted);
+      font-style: italic;
+    }
+
+    /* Task DOD */
+    .task-dod {
+      margin-top: var(--space-4);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border);
+    }
+    .task-dod-title {
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-2);
+    }
+
+    /* Risk callout */
+    .risk-callout {
+      border-left: 3px solid var(--color-yellow);
+      background: rgba(255, 203, 0, 0.06);
+      padding: var(--space-3) var(--space-4);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin: var(--space-3) 0;
+      font-size: var(--text-body-sm);
+    }
+    .risk-callout.high {
+      border-left-color: var(--color-red);
+      background: rgba(255, 61, 87, 0.06);
+    }
+    .risk-label {
+      font-weight: var(--weight-semibold);
+      color: var(--color-yellow);
+      font-size: var(--text-caption);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-1);
+    }
+    .risk-callout.high .risk-label { color: var(--color-red); }
+
+    /* Open question */
+    .open-question {
+      background: rgba(97, 100, 255, 0.06);
+      border-left: 3px solid var(--color-purple);
+      padding: var(--space-3) var(--space-4);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin: var(--space-3) 0;
+      font-size: var(--text-body-sm);
+    }
+    .question-owner {
+      font-size: var(--text-caption);
+      color: var(--color-purple-light);
+      margin-top: var(--space-1);
+    }
+
+    /* Section heading */
+    .section-heading {
+      font-size: var(--text-h2);
+      margin-bottom: var(--space-4);
+      margin-top: var(--space-5);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <div class="plan-header">
+    <h1 class="plan-title">Threaded Comments on Task Cards</h1>
+    <p class="plan-goal">Users can add comments (with one level of nested replies) to any task card, with real-time delivery via WebSocket and per-user unread tracking.</p>
+    <p class="plan-arch">
+      New <code>Comment</code> and <code>CommentRead</code> Prisma models store comments and read receipts. A tRPC router exposes CRUD + list endpoints behind the <code>task_comments_v1</code> feature flag. The client subscribes to a tRPC WebSocket subscription for live comment events. React Query handles cache invalidation on mutation and on incoming WS events. Unread counts are computed server-side via a left-join on <code>CommentRead</code>.
+    </p>
+    <div class="meta-badges">
+      <span class="badge badge-purple">Next.js 14 App Router</span>
+      <span class="badge badge-purple">Prisma 5</span>
+      <span class="badge badge-purple">tRPC v11</span>
+      <span class="badge badge-purple">React Query</span>
+      <span class="badge badge-yellow">Flag: task_comments_v1</span>
+      <span class="badge badge-green">Effort: M (3-5 days)</span>
+    </div>
+  </div>
+
+  <!-- ===== PROGRESS ===== -->
+  <div class="progress-bar-container">
+    <span class="progress-label" id="progress-text">0 of 7 tasks</span>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+
+  <!-- ===== DOD ===== -->
+  <div class="dod-section">
+    <h2>Definition of Done (Project)</h2>
+    <div class="dod-item"><input type="checkbox" class="project-dod-checkbox"> Users can create, list, and reply to comments on any task card (one nesting level)</div>
+    <div class="dod-item"><input type="checkbox" class="project-dod-checkbox"> Comments appear in real-time for all connected users via WebSocket</div>
+    <div class="dod-item"><input type="checkbox" class="project-dod-checkbox"> Unread comment count per task card is accurate and updates on view</div>
+    <div class="dod-item"><input type="checkbox" class="project-dod-checkbox"> Entire feature is gated behind <code>task_comments_v1</code> flag and tested in staging</div>
+    <div class="dod-item"><input type="checkbox" class="project-dod-checkbox"> Existing test suite passes with zero regressions</div>
+  </div>
+
+  <!-- ===== SCOPE BOUNDARY ===== -->
+  <div class="dod-section" style="border-left-color: var(--color-text-muted);">
+    <h2>Scope Boundary</h2>
+    <div class="dod-item" style="color: var(--color-text-muted);"><span style="margin-right: var(--space-2);">&#10005;</span> Comment editing and deletion are NOT in scope for v1</div>
+    <div class="dod-item" style="color: var(--color-text-muted);"><span style="margin-right: var(--space-2);">&#10005;</span> @mentions, reactions, and file attachments are deferred to v2</div>
+  </div>
+
+  <!-- ===== DATA FLOW DIAGRAM ===== -->
+  <div class="diagram-container">
+    <div class="diagram-title">Data flow: comment creation and real-time delivery</div>
+    <pre class="mermaid">
+flowchart LR
+  A[React UI] -->|"tRPC mutation"| B["tRPC Router"]
+  B -->|INSERT| C[(Prisma / DB)]
+  C -->|"row"| B
+  B -->|"201 JSON"| A
+  B -.->|"emit event"| D["WS Subscription"]
+  D -.->|"live comment"| E["Other Clients"]
+  A -->|"markAsRead"| B
+  B -->|"UPSERT CommentRead"| C
+
+  style A fill:#6164ff,color:#fff
+  style C fill:#232427,color:#c3ced8
+  style D fill:#2D3035,color:#c3ced8
+  style E fill:#00c875,color:#fff
+    </pre>
+  </div>
+
+  <!-- ===== MILESTONES ===== -->
+  <h2 class="section-heading">Milestones</h2>
+
+  <!-- Milestone 1 -->
+  <div class="milestone">
+    <div class="milestone-header">
+      <h3 class="milestone-title">M1 &mdash; Data Layer &amp; API</h3>
+      <span class="milestone-meta">Tasks 1-3 &middot; ~1.5 days</span>
+    </div>
+    <div class="milestone-done">Done when: Prisma schema migrated, tRPC CRUD router works end-to-end in integration tests, feature flag gates all endpoints.</div>
+  </div>
+
+  <!-- Milestone 2 -->
+  <div class="milestone">
+    <div class="milestone-header">
+      <h3 class="milestone-title">M2 &mdash; Real-Time &amp; Unread Tracking</h3>
+      <span class="milestone-meta">Tasks 4-5 &middot; ~1 day</span>
+    </div>
+    <div class="milestone-done">Done when: WebSocket subscription broadcasts new comments to all task subscribers, unread counts are accurate per user.</div>
+  </div>
+
+  <!-- Milestone 3 -->
+  <div class="milestone">
+    <div class="milestone-header">
+      <h3 class="milestone-title">M3 &mdash; UI &amp; Verification</h3>
+      <span class="milestone-meta">Tasks 6-7 &middot; ~1.5 days</span>
+    </div>
+    <div class="milestone-done">Done when: Comment panel renders on task cards, replies nest correctly, real-time updates work in UI, E2E test passes.</div>
+  </div>
+
+  <!-- ===== TASKS ===== -->
+  <h2 class="section-heading">Tasks</h2>
+
+  <!-- ==================== TASK 1 ==================== -->
+  <div class="task">
+    <div class="task-header">
+      <span class="task-chevron">&#9654;</span>
+      <span class="task-number">01</span>
+      <span class="task-name">Prisma Schema &amp; Migration</span>
+      <span class="task-files">2 files</span>
+    </div>
+    <div class="task-body">
+      <div class="files-list">
+        <div class="files-list-title">Files</div>
+        <div class="file-entry"><span class="file-action modify">Modify</span>prisma/schema.prisma</div>
+        <div class="file-entry"><span class="file-action">Create</span>prisma/migrations/YYYYMMDD_add_comments/migration.sql</div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 1: Add Comment and CommentRead models to Prisma schema</div>
+        <div class="code-block"><pre><span class="code-keyword">model</span> <span class="code-key">Comment</span> {
+  <span class="code-key">id</span>        <span class="code-value">String</span>   @id @default(cuid())
+  <span class="code-key">body</span>      <span class="code-value">String</span>   @db.Text
+  <span class="code-key">taskId</span>    <span class="code-value">String</span>
+  <span class="code-key">authorId</span>  <span class="code-value">String</span>
+  <span class="code-key">parentId</span>  <span class="code-value">String?</span>  <span class="code-comment">// null = top-level, set = reply</span>
+  <span class="code-key">createdAt</span> <span class="code-value">DateTime</span> @default(now())
+
+  <span class="code-key">task</span>      <span class="code-value">Task</span>     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  <span class="code-key">author</span>    <span class="code-value">User</span>     @relation(fields: [authorId], references: [id])
+  <span class="code-key">parent</span>    <span class="code-value">Comment?</span> @relation("CommentThread", fields: [parentId], references: [id], onDelete: Cascade)
+  <span class="code-key">replies</span>   <span class="code-value">Comment[]</span> @relation("CommentThread")
+  <span class="code-key">reads</span>     <span class="code-value">CommentRead[]</span>
+
+  @@index([taskId, createdAt])
+  @@index([parentId])
+}
+
+<span class="code-keyword">model</span> <span class="code-key">CommentRead</span> {
+  <span class="code-key">id</span>        <span class="code-value">String</span>   @id @default(cuid())
+  <span class="code-key">commentId</span> <span class="code-value">String</span>
+  <span class="code-key">userId</span>    <span class="code-value">String</span>
+  <span class="code-key">readAt</span>    <span class="code-value">DateTime</span> @default(now())
+
+  <span class="code-key">comment</span>   <span class="code-value">Comment</span>  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  <span class="code-key">user</span>      <span class="code-value">User</span>     @relation(fields: [userId], references: [id])
+
+  @@unique([commentId, userId])
+  @@index([userId])
+}</pre></div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 2: Generate and apply migration</div>
+        <div class="step-command">npx prisma migrate dev --name add_comments</div>
+        <div class="step-expected">Expected: Migration applied, Prisma client regenerated</div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 3: Verify migration</div>
+        <div class="step-command">npx prisma db push --dry-run</div>
+        <div class="step-expected">Expected: "No changes detected" — schema and DB are in sync</div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 4: Commit</div>
+        <div class="step-command">git add prisma/ && git commit -m "feat(comments): add Comment and CommentRead schema models"</div>
+      </div>
+
+      <div class="task-dod">
+        <div class="task-dod-title">Definition of Done</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="1"> Migration runs cleanly on a fresh database</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="1"> <code>prisma db push --dry-run</code> shows no drift</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="1"> Self-referential relation enforces max 1 nesting level via app logic</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TASK 2 ==================== -->
+  <div class="task">
+    <div class="task-header">
+      <span class="task-chevron">&#9654;</span>
+      <span class="task-number">02</span>
+      <span class="task-name">Feature Flag Gate</span>
+      <span class="task-files">2 files</span>
+    </div>
+    <div class="task-body">
+      <div class="files-list">
+        <div class="files-list-title">Files</div>
+        <div class="file-entry"><span class="file-action modify">Modify</span>src/lib/feature-flags.ts</div>
+        <div class="file-entry"><span class="file-action">Create</span>src/server/trpc/middleware/featureFlag.ts</div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 1: Register the flag constant</div>
+        <div class="code-block"><pre><span class="code-comment">// src/lib/feature-flags.ts</span>
+<span class="code-keyword">export const</span> <span class="code-key">FLAGS</span> = {
+  ...existingFlags,
+  <span class="code-key">TASK_COMMENTS_V1</span>: <span class="code-string">'task_comments_v1'</span>,
+} <span class="code-keyword">as const</span>;</pre></div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 2: Create reusable tRPC middleware for flag checking</div>
+        <div class="code-block"><pre><span class="code-comment">// src/server/trpc/middleware/featureFlag.ts</span>
+<span class="code-keyword">import</span> { TRPCError } <span class="code-keyword">from</span> <span class="code-string">'@trpc/server'</span>;
+<span class="code-keyword">import</span> { t } <span class="code-keyword">from</span> <span class="code-string">'../trpc'</span>;
+<span class="code-keyword">import</span> { isFeatureEnabled } <span class="code-keyword">from</span> <span class="code-string">'@/lib/feature-flags'</span>;
+
+<span class="code-keyword">export const</span> <span class="code-key">requireFlag</span> = (flag: <span class="code-value">string</span>) =>
+  t.middleware(<span class="code-keyword">async</span> ({ ctx, next }) => {
+    <span class="code-keyword">if</span> (!<span class="code-keyword">await</span> isFeatureEnabled(flag, ctx.session.user.id)) {
+      <span class="code-keyword">throw new</span> TRPCError({ code: <span class="code-string">'NOT_FOUND'</span> });
+    }
+    <span class="code-keyword">return</span> next();
+  });</pre></div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 3: Commit</div>
+        <div class="step-command">git add src/lib/feature-flags.ts src/server/trpc/middleware/featureFlag.ts && git commit -m "feat(comments): add task_comments_v1 flag and tRPC middleware"</div>
+      </div>
+
+      <div class="task-dod">
+        <div class="task-dod-title">Definition of Done</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="2"> Flag constant exported and usable</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="2"> Middleware returns 404 when flag is off</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="2"> <code>npm test</code> passes with zero regressions</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TASK 3 ==================== -->
+  <div class="task">
+    <div class="task-header">
+      <span class="task-chevron">&#9654;</span>
+      <span class="task-number">03</span>
+      <span class="task-name">tRPC Comment Router (CRUD)</span>
+      <span class="task-files">3 files</span>
+    </div>
+    <div class="task-body">
+      <div class="files-list">
+        <div class="files-list-title">Files</div>
+        <div class="file-entry"><span class="file-action">Create</span>src/server/trpc/routers/comment.ts</div>
+        <div class="file-entry"><span class="file-action modify">Modify</span>src/server/trpc/routers/_app.ts</div>
+        <div class="file-entry"><span class="file-action test">Test</span>src/server/trpc/routers/__tests__/comment.test.ts</div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 1: Write failing integration tests</div>
+        <div class="code-block"><pre><span class="code-comment">// src/server/trpc/routers/__tests__/comment.test.ts</span>
+<span class="code-keyword">import</span> { createTestCaller } <span class="code-keyword">from</span> <span class="code-string">'@/test/trpc-helpers'</span>;
+
+describe(<span class="code-string">'comment router'</span>, () => {
+  it(<span class="code-string">'creates a top-level comment'</span>, <span class="code-keyword">async</span> () => {
+    <span class="code-keyword">const</span> caller = <span class="code-keyword">await</span> createTestCaller({ flag: <span class="code-string">'task_comments_v1'</span> });
+    <span class="code-keyword">const</span> result = <span class="code-keyword">await</span> caller.comment.create({
+      taskId: <span class="code-string">'task-1'</span>,
+      body: <span class="code-string">'Hello world'</span>,
+    });
+    expect(result.id).toBeDefined();
+    expect(result.parentId).toBeNull();
+  });
+
+  it(<span class="code-string">'creates a reply (one level deep)'</span>, <span class="code-keyword">async</span> () => {
+    <span class="code-keyword">const</span> caller = <span class="code-keyword">await</span> createTestCaller({ flag: <span class="code-string">'task_comments_v1'</span> });
+    <span class="code-keyword">const</span> parent = <span class="code-keyword">await</span> caller.comment.create({
+      taskId: <span class="code-string">'task-1'</span>, body: <span class="code-string">'Parent'</span>,
+    });
+    <span class="code-keyword">const</span> reply = <span class="code-keyword">await</span> caller.comment.create({
+      taskId: <span class="code-string">'task-1'</span>, body: <span class="code-string">'Reply'</span>, parentId: parent.id,
+    });
+    expect(reply.parentId).toBe(parent.id);
+  });
+
+  it(<span class="code-string">'rejects nested replies (depth > 1)'</span>, <span class="code-keyword">async</span> () => {
+    <span class="code-keyword">const</span> caller = <span class="code-keyword">await</span> createTestCaller({ flag: <span class="code-string">'task_comments_v1'</span> });
+    <span class="code-keyword">const</span> p = <span class="code-keyword">await</span> caller.comment.create({ taskId: <span class="code-string">'task-1'</span>, body: <span class="code-string">'A'</span> });
+    <span class="code-keyword">const</span> r = <span class="code-keyword">await</span> caller.comment.create({ taskId: <span class="code-string">'task-1'</span>, body: <span class="code-string">'B'</span>, parentId: p.id });
+    <span class="code-keyword">await</span> expect(
+      caller.comment.create({ taskId: <span class="code-string">'task-1'</span>, body: <span class="code-string">'C'</span>, parentId: r.id })
+    ).rejects.toThrow(<span class="code-string">'BAD_REQUEST'</span>);
+  });
+
+  it(<span class="code-string">'lists comments with replies for a task'</span>, <span class="code-keyword">async</span> () => {
+    <span class="code-keyword">const</span> caller = <span class="code-keyword">await</span> createTestCaller({ flag: <span class="code-string">'task_comments_v1'</span> });
+    <span class="code-keyword">await</span> caller.comment.create({ taskId: <span class="code-string">'task-1'</span>, body: <span class="code-string">'Top'</span> });
+    <span class="code-keyword">const</span> list = <span class="code-keyword">await</span> caller.comment.list({ taskId: <span class="code-string">'task-1'</span> });
+    expect(list).toHaveLength(1);
+    expect(list[0].replies).toBeDefined();
+  });
+});</pre></div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 2: Run tests to confirm they fail</div>
+        <div class="step-command">npx vitest run src/server/trpc/routers/__tests__/comment.test.ts</div>
+        <div class="step-expected">Expected: FAIL — module not found</div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 3: Implement the comment router</div>
+        <div class="code-block"><pre><span class="code-comment">// src/server/trpc/routers/comment.ts</span>
+<span class="code-keyword">import</span> { z } <span class="code-keyword">from</span> <span class="code-string">'zod'</span>;
+<span class="code-keyword">import</span> { router, protectedProcedure } <span class="code-keyword">from</span> <span class="code-string">'../trpc'</span>;
+<span class="code-keyword">import</span> { requireFlag } <span class="code-keyword">from</span> <span class="code-string">'../middleware/featureFlag'</span>;
+<span class="code-keyword">import</span> { FLAGS } <span class="code-keyword">from</span> <span class="code-string">'@/lib/feature-flags'</span>;
+<span class="code-keyword">import</span> { TRPCError } <span class="code-keyword">from</span> <span class="code-string">'@trpc/server'</span>;
+
+<span class="code-keyword">const</span> flaggedProcedure = protectedProcedure.use(requireFlag(FLAGS.TASK_COMMENTS_V1));
+
+<span class="code-keyword">export const</span> <span class="code-key">commentRouter</span> = router({
+  <span class="code-key">create</span>: flaggedProcedure
+    .input(z.object({
+      taskId: z.string(),
+      body: z.string().min(1).max(5000),
+      parentId: z.string().optional(),
+    }))
+    .mutation(<span class="code-keyword">async</span> ({ ctx, input }) => {
+      <span class="code-comment">// Enforce max 1 level of nesting</span>
+      <span class="code-keyword">if</span> (input.parentId) {
+        <span class="code-keyword">const</span> parent = <span class="code-keyword">await</span> ctx.prisma.comment.findUnique({
+          where: { id: input.parentId },
+          select: { parentId: <span class="code-value">true</span> },
+        });
+        <span class="code-keyword">if</span> (!parent) <span class="code-keyword">throw new</span> TRPCError({ code: <span class="code-string">'NOT_FOUND'</span> });
+        <span class="code-keyword">if</span> (parent.parentId) <span class="code-keyword">throw new</span> TRPCError({
+          code: <span class="code-string">'BAD_REQUEST'</span>,
+          message: <span class="code-string">'Replies cannot be nested more than one level'</span>,
+        });
+      }
+      <span class="code-keyword">return</span> ctx.prisma.comment.create({
+        data: {
+          body: input.body,
+          taskId: input.taskId,
+          authorId: ctx.session.user.id,
+          parentId: input.parentId ?? <span class="code-value">null</span>,
+        },
+        include: { author: { select: { id: <span class="code-value">true</span>, name: <span class="code-value">true</span>, image: <span class="code-value">true</span> } } },
+      });
+    }),
+
+  <span class="code-key">list</span>: flaggedProcedure
+    .input(z.object({ taskId: z.string() }))
+    .query(<span class="code-keyword">async</span> ({ ctx, input }) => {
+      <span class="code-keyword">return</span> ctx.prisma.comment.findMany({
+        where: { taskId: input.taskId, parentId: <span class="code-value">null</span> },
+        orderBy: { createdAt: <span class="code-string">'asc'</span> },
+        include: {
+          author: { select: { id: <span class="code-value">true</span>, name: <span class="code-value">true</span>, image: <span class="code-value">true</span> } },
+          replies: {
+            orderBy: { createdAt: <span class="code-string">'asc'</span> },
+            include: { author: { select: { id: <span class="code-value">true</span>, name: <span class="code-value">true</span>, image: <span class="code-value">true</span> } } },
+          },
+          _count: { select: { reads: { where: { userId: ctx.session.user.id } } } },
+        },
+      });
+    }),
+});</pre></div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 4: Register router in app router</div>
+        <div class="code-block"><pre><span class="code-comment">// src/server/trpc/routers/_app.ts — add:</span>
+<span class="code-keyword">import</span> { commentRouter } <span class="code-keyword">from</span> <span class="code-string">'./comment'</span>;
+
+<span class="code-keyword">export const</span> appRouter = router({
+  ...existingRouters,
+  <span class="code-key">comment</span>: commentRouter,
+});</pre></div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 5: Run tests to confirm they pass</div>
+        <div class="step-command">npx vitest run src/server/trpc/routers/__tests__/comment.test.ts</div>
+        <div class="step-expected">Expected: 4 tests PASS</div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 6: Commit</div>
+        <div class="step-command">git add src/server/trpc/routers/comment.ts src/server/trpc/routers/_app.ts src/server/trpc/routers/__tests__/comment.test.ts && git commit -m "feat(comments): tRPC comment router with CRUD and nesting guard"</div>
+      </div>
+
+      <div class="risk-callout">
+        <div class="risk-label">Risk</div>
+        The self-referential Comment relation allows arbitrary nesting at the DB level. The one-level limit is enforced in application code only. Mitigation: the <code>create</code> mutation explicitly checks <code>parent.parentId</code> and rejects deeper nesting. A DB-level constraint is not feasible with Prisma self-relations.
+      </div>
+
+      <div class="task-dod">
+        <div class="task-dod-title">Definition of Done</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="3"> All 4 integration tests pass</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="3"> Router returns 404 when flag is disabled</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="3"> Nesting beyond depth 1 returns BAD_REQUEST</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="3"> <code>npm test</code> full suite green</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TASK 4 ==================== -->
+  <div class="task">
+    <div class="task-header">
+      <span class="task-chevron">&#9654;</span>
+      <span class="task-number">04</span>
+      <span class="task-name">WebSocket Subscription for Live Comments</span>
+      <span class="task-files">2 files</span>
+    </div>
+    <div class="task-body">
+      <div class="files-list">
+        <div class="files-list-title">Files</div>
+        <div class="file-entry"><span class="file-action modify">Modify</span>src/server/trpc/routers/comment.ts</div>
+        <div class="file-entry"><span class="file-action">Create</span>src/server/trpc/routers/__tests__/comment-ws.test.ts</div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 1: Write failing test for WS subscription</div>
+        <div class="code-block"><pre><span class="code-comment">// src/server/trpc/routers/__tests__/comment-ws.test.ts</span>
+<span class="code-keyword">import</span> { createTestCaller } <span class="code-keyword">from</span> <span class="code-string">'@/test/trpc-helpers'</span>;
+
+describe(<span class="code-string">'comment.onNew subscription'</span>, () => {
+  it(<span class="code-string">'emits when a comment is created for the subscribed task'</span>, <span class="code-keyword">async</span> () => {
+    <span class="code-keyword">const</span> caller = <span class="code-keyword">await</span> createTestCaller({ flag: <span class="code-string">'task_comments_v1'</span> });
+    <span class="code-keyword">const</span> sub = <span class="code-keyword">await</span> caller.comment.onNew({ taskId: <span class="code-string">'task-1'</span> });
+    <span class="code-comment">// Create a comment from another caller</span>
+    <span class="code-keyword">const</span> caller2 = <span class="code-keyword">await</span> createTestCaller({ flag: <span class="code-string">'task_comments_v1'</span>, userId: <span class="code-string">'user-2'</span> });
+    <span class="code-keyword">await</span> caller2.comment.create({ taskId: <span class="code-string">'task-1'</span>, body: <span class="code-string">'Live!'</span> });
+
+    <span class="code-keyword">const</span> event = <span class="code-keyword">await</span> sub.next();
+    expect(event.value.body).toBe(<span class="code-string">'Live!'</span>);
+  });
+});</pre></div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 2: Run test to verify it fails</div>
+        <div class="step-command">npx vitest run src/server/trpc/routers/__tests__/comment-ws.test.ts</div>
+        <div class="step-expected">Expected: FAIL — onNew is not a function</div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 3: Add EventEmitter and subscription to comment router</div>
+        <div class="code-block"><pre><span class="code-comment">// Add to src/server/trpc/routers/comment.ts</span>
+<span class="code-keyword">import</span> { observable } <span class="code-keyword">from</span> <span class="code-string">'@trpc/server/observable'</span>;
+<span class="code-keyword">import</span> { EventEmitter } <span class="code-keyword">from</span> <span class="code-string">'events'</span>;
+
+<span class="code-keyword">const</span> commentEvents = <span class="code-keyword">new</span> EventEmitter();
+
+<span class="code-comment">// Inside commentRouter, add subscription:</span>
+<span class="code-key">onNew</span>: flaggedProcedure
+  .input(z.object({ taskId: z.string() }))
+  .subscription(({ input }) => {
+    <span class="code-keyword">return</span> observable&lt;Comment&gt;((emit) => {
+      <span class="code-keyword">const</span> handler = (comment: Comment) => {
+        <span class="code-keyword">if</span> (comment.taskId === input.taskId) {
+          emit.next(comment);
+        }
+      };
+      commentEvents.on(<span class="code-string">'created'</span>, handler);
+      <span class="code-keyword">return</span> () => commentEvents.off(<span class="code-string">'created'</span>, handler);
+    });
+  }),
+
+<span class="code-comment">// In the create mutation, after prisma.comment.create:</span>
+commentEvents.emit(<span class="code-string">'created'</span>, newComment);</pre></div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 4: Run tests to confirm green</div>
+        <div class="step-command">npx vitest run src/server/trpc/routers/__tests__/comment-ws.test.ts</div>
+        <div class="step-expected">Expected: 1 test PASS</div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 5: Commit</div>
+        <div class="step-command">git add src/server/trpc/routers/comment.ts src/server/trpc/routers/__tests__/comment-ws.test.ts && git commit -m "feat(comments): add WebSocket subscription for real-time comments"</div>
+      </div>
+
+      <div class="risk-callout">
+        <div class="risk-label">Risk</div>
+        In-process EventEmitter works for a single-server deployment. For multi-server (horizontal scaling), swap to Redis Pub/Sub. Mitigation: the EventEmitter is isolated behind a simple emit/on interface — replacing it with Redis later requires changing only the emitter module, not the router.
+      </div>
+
+      <div class="task-dod">
+        <div class="task-dod-title">Definition of Done</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="4"> Subscription test passes</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="4"> Events only fire for matching taskId</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="4"> <code>npm test</code> full suite green</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TASK 5 ==================== -->
+  <div class="task">
+    <div class="task-header">
+      <span class="task-chevron">&#9654;</span>
+      <span class="task-number">05</span>
+      <span class="task-name">Unread Tracking (markAsRead + unread count)</span>
+      <span class="task-files">2 files</span>
+    </div>
+    <div class="task-body">
+      <div class="files-list">
+        <div class="files-list-title">Files</div>
+        <div class="file-entry"><span class="file-action modify">Modify</span>src/server/trpc/routers/comment.ts</div>
+        <div class="file-entry"><span class="file-action">Create</span>src/server/trpc/routers/__tests__/comment-unread.test.ts</div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 1: Write failing tests for unread tracking</div>
+        <div class="code-block"><pre>describe(<span class="code-string">'unread tracking'</span>, () => {
+  it(<span class="code-string">'returns unread count for a task'</span>, <span class="code-keyword">async</span> () => {
+    <span class="code-keyword">const</span> caller = <span class="code-keyword">await</span> createTestCaller({ flag: <span class="code-string">'task_comments_v1'</span> });
+    <span class="code-keyword">await</span> caller.comment.create({ taskId: <span class="code-string">'task-1'</span>, body: <span class="code-string">'A'</span> });
+    <span class="code-keyword">await</span> caller.comment.create({ taskId: <span class="code-string">'task-1'</span>, body: <span class="code-string">'B'</span> });
+
+    <span class="code-keyword">const</span> caller2 = <span class="code-keyword">await</span> createTestCaller({ flag: <span class="code-string">'task_comments_v1'</span>, userId: <span class="code-string">'user-2'</span> });
+    <span class="code-keyword">const</span> count = <span class="code-keyword">await</span> caller2.comment.unreadCount({ taskId: <span class="code-string">'task-1'</span> });
+    expect(count).toBe(2);
+  });
+
+  it(<span class="code-string">'markAsRead resets unread count'</span>, <span class="code-keyword">async</span> () => {
+    <span class="code-keyword">const</span> caller = <span class="code-keyword">await</span> createTestCaller({ flag: <span class="code-string">'task_comments_v1'</span> });
+    <span class="code-keyword">await</span> caller.comment.create({ taskId: <span class="code-string">'task-1'</span>, body: <span class="code-string">'A'</span> });
+
+    <span class="code-keyword">const</span> caller2 = <span class="code-keyword">await</span> createTestCaller({ flag: <span class="code-string">'task_comments_v1'</span>, userId: <span class="code-string">'user-2'</span> });
+    <span class="code-keyword">await</span> caller2.comment.markAsRead({ taskId: <span class="code-string">'task-1'</span> });
+    <span class="code-keyword">const</span> count = <span class="code-keyword">await</span> caller2.comment.unreadCount({ taskId: <span class="code-string">'task-1'</span> });
+    expect(count).toBe(0);
+  });
+});</pre></div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 2: Run test to verify it fails</div>
+        <div class="step-command">npx vitest run src/server/trpc/routers/__tests__/comment-unread.test.ts</div>
+        <div class="step-expected">Expected: FAIL — unreadCount is not a function</div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 3: Add unreadCount query and markAsRead mutation</div>
+        <div class="code-block"><pre><span class="code-comment">// Add to commentRouter in src/server/trpc/routers/comment.ts</span>
+
+<span class="code-key">unreadCount</span>: flaggedProcedure
+  .input(z.object({ taskId: z.string() }))
+  .query(<span class="code-keyword">async</span> ({ ctx, input }) => {
+    <span class="code-keyword">const</span> total = <span class="code-keyword">await</span> ctx.prisma.comment.count({
+      where: { taskId: input.taskId },
+    });
+    <span class="code-keyword">const</span> read = <span class="code-keyword">await</span> ctx.prisma.commentRead.count({
+      where: {
+        userId: ctx.session.user.id,
+        comment: { taskId: input.taskId },
+      },
+    });
+    <span class="code-keyword">return</span> total - read;
+  }),
+
+<span class="code-key">markAsRead</span>: flaggedProcedure
+  .input(z.object({ taskId: z.string() }))
+  .mutation(<span class="code-keyword">async</span> ({ ctx, input }) => {
+    <span class="code-keyword">const</span> comments = <span class="code-keyword">await</span> ctx.prisma.comment.findMany({
+      where: { taskId: input.taskId },
+      select: { id: <span class="code-value">true</span> },
+    });
+    <span class="code-keyword">const</span> data = comments.map((c) => ({
+      commentId: c.id,
+      userId: ctx.session.user.id,
+    }));
+    <span class="code-keyword">await</span> ctx.prisma.commentRead.createMany({
+      data,
+      skipDuplicates: <span class="code-value">true</span>,
+    });
+    <span class="code-keyword">return</span> { success: <span class="code-value">true</span> };
+  }),</pre></div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 4: Run tests to confirm green</div>
+        <div class="step-command">npx vitest run src/server/trpc/routers/__tests__/comment-unread.test.ts</div>
+        <div class="step-expected">Expected: 2 tests PASS</div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 5: Commit</div>
+        <div class="step-command">git add src/server/trpc/routers/comment.ts src/server/trpc/routers/__tests__/comment-unread.test.ts && git commit -m "feat(comments): add unread count query and markAsRead mutation"</div>
+      </div>
+
+      <div class="task-dod">
+        <div class="task-dod-title">Definition of Done</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="5"> Unread count returns correct value for different users</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="5"> markAsRead creates CommentRead rows with skipDuplicates</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="5"> <code>npm test</code> full suite green</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TASK 6 ==================== -->
+  <div class="task">
+    <div class="task-header">
+      <span class="task-chevron">&#9654;</span>
+      <span class="task-number">06</span>
+      <span class="task-name">React UI: Comment Panel Component</span>
+      <span class="task-files">4 files</span>
+    </div>
+    <div class="task-body">
+      <div class="files-list">
+        <div class="files-list-title">Files</div>
+        <div class="file-entry"><span class="file-action">Create</span>src/components/comments/CommentPanel.tsx</div>
+        <div class="file-entry"><span class="file-action">Create</span>src/components/comments/CommentThread.tsx</div>
+        <div class="file-entry"><span class="file-action">Create</span>src/components/comments/CommentInput.tsx</div>
+        <div class="file-entry"><span class="file-action modify">Modify</span>src/components/tasks/TaskCard.tsx</div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 1: Create CommentInput — controlled textarea with submit</div>
+        <div class="code-block"><pre><span class="code-comment">// src/components/comments/CommentInput.tsx</span>
+<span class="code-string">'use client'</span>;
+<span class="code-keyword">import</span> { useState } <span class="code-keyword">from</span> <span class="code-string">'react'</span>;
+<span class="code-keyword">import</span> { trpc } <span class="code-keyword">from</span> <span class="code-string">'@/lib/trpc'</span>;
+
+<span class="code-keyword">export function</span> <span class="code-key">CommentInput</span>({ taskId, parentId, onSubmit }: {
+  taskId: <span class="code-value">string</span>;
+  parentId?: <span class="code-value">string</span>;
+  onSubmit?: () => <span class="code-value">void</span>;
+}) {
+  <span class="code-keyword">const</span> [body, setBody] = useState(<span class="code-string">''</span>);
+  <span class="code-keyword">const</span> utils = trpc.useUtils();
+  <span class="code-keyword">const</span> create = trpc.comment.create.useMutation({
+    onSuccess: () => {
+      setBody(<span class="code-string">''</span>);
+      utils.comment.list.invalidate({ taskId });
+      utils.comment.unreadCount.invalidate({ taskId });
+      onSubmit?.();
+    },
+  });
+
+  <span class="code-keyword">return</span> (
+    &lt;form onSubmit={(e) => {
+      e.preventDefault();
+      <span class="code-keyword">if</span> (!body.trim()) <span class="code-keyword">return</span>;
+      create.mutate({ taskId, body: body.trim(), parentId });
+    }}>
+      &lt;textarea
+        value={body}
+        onChange={(e) => setBody(e.target.value)}
+        placeholder={parentId ? <span class="code-string">"Write a reply..."</span> : <span class="code-string">"Add a comment..."</span>}
+        rows={2}
+      />
+      &lt;button type=<span class="code-string">"submit"</span> disabled={!body.trim() || create.isPending}>
+        {create.isPending ? <span class="code-string">'Sending...'</span> : <span class="code-string">'Send'</span>}
+      &lt;/button>
+    &lt;/form>
+  );
+}</pre></div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 2: Create CommentThread — renders a comment with its replies</div>
+        <div class="code-block"><pre><span class="code-comment">// src/components/comments/CommentThread.tsx</span>
+<span class="code-string">'use client'</span>;
+<span class="code-keyword">import</span> { useState } <span class="code-keyword">from</span> <span class="code-string">'react'</span>;
+<span class="code-keyword">import</span> { CommentInput } <span class="code-keyword">from</span> <span class="code-string">'./CommentInput'</span>;
+<span class="code-keyword">import type</span> { RouterOutput } <span class="code-keyword">from</span> <span class="code-string">'@/lib/trpc'</span>;
+
+<span class="code-keyword">type</span> Comment = RouterOutput[<span class="code-string">'comment'</span>][<span class="code-string">'list'</span>][number];
+
+<span class="code-keyword">export function</span> <span class="code-key">CommentThread</span>({ comment, taskId }: {
+  comment: Comment; taskId: <span class="code-value">string</span>;
+}) {
+  <span class="code-keyword">const</span> [showReply, setShowReply] = useState(<span class="code-value">false</span>);
+
+  <span class="code-keyword">return</span> (
+    &lt;div className=<span class="code-string">"comment-thread"</span>>
+      &lt;div className=<span class="code-string">"comment"</span>>
+        &lt;strong>{comment.author.name}&lt;/strong>
+        &lt;span className=<span class="code-string">"comment-time"</span>>{formatTime(comment.createdAt)}&lt;/span>
+        &lt;p>{comment.body}&lt;/p>
+        &lt;button onClick={() => setShowReply(!showReply)}>Reply&lt;/button>
+      &lt;/div>
+      {comment.replies?.map((reply) => (
+        &lt;div key={reply.id} className=<span class="code-string">"reply"</span>>
+          &lt;strong>{reply.author.name}&lt;/strong>
+          &lt;span className=<span class="code-string">"comment-time"</span>>{formatTime(reply.createdAt)}&lt;/span>
+          &lt;p>{reply.body}&lt;/p>
+        &lt;/div>
+      ))}
+      {showReply && (
+        &lt;CommentInput
+          taskId={taskId}
+          parentId={comment.id}
+          onSubmit={() => setShowReply(<span class="code-value">false</span>)}
+        />
+      )}
+    &lt;/div>
+  );
+}</pre></div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 3: Create CommentPanel — orchestrates list, subscription, and unread tracking</div>
+        <div class="code-block"><pre><span class="code-comment">// src/components/comments/CommentPanel.tsx</span>
+<span class="code-string">'use client'</span>;
+<span class="code-keyword">import</span> { useEffect } <span class="code-keyword">from</span> <span class="code-string">'react'</span>;
+<span class="code-keyword">import</span> { trpc } <span class="code-keyword">from</span> <span class="code-string">'@/lib/trpc'</span>;
+<span class="code-keyword">import</span> { CommentThread } <span class="code-keyword">from</span> <span class="code-string">'./CommentThread'</span>;
+<span class="code-keyword">import</span> { CommentInput } <span class="code-keyword">from</span> <span class="code-string">'./CommentInput'</span>;
+
+<span class="code-keyword">export function</span> <span class="code-key">CommentPanel</span>({ taskId }: { taskId: <span class="code-value">string</span> }) {
+  <span class="code-keyword">const</span> utils = trpc.useUtils();
+  <span class="code-keyword">const</span> { data: comments, isLoading } = trpc.comment.list.useQuery({ taskId });
+  <span class="code-keyword">const</span> markAsRead = trpc.comment.markAsRead.useMutation({
+    onSuccess: () => utils.comment.unreadCount.invalidate({ taskId }),
+  });
+
+  <span class="code-comment">// Subscribe to live updates</span>
+  trpc.comment.onNew.useSubscription({ taskId }, {
+    onData: () => {
+      utils.comment.list.invalidate({ taskId });
+      utils.comment.unreadCount.invalidate({ taskId });
+    },
+  });
+
+  <span class="code-comment">// Mark as read when panel opens</span>
+  useEffect(() => {
+    markAsRead.mutate({ taskId });
+  }, [taskId]);
+
+  <span class="code-keyword">if</span> (isLoading) <span class="code-keyword">return</span> &lt;div>Loading comments...&lt;/div>;
+
+  <span class="code-keyword">return</span> (
+    &lt;div className=<span class="code-string">"comment-panel"</span>>
+      {comments?.map((comment) => (
+        &lt;CommentThread key={comment.id} comment={comment} taskId={taskId} />
+      ))}
+      &lt;CommentInput taskId={taskId} />
+    &lt;/div>
+  );
+}</pre></div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 4: Wire into TaskCard behind feature flag</div>
+        <div class="code-block"><pre><span class="code-comment">// src/components/tasks/TaskCard.tsx — add inside the card:</span>
+<span class="code-keyword">import</span> { CommentPanel } <span class="code-keyword">from</span> <span class="code-string">'@/components/comments/CommentPanel'</span>;
+<span class="code-keyword">import</span> { useFeatureFlag } <span class="code-keyword">from</span> <span class="code-string">'@/hooks/useFeatureFlag'</span>;
+
+<span class="code-comment">// Inside TaskCard component:</span>
+<span class="code-keyword">const</span> commentsEnabled = useFeatureFlag(<span class="code-string">'task_comments_v1'</span>);
+<span class="code-keyword">const</span> { data: unreadCount } = trpc.comment.unreadCount.useQuery(
+  { taskId: task.id },
+  { enabled: commentsEnabled },
+);
+
+<span class="code-comment">// In JSX, add a toggle button + panel:</span>
+{commentsEnabled && (
+  &lt;>
+    &lt;button onClick={() => setShowComments(!showComments)}>
+      Comments {unreadCount ? `(${unreadCount})` : <span class="code-string">''</span>}
+    &lt;/button>
+    {showComments && &lt;CommentPanel taskId={task.id} />}
+  &lt;/>
+)}</pre></div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 5: Commit</div>
+        <div class="step-command">git add src/components/comments/ src/components/tasks/TaskCard.tsx && git commit -m "feat(comments): add CommentPanel UI with real-time updates and unread badge"</div>
+      </div>
+
+      <div class="task-dod">
+        <div class="task-dod-title">Definition of Done</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="6"> CommentPanel renders list of comments with replies</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="6"> CommentInput submits and clears on success</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="6"> Unread badge shows count on TaskCard</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="6"> Panel hidden when feature flag is off</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="6"> <code>npm test</code> full suite green</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TASK 7 (VERIFICATION) ==================== -->
+  <div class="task">
+    <div class="task-header">
+      <span class="task-chevron">&#9654;</span>
+      <span class="task-number">07</span>
+      <span class="task-name">End-to-End Verification</span>
+      <span class="task-files">1 file</span>
+    </div>
+    <div class="task-body">
+      <div class="files-list">
+        <div class="files-list-title">Files</div>
+        <div class="file-entry"><span class="file-action test">Test</span>e2e/comments.spec.ts</div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 1: Write E2E test covering the full flow</div>
+        <div class="code-block"><pre><span class="code-comment">// e2e/comments.spec.ts</span>
+<span class="code-keyword">import</span> { test, expect } <span class="code-keyword">from</span> <span class="code-string">'@playwright/test'</span>;
+
+test.describe(<span class="code-string">'Threaded comments E2E'</span>, () => {
+  test(<span class="code-string">'full comment lifecycle'</span>, <span class="code-keyword">async</span> ({ page, context }) => {
+    <span class="code-comment">// Enable feature flag for test user</span>
+    <span class="code-keyword">await</span> enableFlag(<span class="code-string">'task_comments_v1'</span>, testUser.id);
+
+    <span class="code-comment">// 1. Navigate to a task card</span>
+    <span class="code-keyword">await</span> page.goto(<span class="code-string">'/boards/test-board'</span>);
+    <span class="code-keyword">await</span> page.click(<span class="code-string">'[data-testid="task-card-1"]'</span>);
+
+    <span class="code-comment">// 2. Open comments panel</span>
+    <span class="code-keyword">await</span> page.click(<span class="code-string">'button:has-text("Comments")'</span>);
+
+    <span class="code-comment">// 3. Add a top-level comment</span>
+    <span class="code-keyword">await</span> page.fill(<span class="code-string">'textarea'</span>, <span class="code-string">'First comment from E2E'</span>);
+    <span class="code-keyword">await</span> page.click(<span class="code-string">'button:has-text("Send")'</span>);
+    <span class="code-keyword">await</span> expect(page.locator(<span class="code-string">'.comment-thread'</span>)).toContainText(<span class="code-string">'First comment from E2E'</span>);
+
+    <span class="code-comment">// 4. Reply to the comment</span>
+    <span class="code-keyword">await</span> page.click(<span class="code-string">'button:has-text("Reply")'</span>);
+    <span class="code-keyword">await</span> page.fill(<span class="code-string">'.reply textarea'</span>, <span class="code-string">'A reply'</span>);
+    <span class="code-keyword">await</span> page.click(<span class="code-string">'button:has-text("Send")'</span>);
+    <span class="code-keyword">await</span> expect(page.locator(<span class="code-string">'.reply'</span>)).toContainText(<span class="code-string">'A reply'</span>);
+
+    <span class="code-comment">// 5. Verify real-time: open second tab as different user</span>
+    <span class="code-keyword">const</span> page2 = <span class="code-keyword">await</span> context.newPage();
+    <span class="code-keyword">await</span> loginAs(page2, <span class="code-string">'user-2'</span>);
+    <span class="code-keyword">await</span> page2.goto(<span class="code-string">'/boards/test-board'</span>);
+    <span class="code-keyword">await</span> page2.click(<span class="code-string">'[data-testid="task-card-1"]'</span>);
+
+    <span class="code-comment">// 6. Verify unread badge shows on user-2's task card</span>
+    <span class="code-keyword">await</span> expect(page2.locator(<span class="code-string">'button:has-text("Comments (2)")'</span>)).toBeVisible();
+
+    <span class="code-comment">// 7. Open panel — unread clears</span>
+    <span class="code-keyword">await</span> page2.click(<span class="code-string">'button:has-text("Comments")'</span>);
+    <span class="code-keyword">await</span> expect(page2.locator(<span class="code-string">'button:has-text("Comments (2)")'</span>)).not.toBeVisible();
+
+    <span class="code-comment">// 8. User-1 posts another comment — verify real-time delivery to user-2</span>
+    <span class="code-keyword">await</span> page.fill(<span class="code-string">'textarea'</span>, <span class="code-string">'Live comment'</span>);
+    <span class="code-keyword">await</span> page.click(<span class="code-string">'button:has-text("Send")'</span>);
+    <span class="code-keyword">await</span> expect(page2.locator(<span class="code-string">'.comment-thread'</span>)).toContainText(<span class="code-string">'Live comment'</span>);
+
+    <span class="code-comment">// 9. Verify flag-off state</span>
+    <span class="code-keyword">await</span> disableFlag(<span class="code-string">'task_comments_v1'</span>, testUser.id);
+    <span class="code-keyword">await</span> page.reload();
+    <span class="code-keyword">await</span> expect(page.locator(<span class="code-string">'button:has-text("Comments")'</span>)).not.toBeVisible();
+  });
+});</pre></div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 2: Run the E2E test</div>
+        <div class="step-command">npx playwright test e2e/comments.spec.ts --headed</div>
+        <div class="step-expected">Expected: 1 test PASS — full lifecycle verified</div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 3: Run full test suite to confirm no regressions</div>
+        <div class="step-command">npm test</div>
+        <div class="step-expected">Expected: All tests PASS, zero regressions</div>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Step 4: Final commit</div>
+        <div class="step-command">git add e2e/comments.spec.ts && git commit -m "test(comments): add E2E verification for threaded comments lifecycle"</div>
+      </div>
+
+      <div class="task-dod">
+        <div class="task-dod-title">Definition of Done</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="7"> E2E test passes: create, reply, real-time, unread tracking</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="7"> Feature hidden when flag is disabled</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="7"> <code>npm test</code> full suite green, zero regressions</div>
+        <div class="dod-item"><input type="checkbox" class="task-dod-checkbox" data-task="7"> PR reviewed and approved</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Mermaid init with monday theme
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        primaryColor: '#6164ff',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#6164ff',
+        lineColor: '#c3ced8',
+        secondaryColor: '#232427',
+        tertiaryColor: '#2D3035',
+        fontFamily: 'Poppins, sans-serif',
+        fontSize: '14px',
+        nodeBorder: '#6164ff',
+        mainBkg: '#232427',
+        clusterBkg: '#2D3035',
+        edgeLabelBackground: '#232427',
+        actorBkg: '#6164ff',
+        actorTextColor: '#ffffff',
+        actorLineColor: '#c3ced8',
+        signalColor: '#c3ced8',
+        signalTextColor: '#ffffff',
+        activationBkgColor: '#2D3035',
+        sequenceNumberColor: '#ffffff'
+      }
+    });
+
+    // Collapsible toggle logic
+    document.querySelectorAll('.task-header').forEach(header => {
+      header.addEventListener('click', () => {
+        header.closest('.task').classList.toggle('open');
+      });
+    });
+
+    // Open first task by default
+    const firstTask = document.querySelector('.task');
+    if (firstTask) firstTask.classList.add('open');
+
+    // Progress tracking
+    const totalTasks = 7;
+    function updateProgress() {
+      const allCheckboxes = document.querySelectorAll('.task-dod-checkbox');
+      const taskCompletion = {};
+      allCheckboxes.forEach(cb => {
+        const taskNum = cb.getAttribute('data-task');
+        if (!taskCompletion[taskNum]) taskCompletion[taskNum] = { total: 0, checked: 0 };
+        taskCompletion[taskNum].total++;
+        if (cb.checked) taskCompletion[taskNum].checked++;
+      });
+
+      let completedTasks = 0;
+      for (const t in taskCompletion) {
+        if (taskCompletion[t].checked === taskCompletion[t].total) completedTasks++;
+      }
+
+      const pct = Math.round((completedTasks / totalTasks) * 100);
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('progress-text').textContent = completedTasks + ' of ' + totalTasks + ' tasks';
+    }
+
+    document.querySelectorAll('.task-dod-checkbox').forEach(cb => {
+      cb.addEventListener('change', updateProgress);
+    });
+  </script>
+</body>
+</html>
