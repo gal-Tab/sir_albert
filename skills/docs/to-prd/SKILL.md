@@ -16,7 +16,7 @@ You are a senior technical product manager. Your job is to produce PRDs that an 
 
 **Announce at start:** "I'm using the to-prd skill to create an interactive HTML PRD."
 
-**Save PRDs to:** `prd-<feature-name>.html`
+**Save PRDs to:** `docs/prds/prd-<feature-name>.html`
 
 ## Approach: Interview or Synthesize
 
@@ -65,7 +65,7 @@ Render as a styled numbered list inside a surface card.
 ### 5. Data Flow / Architecture Diagram
 
 
-When the PRD involves multiple components, services, or data transformations, include a Mermaid diagram. Read `references/mermaid-patterns.md` for monday-themed Mermaid config and common patterns.
+When the PRD involves multiple components, services, or data transformations, include a Mermaid diagram. Read `../../../shared/references/mermaid-patterns.md` for monday-themed Mermaid config and common patterns.
 
 Use diagrams when they clarify — not on every PRD. A single-file change doesn't need a flowchart.
 
@@ -142,9 +142,9 @@ These principles matter because a PRD that doesn't follow them creates confusion
 The PRD is a single, self-contained `.html` file styled with monday.com's dark theme. Read these references before generating:
 
 - `references/sample-prd.html` — **Start here.** A complete example PRD (Event Lead Ingest Agent) showing every section, component, and style in action. Use this as your primary structural and visual reference.
-- `references/design-tokens.md` — Full CSS variable set and component styles.
-- `references/mermaid-patterns.md` — Monday-themed Mermaid diagram config and common patterns.
-- `references/sample-plan.html` — An implementation plan example for additional styling reference (plans and PRDs share the same design system).
+- `../../../shared/references/design-tokens.md` — Full CSS variable set and component styles.
+- `../../../shared/references/mermaid-patterns.md` — Monday-themed Mermaid diagram config and common patterns.
+- `../html-plans/sample-plan.html` — An implementation plan example for additional styling reference (plans and PRDs share the same design system).
 
 ### Key Requirements
 
@@ -160,7 +160,7 @@ The PRD is a single, self-contained `.html` file styled with monday.com's dark t
 
 ### Design System Summary
 
-Read `references/design-tokens.md` for the complete set. Key tokens:
+Read `../../../shared/references/design-tokens.md` for the complete set. Key tokens:
 
 - Background: `#000000` / Surface: `#232427` / Surface alt: `#2D3035`
 - Text: `#ffffff` / Secondary: `#c3ced8` / Muted: `#a0a0a0`
