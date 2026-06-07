@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>sir_albert Repo Reorganization — Implementation Plan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --color-bg: #000000;
+      --color-surface: #232427;
+      --color-surface-alt: #2D3035;
+      --color-border: #3a3d42;
+      --color-text: #ffffff;
+      --color-text-secondary: #c3ced8;
+      --color-text-muted: #a0a0a0;
+      --color-purple: #6164ff;
+      --color-purple-light: #8b8eff;
+      --color-green: #00c875;
+      --color-yellow: #ffcb00;
+      --color-red: #ff3d57;
+      --font-main: 'Poppins', sans-serif;
+      --font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      --weight-normal: 400;
+      --weight-semibold: 600;
+      --space-1: 0.5vmin;
+      --space-2: 1vmin;
+      --space-3: 1.5vmin;
+      --space-4: 2vmin;
+      --space-5: 2.5vmin;
+      --space-6: 3vmin;
+      --space-8: 4vmin;
+      --space-10: 5vmin;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --text-xs: clamp(9px, 1.2vmin, 11px);
+      --text-sm: clamp(11px, 1.5vmin, 13px);
+      --text-body: clamp(13px, 1.8vmin, 15px);
+      --text-lg: clamp(15px, 2.2vmin, 18px);
+      --text-xl: clamp(18px, 2.8vmin, 24px);
+      --text-2xl: clamp(22px, 3.5vmin, 32px);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-main);
+      background: var(--color-bg);
+      color: var(--color-text);
+      font-size: var(--text-body);
+      line-height: 1.6;
+      padding: var(--space-6) var(--space-4);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .plan-header {
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: var(--space-6);
+      margin-bottom: var(--space-6);
+    }
+
+    .plan-badge {
+      display: inline-block;
+      background: rgba(97, 100, 255, 0.15);
+      color: var(--color-purple-light);
+      border: 1px solid rgba(97, 100, 255, 0.3);
+      border-radius: 20px;
+      padding: 2px 12px;
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: var(--space-3);
+    }
+
+    .plan-title {
+      font-size: var(--text-2xl);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text);
+      margin-bottom: var(--space-2);
+    }
+
+    .plan-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      margin-top: var(--space-4);
+    }
+
+    .plan-meta-item {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-2) var(--space-3);
+      font-size: var(--text-sm);
+    }
+
+    .plan-meta-item .label {
+      color: var(--color-text-muted);
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .plan-meta-item .value {
+      color: var(--color-text-secondary);
+      font-weight: var(--weight-semibold);
+    }
+
+    /* Progress bar */
+    .progress-bar-wrap {
+      margin: var(--space-4) 0;
+    }
+
+    .progress-label {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-1);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .progress-bar {
+      height: 4px;
+      background: var(--color-surface-alt);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--color-green);
+      border-radius: 2px;
+      width: 100%;
+      transition: width 0.3s;
+    }
+
+    /* TOC */
+    .toc {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+
+    .toc-title {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: var(--space-3);
+    }
+
+    .toc-list {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+
+    .toc-list a {
+      color: var(--color-purple-light);
+      text-decoration: none;
+      font-size: var(--text-sm);
+      background: rgba(97, 100, 255, 0.08);
+      padding: 3px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(97, 100, 255, 0.2);
+      transition: background 0.2s;
+    }
+
+    .toc-list a:hover { background: rgba(97, 100, 255, 0.18); }
+
+    /* Sections */
+    .section {
+      margin-bottom: var(--space-8);
+    }
+
+    .section-title {
+      font-size: var(--text-xl);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text);
+      margin-bottom: var(--space-4);
+      padding-bottom: var(--space-2);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    /* DOD */
+    .dod-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .dod-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-2);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+    }
+
+    .dod-item input[type="checkbox"] {
+      margin-top: 2px;
+      accent-color: var(--color-green);
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .dod-item label {
+      color: var(--color-text-secondary);
+      font-size: var(--text-body);
+      cursor: pointer;
+    }
+
+    /* Structure diagram */
+    .structure-block {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+    }
+
+    /* Mermaid diagram */
+    .mermaid-wrap {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      overflow-x: auto;
+    }
+
+    /* Milestones */
+    .milestones {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+
+    .milestone-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+    }
+
+    .milestone-card .m-num {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: var(--space-1);
+    }
+
+    .milestone-card .m-name {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      color: var(--color-purple-light);
+      margin-bottom: var(--space-2);
+    }
+
+    .milestone-card .m-tasks {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+    }
+
+    /* Tasks */
+    .task {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-3);
+      overflow: hidden;
+    }
+
+    .task-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4);
+      cursor: pointer;
+      background: var(--color-surface);
+      transition: background 0.15s;
+      user-select: none;
+    }
+
+    .task-header:hover { background: var(--color-surface-alt); }
+
+    .task-number {
+      background: rgba(97, 100, 255, 0.15);
+      color: var(--color-purple-light);
+      border: 1px solid rgba(97, 100, 255, 0.3);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      font-family: var(--font-mono);
+      flex-shrink: 0;
+    }
+
+    .task-name {
+      flex: 1;
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text);
+    }
+
+    .task-files-preview {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .task-chevron {
+      color: var(--color-text-muted);
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    .task.open .task-chevron { transform: rotate(180deg); }
+
+    .task-body {
+      display: none;
+      padding: var(--space-4);
+      background: var(--color-surface-alt);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .task.open .task-body { display: block; }
+
+    .task-section {
+      margin-bottom: var(--space-4);
+    }
+
+    .task-section-title {
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-2);
+    }
+
+    /* Code blocks */
+    pre, code {
+      font-family: var(--font-mono);
+    }
+
+    pre {
+      background: #0a0a0a;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      overflow-x: auto;
+      font-size: var(--text-sm);
+      color: #e0e0e0;
+      line-height: 1.5;
+    }
+
+    code {
+      background: rgba(97, 100, 255, 0.1);
+      color: var(--color-purple-light);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      font-size: inherit;
+    }
+
+    /* DOD in task */
+    .task-dod {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+
+    .task-dod li {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .task-dod li input { accent-color: var(--color-green); cursor: pointer; }
+
+    /* Info callouts */
+    .callout {
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      font-size: var(--text-sm);
+      margin: var(--space-3) 0;
+    }
+
+    .callout-info {
+      border-left: 3px solid var(--color-purple);
+      background: rgba(97, 100, 255, 0.07);
+      color: var(--color-text-secondary);
+    }
+
+    .callout-new {
+      border-left: 3px solid var(--color-green);
+      background: rgba(0, 200, 117, 0.06);
+      color: var(--color-text-secondary);
+    }
+
+    /* Category pill */
+    .category-pill {
+      display: inline-block;
+      border-radius: 12px;
+      padding: 2px 10px;
+      font-size: var(--text-xs);
+      font-weight: var(--weight-semibold);
+      margin-right: var(--space-1);
+    }
+
+    .cat-agentic { background: rgba(97, 100, 255, 0.15); color: #8b8eff; }
+    .cat-dev     { background: rgba(0, 200, 117, 0.12); color: #00c875; }
+    .cat-docs    { background: rgba(255, 203, 0, 0.12); color: #ffcb00; }
+    .cat-knowledge { background: rgba(255, 61, 87, 0.1); color: #ff7090; }
+    .cat-biz     { background: rgba(255, 150, 0, 0.12); color: #ffa040; }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--text-sm);
+      margin: var(--space-3) 0;
+    }
+
+    th {
+      background: var(--color-surface);
+      color: var(--color-purple-light);
+      text-align: left;
+      padding: var(--space-2) var(--space-3);
+      border-bottom: 2px solid var(--color-purple);
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: var(--space-2) var(--space-3);
+      border-bottom: 1px solid var(--color-border);
+      color: var(--color-text-secondary);
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+    }
+
+    tr:hover td { background: rgba(97, 100, 255, 0.04); }
+
+    p { margin-bottom: var(--space-3); color: var(--color-text-secondary); }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="plan-header">
+  <div class="plan-badge">Implementation Plan</div>
+  <h1 class="plan-title">sir_albert Repo Reorganization</h1>
+  <p style="color: var(--color-text-secondary); max-width: 700px;">
+    Transform the sir_albert repository from a flat collection of scripts and skills into a well-structured skills + knowledge base mono-repo with clear category conventions and a publish workflow.
+  </p>
+
+  <div class="plan-meta">
+    <div class="plan-meta-item">
+      <span class="label">Date</span>
+      <span class="value">2026-06-07</span>
+    </div>
+    <div class="plan-meta-item">
+      <span class="label">Effort</span>
+      <span class="value">S — 1 session</span>
+    </div>
+    <div class="plan-meta-item">
+      <span class="label">Skills moved</span>
+      <span class="value">10 → 5 categories</span>
+    </div>
+    <div class="plan-meta-item">
+      <span class="label">New skills</span>
+      <span class="value">kw-compound</span>
+    </div>
+    <div class="plan-meta-item">
+      <span class="label">New tools</span>
+      <span class="value">publish-skills.sh</span>
+    </div>
+    <div class="plan-meta-item">
+      <span class="label">Status</span>
+      <span class="value" style="color: var(--color-green);">✓ Complete</span>
+    </div>
+  </div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-label">
+      <span>All tasks complete</span>
+      <span id="task-count" style="color: var(--color-green);">8 / 8</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+  </div>
+</header>
+
+<!-- TOC -->
+<nav class="toc">
+  <div class="toc-title">Sections</div>
+  <ul class="toc-list">
+    <li><a href="#dod">Definition of Done</a></li>
+    <li><a href="#diagram">Architecture</a></li>
+    <li><a href="#structure">New Structure</a></li>
+    <li><a href="#milestones">Milestones</a></li>
+    <li><a href="#tasks">Tasks</a></li>
+    <li><a href="#verification">Verification</a></li>
+  </ul>
+</nav>
+
+<!-- DEFINITION OF DONE -->
+<section class="section" id="dod">
+  <h2 class="section-title">Definition of Done</h2>
+  <ul class="dod-list">
+    <li class="dod-item">
+      <input type="checkbox" id="dod1" checked>
+      <label for="dod1">All 10 skills organized into 5 category subdirs under <code>skills/</code></label>
+    </li>
+    <li class="dod-item">
+      <input type="checkbox" id="dod2" checked>
+      <label for="dod2">Shared design tokens and Mermaid patterns consolidated into <code>shared/references/</code> — zero duplication</label>
+    </li>
+    <li class="dod-item">
+      <input type="checkbox" id="dod3" checked>
+      <label for="dod3">New <code>kw-compound</code> skill created — captures session knowledge to <code>raw/</code> for kb-compile</label>
+    </li>
+    <li class="dod-item">
+      <input type="checkbox" id="dod4" checked>
+      <label for="dod4"><code>REGISTRY.md</code> documents all skills with trigger phrases and the knowledge pipeline</label>
+    </li>
+    <li class="dod-item">
+      <input type="checkbox" id="dod5" checked>
+      <label for="dod5"><code>tools/publish-skills.sh</code> syncs skills from repo to <code>~/.claude/skills/</code> (flat)</label>
+    </li>
+  </ul>
+</section>
+
+<!-- ARCHITECTURE DIAGRAM -->
+<section class="section" id="diagram">
+  <h2 class="section-title">Architecture & Data Flow</h2>
+  <div class="mermaid-wrap">
+    <pre class="mermaid">
+flowchart TD
+    subgraph repo["sir_albert repo (source of truth)"]
+        subgraph skills["skills/"]
+            AG["agentic/\nboard-of-advisors\ndevils-advocate\nself-reflection\nzoom-out"]
+            DEV["dev/\ngit-guardrails\ngithub-repo-analyzer"]
+            DOCS["docs/\nhtml-plans\nto-prd"]
+            KW["knowledge/\nkb-query\nkw-compound"]
+            BIZ["biz/\nmonday-mops-triage"]
+        end
+        SHARED["shared/references/\ndesign-tokens.md\nmermaid-patterns.md"]
+        RAW["raw/"]
+        WIKI["wiki/"]
+    end
+
+    PUBLISH["tools/publish-skills.sh"]
+    CLAUDE["~/.claude/skills/ (flat)\nboard-of-advisors\ndevils-advocate\n..."]
+
+    DOCS -->|reads| SHARED
+    KW -->|kw-compound writes| RAW
+    RAW -->|kb-compile| WIKI
+    WIKI -->|kb-query reads| KW
+
+    skills --> PUBLISH
+    PUBLISH --> CLAUDE
+    </pre>
+  </div>
+</section>
+
+<!-- NEW STRUCTURE -->
+<section class="section" id="structure">
+  <h2 class="section-title">New Repository Structure</h2>
+  <div class="structure-block">
+    <table>
+      <thead>
+        <tr><th>Category</th><th>Skills</th><th>Purpose</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="category-pill cat-agentic">agentic</span></td>
+          <td>board-of-advisors, devils-advocate, self-reflection, zoom-out</td>
+          <td>Reasoning, perspective-taking, meta-cognition</td>
+        </tr>
+        <tr>
+          <td><span class="category-pill cat-dev">dev</span></td>
+          <td>git-guardrails, github-repo-analyzer</td>
+          <td>Engineering workflow and code safety</td>
+        </tr>
+        <tr>
+          <td><span class="category-pill cat-docs">docs</span></td>
+          <td>html-plans, to-prd</td>
+          <td>Interactive HTML document generation</td>
+        </tr>
+        <tr>
+          <td><span class="category-pill cat-knowledge">knowledge</span></td>
+          <td>kb-query, kw-compound ✨</td>
+          <td>Knowledge base read/write loop</td>
+        </tr>
+        <tr>
+          <td><span class="category-pill cat-biz">biz</span></td>
+          <td>monday-mops-triage</td>
+          <td>Business process integrations</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- MILESTONES -->
+<section class="section" id="milestones">
+  <h2 class="section-title">Milestones</h2>
+  <div class="milestones">
+    <div class="milestone-card">
+      <div class="m-num">Milestone 1</div>
+      <div class="m-name">Cleanup</div>
+      <div class="m-tasks">Remove reddit skill, html-plans.zip, DS_Store</div>
+    </div>
+    <div class="milestone-card">
+      <div class="m-num">Milestone 2</div>
+      <div class="m-name">Shared Assets</div>
+      <div class="m-tasks">Consolidate duplicate design-tokens + mermaid-patterns into shared/references/</div>
+    </div>
+    <div class="milestone-card">
+      <div class="m-num">Milestone 3</div>
+      <div class="m-name">Reorganize</div>
+      <div class="m-tasks">Move all 10 skills into agentic/, dev/, docs/, knowledge/, biz/</div>
+    </div>
+    <div class="milestone-card">
+      <div class="m-num">Milestone 4</div>
+      <div class="m-name">New Skills & Docs</div>
+      <div class="m-tasks">Add kw-compound, REGISTRY.md, publish-skills.sh, rewrite README</div>
+    </div>
+  </div>
+</section>
+
+<!-- TASKS -->
+<section class="section" id="tasks">
+  <h2 class="section-title">Tasks</h2>
+
+  <div class="task open" id="t0">
+    <div class="task-header" onclick="toggleTask('t0')">
+      <span class="task-number">T0</span>
+      <span class="task-name">Cleanup — Remove stale files</span>
+      <span class="task-files-preview">skills/reddit/, skills/html-plans.zip</span>
+      <svg class="task-chevron" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L2 5h12z"/></svg>
+    </div>
+    <div class="task-body">
+      <div class="task-section">
+        <div class="task-section-title">Commands</div>
+        <pre><code>git rm -rf skills/reddit/
+rm -f skills/html-plans.zip skills/.DS_Store</code></pre>
+      </div>
+      <ul class="task-dod">
+        <li><input type="checkbox" checked> <span>reddit skill folder removed from git tracking</span></li>
+        <li><input type="checkbox" checked> <span>html-plans.zip deleted</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="task" id="t1">
+    <div class="task-header" onclick="toggleTask('t1')">
+      <span class="task-number">T1</span>
+      <span class="task-name">Create shared/references/ — consolidate design assets</span>
+      <span class="task-files-preview">shared/references/design-tokens.md, mermaid-patterns.md</span>
+      <svg class="task-chevron" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L2 5h12z"/></svg>
+    </div>
+    <div class="task-body">
+      <div class="task-section">
+        <div class="task-section-title">Files</div>
+        <p>Create: <code>shared/references/design-tokens.md</code> (moved from html-plans/references/)<br>
+        Create: <code>shared/references/mermaid-patterns.md</code> (moved from html-plans/references/)<br>
+        Delete: duplicates in html-plans/references/ and to-prd/references/</p>
+      </div>
+      <ul class="task-dod">
+        <li><input type="checkbox" checked> <span>shared/references/ created with both files</span></li>
+        <li><input type="checkbox" checked> <span>Duplicate files removed from skill folders</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="task" id="t2">
+    <div class="task-header" onclick="toggleTask('t2')">
+      <span class="task-number">T2</span>
+      <span class="task-name">Move all skills into category subdirs</span>
+      <span class="task-files-preview">skills/agentic/, skills/dev/, skills/docs/, skills/knowledge/, skills/biz/</span>
+      <svg class="task-chevron" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L2 5h12z"/></svg>
+    </div>
+    <div class="task-body">
+      <div class="task-section">
+        <div class="task-section-title">Commands</div>
+        <pre><code>git mv skills/board-of-advisors  skills/agentic/board-of-advisors
+git mv skills/devils-advocate    skills/agentic/devils-advocate
+git mv skills/self-reflection    skills/agentic/self-reflection
+git mv skills/zoom-out           skills/agentic/zoom-out
+git mv skills/git-guardrails        skills/dev/git-guardrails
+git mv skills/github-repo-analyzer  skills/dev/github-repo-analyzer
+git mv skills/html-plans  skills/docs/html-plans
+git mv skills/to-prd      skills/docs/to-prd
+git mv skills/kb-query    skills/knowledge/kb-query
+git mv skills/monday-mops-triage    skills/biz/monday-mops-triage</code></pre>
+      </div>
+      <ul class="task-dod">
+        <li><input type="checkbox" checked> <span>All 10 skills in their category subfolders</span></li>
+        <li><input type="checkbox" checked> <span>git mv used — history preserved</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="task" id="t3">
+    <div class="task-header" onclick="toggleTask('t3')">
+      <span class="task-number">T3</span>
+      <span class="task-name">Update SKILL.md path references (html-plans, to-prd)</span>
+      <span class="task-files-preview">skills/docs/html-plans/SKILL.md, skills/docs/to-prd/SKILL.md</span>
+      <svg class="task-chevron" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L2 5h12z"/></svg>
+    </div>
+    <div class="task-body">
+      <div class="task-section">
+        <div class="task-section-title">Changes</div>
+        <p><strong>html-plans/SKILL.md:</strong> 4 references changed</p>
+        <pre><code>references/design-tokens.md    → ../../../shared/references/design-tokens.md
+references/mermaid-patterns.md → ../../../shared/references/mermaid-patterns.md</code></pre>
+        <p><strong>to-prd/SKILL.md:</strong></p>
+        <pre><code>references/design-tokens.md    → ../../../shared/references/design-tokens.md
+references/mermaid-patterns.md → ../../../shared/references/mermaid-patterns.md
+references/sample-plan.html    → ../html-plans/sample-plan.html
+prd-&lt;feature&gt;.html (root)     → docs/prds/prd-&lt;feature&gt;.html</code></pre>
+      </div>
+      <ul class="task-dod">
+        <li><input type="checkbox" checked> <span>All relative paths updated correctly</span></li>
+        <li><input type="checkbox" checked> <span>to-prd output path standardized to docs/prds/</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="task" id="t4">
+    <div class="task-header" onclick="toggleTask('t4')">
+      <span class="task-number">T4</span>
+      <span class="task-name">Create kw-compound skill</span>
+      <span class="task-files-preview">skills/knowledge/kw-compound/SKILL.md (new)</span>
+      <svg class="task-chevron" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L2 5h12z"/></svg>
+    </div>
+    <div class="task-body">
+      <div class="callout callout-new">
+        ✨ New skill — adapted from EveryInc/compound-knowledge-plugin's <code>kw:compound</code> for sir_albert's raw/ → wiki/ pipeline
+      </div>
+      <div class="task-section" style="margin-top: var(--space-3);">
+        <div class="task-section-title">What kw-compound does</div>
+        <p>Closes the knowledge loop. After a session produces insights, <code>/kw-compound</code> captures 1–3 items, classifies them as <code>concept | entity | comparison | source</code>, validates with the user, and writes them to <code>raw/&lt;slug&gt;.md</code> using wiki-schema.md's frontmatter. Next <code>/kb-compile</code> run ingests them into <code>wiki/</code>.</p>
+      </div>
+      <div class="task-section">
+        <div class="task-section-title">Key guardrails</div>
+        <ul style="color: var(--color-text-secondary); font-size: var(--text-sm); padding-left: 1.5em;">
+          <li>Writes to <code>raw/</code> only — never directly to <code>wiki/</code></li>
+          <li>User approval required before every save</li>
+          <li>Uses STATED / INFERRED / UNCERTAIN confidence labels</li>
+          <li>Max 3 items per session</li>
+        </ul>
+      </div>
+      <ul class="task-dod">
+        <li><input type="checkbox" checked> <span>SKILL.md created at skills/knowledge/kw-compound/</span></li>
+        <li><input type="checkbox" checked> <span>Adapts compound-knowledge pattern to sir_albert's wiki-schema.md</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="task" id="t5">
+    <div class="task-header" onclick="toggleTask('t5')">
+      <span class="task-number">T5</span>
+      <span class="task-name">Create REGISTRY.md</span>
+      <span class="task-files-preview">REGISTRY.md (new)</span>
+      <svg class="task-chevron" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L2 5h12z"/></svg>
+    </div>
+    <div class="task-body">
+      <div class="callout callout-new">
+        ✨ New file — the definitive index of all skills with trigger phrases, paths, and the knowledge pipeline diagram
+      </div>
+      <ul class="task-dod" style="margin-top: var(--space-3);">
+        <li><input type="checkbox" checked> <span>All 11 skills listed with paths and triggers</span></li>
+        <li><input type="checkbox" checked> <span>Knowledge pipeline diagram included</span></li>
+        <li><input type="checkbox" checked> <span>"Adding a new skill" section included</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="task" id="t6">
+    <div class="task-header" onclick="toggleTask('t6')">
+      <span class="task-number">T6</span>
+      <span class="task-name">Create tools/publish-skills.sh</span>
+      <span class="task-files-preview">tools/publish-skills.sh (new, executable)</span>
+      <svg class="task-chevron" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L2 5h12z"/></svg>
+    </div>
+    <div class="task-body">
+      <div class="task-section">
+        <div class="task-section-title">Usage</div>
+        <pre><code>tools/publish-skills.sh --all            # publish all skills
+tools/publish-skills.sh html-plans       # publish one skill</code></pre>
+      </div>
+      <div class="task-section">
+        <div class="task-section-title">What it does</div>
+        <p>Finds each skill by name under the nested <code>skills/&lt;category&gt;/</code> structure and copies it to <code>~/.claude/skills/&lt;name&gt;/</code> (flat). Claude Code reads from the flat directory — the category hierarchy is for repo organization only.</p>
+      </div>
+      <ul class="task-dod">
+        <li><input type="checkbox" checked> <span>Script created and chmod +x</span></li>
+        <li><input type="checkbox" checked> <span>Handles both --all and single-skill modes</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="task" id="t7">
+    <div class="task-header" onclick="toggleTask('t7')">
+      <span class="task-number">T7</span>
+      <span class="task-name">Rewrite README.md</span>
+      <span class="task-files-preview">README.md</span>
+      <svg class="task-chevron" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 11L2 5h12z"/></svg>
+    </div>
+    <div class="task-body">
+      <div class="task-section">
+        <div class="task-section-title">New content</div>
+        <p>Updated to document both layers: skills library (with category table + publish instructions) and knowledge base (with pipeline + usage). Old README only described the KB layer.</p>
+      </div>
+      <ul class="task-dod">
+        <li><input type="checkbox" checked> <span>Skills section with category table</span></li>
+        <li><input type="checkbox" checked> <span>Publish instructions</span></li>
+        <li><input type="checkbox" checked> <span>Knowledge pipeline section retained</span></li>
+        <li><input type="checkbox" checked> <span>Full directory structure diagram</span></li>
+      </ul>
+    </div>
+  </div>
+
+</section>
+
+<!-- VERIFICATION -->
+<section class="section" id="verification">
+  <h2 class="section-title">Verification Checklist</h2>
+  <ul class="dod-list">
+    <li class="dod-item">
+      <input type="checkbox" id="v1">
+      <label for="v1">Run <code>tools/publish-skills.sh --all</code> — all 11 skills should copy to <code>~/.claude/skills/</code></label>
+    </li>
+    <li class="dod-item">
+      <input type="checkbox" id="v2">
+      <label for="v2">Start a new Claude Code session — all 11 skills appear in the skill list (including <code>kw-compound</code>)</label>
+    </li>
+    <li class="dod-item">
+      <input type="checkbox" id="v3">
+      <label for="v3">Trigger <code>board-of-advisors</code> — loads correctly from <code>skills/agentic/board-of-advisors/SKILL.md</code></label>
+    </li>
+    <li class="dod-item">
+      <input type="checkbox" id="v4">
+      <label for="v4">Trigger <code>html-plans</code> — reads <code>../../../shared/references/design-tokens.md</code> without 404</label>
+    </li>
+    <li class="dod-item">
+      <input type="checkbox" id="v5">
+      <label for="v5">Trigger <code>kw-compound</code> with "save this to the wiki" — reads wiki-schema.md, shows approval prompt before writing</label>
+    </li>
+    <li class="dod-item">
+      <input type="checkbox" id="v6">
+      <label for="v6"><code>REGISTRY.md</code> and <code>README.md</code> render cleanly on GitHub (no broken links, tables look right)</label>
+    </li>
+  </ul>
+</section>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      primaryColor: '#6164ff',
+      primaryTextColor: '#ffffff',
+      primaryBorderColor: '#6164ff',
+      lineColor: '#c3ced8',
+      secondaryColor: '#232427',
+      tertiaryColor: '#2D3035',
+      fontFamily: 'Poppins, sans-serif',
+      background: '#000000',
+      mainBkg: '#232427'
+    }
+  });
+
+  function toggleTask(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('open');
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const boxes = document.querySelectorAll('input[type="checkbox"]');
+    const checked = [...boxes].filter(b => b.checked).length;
+    const total = boxes.length;
+    const pct = total ? Math.round(checked / total * 100) : 0;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('task-count').textContent = checked + ' / ' + total + ' checks';
+  }
+
+  document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', updateProgress);
+  });
+
+  updateProgress();
+</script>
+</body>
+</html>
