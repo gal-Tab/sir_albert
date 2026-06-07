@@ -244,9 +244,15 @@ flowchart LR
 
 ## Execution Handoff
 
-After saving the plan, offer:
+After saving the plan, first ask whether it's private or shared:
 
 **"Plan saved to `docs/plans/<filename>.html`. Open it in your browser to review.**
+
+**Is this plan just for you, or do you want to share it?**
+- **Local** — keep it in `docs/plans/`; continue to the execution options below.
+- **Share** — invoke the **`/zero-to-hero`** skill to share this plan.
+
+Wait for the answer before continuing. Then offer:
 
 **Ready to execute? Two options:**
 1. **This session** — I'll implement task by task, you review between milestones
@@ -263,3 +269,4 @@ After saving the plan, offer:
 - Final task is always end-to-end verification
 - Risks inline with relevant tasks, not in a separate section
 - DRY, YAGNI, TDD, frequent commits
+- After saving, always ask whether the plan is local or to be shared (via `/zero-to-hero`)

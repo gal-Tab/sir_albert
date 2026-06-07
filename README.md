@@ -13,15 +13,15 @@ Personal AI assistant configuration for **Gal** — a skills library and structu
 
 ## Skills
 
-10 skills organized into 5 categories. See [`REGISTRY.md`](REGISTRY.md) for the full index with trigger phrases.
+11 skills organized into 5 categories. See [`REGISTRY.md`](REGISTRY.md) for the full index with trigger phrases.
 
 | Category | Skills |
 |---|---|
-| `agentic` | board-of-advisors, devils-advocate, self-reflection, zoom-out |
+| `agentic` | self-reflection, kw-compound |
 | `dev` | git-guardrails, github-repo-analyzer |
 | `docs` | html-plans, to-prd |
-| `knowledge` | kb-query, kw-compound |
-| `biz` | monday-mops-triage |
+| `knowledge` | kb-query |
+| `biz` | board-of-advisors, devils-advocate, zoom-out, monday-mops-triage |
 
 ### Publishing skills to Claude Code
 
@@ -82,11 +82,11 @@ sir_albert/
 ├── shared/
 │   └── references/      — shared design assets for docs skills
 ├── skills/
-│   ├── agentic/         — reasoning & meta-cognitive skills
+│   ├── agentic/         — meta-cognitive & knowledge-capture skills
 │   ├── dev/             — engineering workflow skills
 │   ├── docs/            — document generation skills
-│   ├── knowledge/       — knowledge base management skills
-│   └── biz/             — business process skills
+│   ├── knowledge/       — knowledge base query skills
+│   └── biz/             — business decision-making & process skills
 └── tools/
     └── publish-skills.sh  — sync skills → ~/.claude/skills/
 ```

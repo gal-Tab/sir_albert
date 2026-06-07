@@ -3,47 +3,38 @@ Date: 2026-06-07
 
 ## Session Summary
 
-Full repo reorganization completed. sir_albert is now a structured skills + knowledge base mono-repo with 5 skill categories, a new kw-compound skill, shared design assets, REGISTRY.md, and a publish script.
+Re-categorized skills, fixed `kw-compound`, and added a share prompt to `html-plans`. Note: the original reorg worktree was removed mid-session and its branch deleted, but the work survived as a dangling commit and was **recovered** into branch `sir-albert-reorg`.
 
-## What Was Done
+## What Was Done This Session
 
-### Repo reorganization (committed on branch `worktree-sir-albert-reorg`)
+1. **Recovered the lost reorg** — dangling commit `4170d32` (= `main` + 2 commits) resurrected into branch `sir-albert-reorg`.
 
-1. **Skills reorganized** into category subfolders:
-   - `skills/agentic/` — board-of-advisors, devils-advocate, self-reflection, zoom-out
-   - `skills/dev/` — git-guardrails, github-repo-analyzer
-   - `skills/docs/` — html-plans, to-prd
-   - `skills/knowledge/` — kb-query, kw-compound (new)
-   - `skills/biz/` — monday-mops-triage
+2. **Re-categorized skills** per Gal's mental model:
+   - `board-of-advisors`, `devils-advocate`, `zoom-out` → moved from `agentic/` to `biz/` (business reasoning/decision skills)
+   - `kw-compound` → moved from `knowledge/` to `agentic/` (agent knowledge-capture)
+   - Updated `REGISTRY.md` and `README.md` category tables + descriptions to match.
 
-2. **Shared design assets** consolidated at `shared/references/design-tokens.md` and `shared/references/mermaid-patterns.md` (was duplicated in both html-plans and to-prd)
+3. **Fixed `kw-compound`** — removed the bogus "edit `raw/.manifest.json`" step (it conflicts with how `/kb-compile` detects new files: by their *absence* from the manifest). Commit step now adds only the source file. Tightened `/kb-compile` and `/kb-query` references. All referenced files/commands verified to exist.
 
-3. **New skill: `kw-compound`** at `skills/knowledge/kw-compound/SKILL.md` — captures session insights → writes to `raw/` → kb-compile picks them up next session. Adapted from EveryInc/compound-knowledge-plugin for sir_albert's wiki-schema.md pipeline.
+4. **html-plans** — after saving a plan it now asks "local or share?", offering `/zero-to-hero` for sharing. Added a reminder bullet so the prompt isn't skipped.
 
-4. **New files:**
-   - `REGISTRY.md` — skill index with trigger phrases, paths, knowledge pipeline diagram
-   - `tools/publish-skills.sh` — syncs skills from repo (nested) → `~/.claude/skills/` (flat)
-   - `docs/plans/2026-06-07-repo-reorganization.html` — HTML plan
-
-5. **README.md** rewritten to cover both the skills library and knowledge base
-
-6. **Removed:** reddit skill, html-plans.zip
+### Current category layout
+- `skills/agentic/` — self-reflection, kw-compound
+- `skills/biz/` — board-of-advisors, devils-advocate, zoom-out, monday-mops-triage
+- `skills/dev/` — git-guardrails, github-repo-analyzer
+- `skills/docs/` — html-plans, to-prd
+- `skills/knowledge/` — kb-query
 
 ## Branch State
 
-Work is on: `worktree-sir-albert-reorg` (at `/Users/galta/Development/sir_albert/.claude/worktrees/sir-albert-reorg`)
-Behind `main` by 0 commits. Ahead of `main` by 2 commits.
-
-Commits to merge:
-- `81d678a` — Reorganize repo as skills + knowledge base mono-repo
-- `7f4b8eb` — Add HTML plan for repo reorganization
+Work is on: `sir-albert-reorg`. Ahead of `main` by 4 commits (3 recovered reorg commits + this session's commit). `main` is still on the old flat layout.
 
 ## Next Steps (in priority order)
 
 ### 1. Merge the branch → main
 ```bash
 cd /Users/galta/Development/sir_albert
-git merge worktree-sir-albert-reorg
+git merge sir-albert-reorg
 git push
 ```
 

@@ -10,16 +10,14 @@ tools/publish-skills.sh --all            # publish all skills in this repo
 
 ---
 
-## agentic — Reasoning & Meta-Cognitive
+## agentic — Meta-Cognitive & Knowledge Capture
 
-Skills for structured thinking, perspective-taking, and agent behavior improvement.
+Skills for improving agent behavior and capturing what a session learns back into the knowledge base.
 
 | Skill | Path | Trigger phrases |
 |---|---|---|
-| board-of-advisors | `skills/agentic/board-of-advisors/` | "board of advisors", "4 perspectives", "multiple viewpoints" |
-| devils-advocate | `skills/agentic/devils-advocate/` | "play devil's advocate", "stress test this", "challenge my idea" |
 | self-reflection | `skills/agentic/self-reflection/` | "improve your behavior", "reflect on this", periodic self-audit |
-| zoom-out | `skills/agentic/zoom-out/` | "zoom out", "bigger picture", "how does this fit" |
+| kw-compound | `skills/agentic/kw-compound/` | "save this to the wiki", "file this knowledge", "compound this session" |
 
 ---
 
@@ -49,31 +47,35 @@ Shared design system: `shared/references/design-tokens.md` and `shared/reference
 
 ## knowledge — Knowledge Management
 
-Skills for querying and feeding the sir_albert wiki knowledge base.
+Skills for querying the sir_albert wiki knowledge base.
 
 | Skill | Path | Trigger phrases |
 |---|---|---|
 | kb-query | `skills/knowledge/kb-query/` | "what do I know about X", "check my wiki", domain questions |
-| kw-compound | `skills/knowledge/kw-compound/` | "save this to the wiki", "file this knowledge", "compound this session" |
 
 ### Knowledge Pipeline
+
+`/kw-compound` (the write side of this loop) lives under `skills/agentic/` but feeds the same pipeline:
 
 ```
 raw/ (source drop zone)
   ↓  /kb-compile
 wiki/ (structured pages: sources/, entities/, concepts/, comparisons/)
-  ↑  /kb-query reads
-  ↑  /kw-compound writes back to raw/
+  ↑  /kb-query reads        (skills/knowledge/)
+  ↑  /kw-compound writes back to raw/   (skills/agentic/)
 ```
 
 ---
 
-## biz — Business Process
+## biz — Business Decision-Making & Process
 
-Skills for business workflows and work management integrations.
+Skills for business reasoning, decision-making, and work-management integrations.
 
 | Skill | Path | Trigger phrases |
 |---|---|---|
+| board-of-advisors | `skills/biz/board-of-advisors/` | "board of advisors", "4 perspectives", "multiple viewpoints" |
+| devils-advocate | `skills/biz/devils-advocate/` | "play devil's advocate", "stress test this", "challenge my idea" |
+| zoom-out | `skills/biz/zoom-out/` | "zoom out", "bigger picture", "how does this fit" |
 | monday-mops-triage | `skills/biz/monday-mops-triage/` | "add a task to MOPs", "open a ticket", "put this in the iteration" |
 
 ---

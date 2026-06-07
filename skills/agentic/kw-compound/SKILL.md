@@ -27,7 +27,7 @@ wiki/ (structured pages)
     ↑  kb-query reads
 ```
 
-This skill is the **write** side of the loop. `kb-query` reads from `wiki/`; `kw-compound` feeds `raw/` so the next `kb-compile` pass makes session insights permanent wiki knowledge.
+This skill is the **write** side of the loop. `/kb-query` reads from `wiki/`; `kw-compound` feeds `raw/` so the next `/kb-compile` pass makes session insights permanent wiki knowledge. Both `/kb-query` and `/kb-compile` are provided by the LLM Wiki Agent plugin.
 
 ## When to Use
 
@@ -38,7 +38,7 @@ This skill is the **write** side of the loop. `kb-query` reads from `wiki/`; `kw
 
 ## When NOT to Use
 
-- The insight is trivial or already in the wiki — run `kb-query` to check first
+- The insight is trivial or already in the wiki — run `/kb-query` to check first
 - Content is a session preference or tool config (that belongs in `MEMORY.md`)
 - User wants to update an existing wiki page in place — use `Write` directly + commit
 - The insight is operational/task-specific and won't be useful across sessions
@@ -119,22 +119,16 @@ Captured from session on YYYY-MM-DD. <One sentence: context where this knowledge
 
 Use `STATED / INFERRED / UNCERTAIN` confidence labels for any cross-references to existing wiki pages.
 
-### Step 5: Update raw/.manifest.json
+### Step 5: Commit
 
-```
-Read: raw/.manifest.json
-```
-
-If the new slug is not in the manifest, add it. The manifest tells `kb-compile` which files are new.
-
-### Step 6: Commit
+> **Do not touch `raw/.manifest.json`.** `/kb-compile` detects a new file precisely *by its absence from the manifest* and manages every manifest entry itself (status, sha256, compiled_at, wiki_pages). Hand-adding a slug there can hide the file from compilation. Commit only the new source file.
 
 ```bash
-git add raw/<slug>.md raw/.manifest.json
+git add raw/<slug>.md
 git commit -m "[kw-compound] Filed: <title>"
 ```
 
-### Step 7: Confirm
+### Step 6: Confirm
 
 Report back:
 - **Filed:** `raw/<slug>.md` (type: concept / entity / comparison / source)
@@ -144,7 +138,7 @@ Report back:
 
 ## Guardrails
 
-- **Write to `raw/` only** — never directly to `wiki/`. Always let `kb-compile` do the compilation.
+- **Write to `raw/` only** — never directly to `wiki/`. Always let `/kb-compile` do the compilation.
 - **Read `wiki-schema.md` before writing** — it governs structure, slug rules, and confidence labels.
 - **Approval required** — never auto-save. Present and confirm before writing.
 - **1–3 items max per session** — quality over quantity.
