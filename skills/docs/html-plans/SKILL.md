@@ -44,7 +44,7 @@ Example:
 
 ### 3. Architecture / Data Flow Diagram
 
-When the plan involves multiple components, services, or data transformations, include a Mermaid diagram. Read `references/mermaid-patterns.md` for monday-themed Mermaid config and common patterns.
+When the plan involves multiple components, services, or data transformations, include a Mermaid diagram. Read `../../../shared/references/mermaid-patterns.md` for monday-themed Mermaid config and common patterns.
 
 Use diagrams when they clarify — not on every plan. A plan that touches one file doesn't need a flowchart.
 
@@ -132,7 +132,7 @@ The output is one `.html` file. All CSS is inline in `<style>`. All JS is inline
 
 ### Design System
 
-Read `references/design-tokens.md` for the full CSS variable set. Key tokens:
+Read `../../../shared/references/design-tokens.md` for the full CSS variable set. Key tokens:
 
 **Colors (dark theme):**
 - Background: `#000000`
@@ -167,7 +167,7 @@ Read `references/design-tokens.md` for the full CSS variable set. Key tokens:
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
   <style>
-    /* Design tokens — read references/design-tokens.md */
+    /* Design tokens — read ../../../shared/references/design-tokens.md */
     /* Layout, components, collapsibles, code blocks */
   </style>
 </head>
@@ -222,7 +222,7 @@ Don't force visuals. A plan for a one-file refactor doesn't need diagrams and ta
 
 ## Diagrams
 
-When a plan involves data flow, component interaction, or task dependencies, use Mermaid diagrams rendered client-side. Read `references/mermaid-patterns.md` for the full reference including monday-themed configuration.
+When a plan involves data flow, component interaction, or task dependencies, use Mermaid diagrams rendered client-side. Read `../../../shared/references/mermaid-patterns.md` for the full reference including monday-themed configuration.
 
 Common diagram types for plans:
 - **Flowchart**: Data flow, request lifecycle, decision trees
@@ -244,9 +244,15 @@ flowchart LR
 
 ## Execution Handoff
 
-After saving the plan, offer:
+After saving the plan, first ask whether it's private or shared:
 
 **"Plan saved to `docs/plans/<filename>.html`. Open it in your browser to review.**
+
+**Is this plan just for you, or do you want to share it?**
+- **Local** — keep it in `docs/plans/`; continue to the execution options below.
+- **Share** — invoke the **`/zero-to-hero`** skill to share this plan.
+
+Wait for the answer before continuing. Then offer:
 
 **Ready to execute? Two options:**
 1. **This session** — I'll implement task by task, you review between milestones
@@ -263,3 +269,4 @@ After saving the plan, offer:
 - Final task is always end-to-end verification
 - Risks inline with relevant tasks, not in a separate section
 - DRY, YAGNI, TDD, frequent commits
+- After saving, always ask whether the plan is local or to be shared (via `/zero-to-hero`)
