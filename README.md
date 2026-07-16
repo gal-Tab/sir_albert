@@ -13,7 +13,7 @@ Personal AI assistant configuration for **Gal** — a skills library and structu
 
 ## Skills
 
-11 skills organized into 5 categories. See [`REGISTRY.md`](REGISTRY.md) for the full index with trigger phrases.
+12 skills organized into 5 categories. See [`REGISTRY.md`](REGISTRY.md) for the full index with trigger phrases.
 
 | Category | Skills |
 |---|---|
@@ -21,7 +21,7 @@ Personal AI assistant configuration for **Gal** — a skills library and structu
 | `dev` | git-guardrails, github-repo-analyzer |
 | `docs` | html-plans, to-prd |
 | `knowledge` | kb-query |
-| `biz` | board-of-advisors, devils-advocate, zoom-out, monday-mops-triage |
+| `biz` | board-of-advisors, devils-advocate, zoom-out, monday-mops-triage, slack-in-my-voice |
 
 ### Publishing skills to Claude Code
 
