@@ -7,9 +7,15 @@ his wording). Gal's true voice calibrates through the draft/edit loop; treat
 `approved-posts.md` as the strongest signal once it fills.
 
 ## Language
-- Hebrew by default. Technical/product terms stay in English inline: `LLM`, `MCP`,
-  `GTM`, `sGTM`, `agent`, `agentic`, `JSON`, `RAG`, `Codex`, `Claude Code`, `API`,
-  `proxy`, `context`, tool/product names, error strings. Never translate them.
+- Hebrew by default. Core / product / acronym terms stay in English inline: `LLM`,
+  `MCP`, `GTM`, `sGTM`, `agentic`, `agent`, `JSON`, `RAG`, `Codex`, `Claude Code`,
+  `API`, `snapshot`, `tag`, `trigger`, `variable`, `setting`, `workspace`, tool /
+  product names, error strings. Don't translate these.
+- BUT Gal casually transliterates some common tech verbs/nouns into Hebrew script
+  when it reads more natural — e.g. `מיגרצה` (migration), `קונטיינרים` (containers),
+  `עדכון` (update), `פבלש` (publish). Prefer the form he'd actually type; when the
+  Latin term is the acronym/product/API keyword, keep it English (`GTM`, `agentic`,
+  `snapshot`). See `approved-posts.md` for the live pattern.
 - Authentic imperfection is fine — natural phrasing over polished grammar.
 
 ## Registers
