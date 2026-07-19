@@ -78,6 +78,7 @@ Skills for business reasoning, decision-making, and work-management integrations
 | zoom-out | `skills/biz/zoom-out/` | "zoom out", "bigger picture", "how does this fit" |
 | monday-mops-triage | `skills/biz/monday-mops-triage/` | "add a task to MOPs", "open a ticket", "put this in the iteration" |
 | slack-in-my-voice | `skills/biz/slack-in-my-voice/` | "send a Slack", "draft a slack message", "write this for slack" |
+| linkedin-in-my-voice | `skills/biz/linkedin-in-my-voice/` | "write a LinkedIn post", "draft a linkedin post", "כתוב פוסט ללינקדאין" |
 
 ---
 
