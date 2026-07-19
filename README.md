@@ -13,7 +13,7 @@ Personal AI assistant configuration for **Gal** — a skills library and structu
 
 ## Skills
 
-15 skills organized into 5 categories. See [`REGISTRY.md`](REGISTRY.md) for the full index with trigger phrases.
+13 skills organized into 5 categories. See [`REGISTRY.md`](REGISTRY.md) for the full index with trigger phrases.
 
 | Category | Skills |
 |---|---|
