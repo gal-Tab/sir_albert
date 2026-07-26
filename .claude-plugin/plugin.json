@@ -1,0 +1,21 @@
+{
+  "name": "sir-albert",
+  "displayName": "Sir Albert",
+  "description": "Gal's personal skills library and knowledge-base pipeline for Claude Code: engineering workflow, document generation, business decision-making, agentic knowledge capture, and wiki query skills.",
+  "author": {
+    "name": "gal-Tab"
+  },
+  "repository": "https://github.com/gal-Tab/sir_albert",
+  "keywords": [
+    "personal-assistant",
+    "knowledge-base",
+    "skills-library"
+  ],
+  "skills": [
+    "./skills/agentic",
+    "./skills/dev",
+    "./skills/docs",
+    "./skills/knowledge",
+    "./skills/biz"
+  ]
+}

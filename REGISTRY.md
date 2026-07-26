@@ -2,11 +2,7 @@
 
 All skills in this repo, organized by category. Each skill is a folder containing a `SKILL.md` that Claude Code loads.
 
-To publish a skill to `~/.claude/skills/` (making it available in all sessions), run:
-```bash
-tools/publish-skills.sh <skill-name>     # publish one skill
-tools/publish-skills.sh --all            # publish all skills in this repo
-```
+This repo is the `sir-albert` Claude Code plugin (see `.claude-plugin/plugin.json`), loaded via a symlink at `~/.claude/skills/sir-albert`. Every skill below is invoked namespaced: `/sir-albert:<skill-name>` (the category column below is just the on-disk folder — it isn't part of the command name).
 
 ---
 
@@ -29,6 +25,13 @@ Skills for software development tasks, code safety, and repo analysis.
 |---|---|---|
 | git-guardrails | `skills/dev/git-guardrails/` | "set up git safety", "install git hooks", "block dangerous git" |
 | github-repo-analyzer | `skills/dev/github-repo-analyzer/` | "analyze this repo", "check this GitHub link", repo status |
+| grill-with-docs | `skills/dev/grill-with-docs/` | "grill this with docs" — relentless interview to sharpen a plan/design, writing ADRs and glossary as it goes |
+| grilling | `skills/dev/grilling/` | "grill me", "stress-test my thinking", "interview me about this" |
+| domain-modeling | `skills/dev/domain-modeling/` | "pin down this terminology", "record an architectural decision", "build the domain model" |
+| prototype | `skills/dev/prototype/` | "build a prototype", "sanity-check this state model", "throwaway prototype", "what should this UI look like" |
+| claude-handoff | `skills/dev/claude-handoff/` | "hand this off", "spin up a background agent", "continue this in the background", "hand off to claude" |
+
+Ported from [mattpocock/skills](https://github.com/mattpocock/skills) (MIT License) — see `skills/dev/THIRD_PARTY_NOTICES.md`. `grill-with-docs` depends on `grilling` and `domain-modeling`. `claude-handoff` was adapted: it now asks which mode (execution vs. plan/discovery) and which model to use before launching, and maps mode to the `claude` CLI's `--permission-mode bypassPermissions` / `--permission-mode plan`.
 
 ---
 
@@ -97,4 +100,4 @@ Skills for business reasoning, decision-making, and work-management integrations
 2. Create `skills/<category>/<skill-name>/SKILL.md`
 3. Add frontmatter: `name`, `description` (trigger conditions), optionally `allowed-tools`
 4. Add an entry to this REGISTRY.md
-5. Run `tools/publish-skills.sh <skill-name>` to make it available in Claude Code sessions
+5. Run `/reload-plugins` (or start a new Claude Code session) to pick it up as `/sir-albert:<skill-name>`
