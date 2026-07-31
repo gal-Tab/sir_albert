@@ -18,11 +18,12 @@ Reversible-first: `claude plugin enable/disable`, `git mv` on branch; deletes on
 
 ## M0 · Foundation
 - ✅ 0.1 Branch `os/foundation` created; home confirmed (local-only build)
-- ⬜ 0.2 Reshape repo → Core/Context/Packs; plugin.json updated; reload shows dirs; nothing breaks
-- ⬜ 0.3 RESOLVER.md — one-screen map, 3 modes, entry points + output locations
+- ✅ 0.2 Reshape repo → Core/Context/Packs (verify PASS: valid JSON, 10 dirs exist, 20 skills intact, no live-load break). Commit b44d8b0.
+- 🔄 0.3 RESOLVER.md — one-screen map (writing)
 
 ## M5.1 · Security (do early)
-- ⬜ 5.1 Remove plaintext JWTs from settings.local.json + mcp.json → env/store; hand rotation to user
+- ✅ 5.1a settings.local.json allowlist JWTs → single generic `Bash(claude mcp add:*)` (verify PASS: 0 secrets, valid JSON, minimal diff, backup `settings.local.json.bak-20260731` intact). Bonus: also caught an n8n `N8N_API_KEY` the recon missed.
+- ⛔ 5.1b mcp.json `authorization` header + token ROTATION — LIVE AUTH; blocked on user OK (ask-before-live). Env-var swap feasible (`${BIGBRAIN_MCP_TOKEN}`), but needs env set before Claude launch + restart → can't verify in-session. Runbook to be presented at M0/M5-early status.
 
 ## M5.0 / M5.2 · Consolidation (greenlit)
 - ⬜ 5.0 Plugin portfolio: 3 disabled (prior), wrap-list routed from RESOLVER, protected untouched
@@ -64,3 +65,5 @@ Reversible-first: `claude plugin enable/disable`, `git mv` on branch; deletes on
 
 ## Log (append-only, newest last)
 - 2026-07-31 · M0.1 ✅ — branch `os/foundation` created from `main` (was clean). Home = gal-Tab/sir_albert, local-only build confirmed. Verify: self (trivial — `git branch --show-current` = os/foundation). Recon subagent dispatched → `.memory-bank/recon-inventory.md`.
+- 2026-07-31 · M5.1a ✅ — removed 3 token-bearing `claude mcp add` allowlist entries → 1 generic pattern in `Development/.claude/settings.local.json`. Independent adversarial verify PASS (0 `eyJ`/0 `authorization:`, minimal 4-line diff, backup reversible). Commit: settings.local.json is outside the repo (not committed); backup is the revert path.
+- 2026-07-31 · M0.2 committed (b44d8b0) — os/ + skills/core + skills/packs scaffold, plugin.json +5 dirs, .gitignore noise. Verify dispatched (pending).
