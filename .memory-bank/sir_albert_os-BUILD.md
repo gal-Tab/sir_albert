@@ -50,12 +50,12 @@ Reversible-first: `claude plugin enable/disable`, `git mv` on branch; deletes on
 - ✅ 3.4 (mechanism) attester.py — functional-tested (JSON key-order-insensitive match=exit0, drift=exit1+diff, SQL-normalized match, usage=exit2) + OKF `_TEMPLATE.md` + README, wired to data-review. **Real look-pinning = TODO(gal)** (needs z2h metrics: delivery funnel / MQL / tag-blocking). **M3 COMPLETE (mechanisms).**
 
 ## M4 · Core machinery
-- ⬜ 4.1 /decide + decisions.jsonl (auto-apply settled decisions)
-- ⬜ 4.2 learnings loop auto-load + OKF canonicalization barrier
-- ⬜ 4.3 /freeze on top of guard.sh
-- ⬜ 4.4 Discover front door (discovery-lens + advisors + grilling + zoom-out…)
-- ⬜ 4.5 retro loop + SessionEnd hook + historical backfill PR
-- ⬜ 4.6 dream cycle (NanoClaw; HEARTBEAT-driven; proposes via PR)
+- ✅ 4.1 /decide + decisions.jsonl (verify PASS).
+- ✅ 4.2 learnings — surface .compound + canonicalization barrier before wiki-compile (verify PASS). Auto-surface-at-session-start hook deferred (see 4.5).
+- ✅ 4.3 /freeze skill + hooks/freeze-guard.sh (functional-tested: outside→exit2, fail-open→exit0). ⚠️ ACTIVATION = live settings.json PreToolUse edit → Gal applies (snippet in SKILL.md).
+- ✅ 4.4 /discover front door (7-lens routing; phase-not-pack) (verify PASS).
+- ✅ 4.5 /retro skill + hooks/session-record.sh (tested: exit0 + valid-JSON append). Verify FAIL round0 (Boot-after-Announce)→fixed. ⚠️ ACTIVATION = APPEND SessionEnd (don't clobber token-optimizer/axcli) → Gal. **Backfill over ~3,853 prompts = heavy TODO(gal).**
+- ⛔ 4.6 dream cycle → DEFERRED: runs on NanoClaw (external; no Claude Code daemon). Spec = HEARTBEAT.md weekly section → needs a NanoClaw cron (handoff item).
 - ✅ 4.7 (early) autonomy.md — ask-vs-act tiers + parallelism cap ~3-5 + budget throttle. OKF valid; referenced by PREAMBLE/SOUL/RESOLVER.
 
 ## M5 · remaining

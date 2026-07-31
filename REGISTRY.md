@@ -97,6 +97,13 @@ Domain-agnostic OS spine. Every core skill boots from `os/PREAMBLE.md`.
 | handoff | `skills/core/handoff/` | "hand this off", "write a handoff", "wrap this session", "prep to /clear" |
 | resume | `skills/core/resume/` | "resume", "pick up where we left off", "load the handoff" |
 | sync | `skills/core/sync/` | "sync", "are we in sync", "merged are we in sync", "post-merge cleanup" |
+| decide | `skills/core/decide/` | "/decide", "we decided", "did we decide X before", "is this already decided" |
+| discover | `skills/core/discover/` | "help me think through X", "let's explore", "which lens", "office hours" |
+| learnings | `skills/core/learnings/` | "learnings", "load past corrections", "canonicalize compound", "before wiki-compile" |
+| freeze | `skills/core/freeze/` | "/freeze", "scope edits to", "/unfreeze" |
+| retro | `skills/core/retro/` | "/retro", "self-improve skills", "review my corrections" |
+
+Hooks (in `hooks/`, activated by adding to `~/.claude/settings.json` — see each skill): `freeze-guard.sh` (PreToolUse, for `/freeze`), `session-record.sh` (SessionEnd, for `/retro`).
 
 ---
 
