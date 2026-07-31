@@ -59,11 +59,11 @@ Reversible-first: `claude plugin enable/disable`, `git mv` on branch; deletes on
 - ✅ 4.7 (early) autonomy.md — ask-vs-act tiers + parallelism cap ~3-5 + budget throttle. OKF valid; referenced by PREAMBLE/SOUL/RESOLVER.
 
 ## M5 · remaining
-- ⬜ 5.3 Inherit llm-wiki from agent_knowledgebase main; delete kb-query; align consumers (open_claw, Investment-agent)
-- ⬜ 5.4 Repo clutter (dedup cookbook, archive _old, empty dirs) + usage-insights monthly
+- 🔄 5.3 LOCAL DONE: kb-query deleted; knowledge routed to canonical `llm-wiki-agent` plugin (wiki-query/learn-*); README + REGISTRY updated. DEFERRED (cross-repo, needs user OK): align consumers open_claw + Investment-agent + llm-wiki-agent-dev marketplace to agent_knowledgebase main; retire stale v0.4.0.
+- ⛔ 5.4 DEFERRED (cross-repo/external): dedup cookbook/data-cookbook clones, archive marketing-cookbook_old, empty mopa_know/team-context; install usage-insights@agentic-builders-hub (global). All outside sir_albert repo → handoff.
 
 ## M6 · Verify end-to-end
-- ⬜ 6.1 Three-mode + continuity + memory smoke test (all 5 pass; DoD checkable)
+- 🔄 6.1 Smoke test = **Gal-run** (needs live slash commands + real GTM/data/build domains). 5-step checklist in `HANDOFF-2026-07-31.md`. Structural verification done per-task throughout + a final whole-branch review.
 
 ## Log (append-only, newest last)
 - 2026-07-31 · M0.1 ✅ — branch `os/foundation` created from `main` (was clean). Home = gal-Tab/sir_albert, local-only build confirmed. Verify: self (trivial — `git branch --show-current` = os/foundation). Recon subagent dispatched → `.memory-bank/recon-inventory.md`.
@@ -75,3 +75,5 @@ Reversible-first: `claude plugin enable/disable`, `git mv` on branch; deletes on
 - 2026-07-31 · M5.0 ✅ — 3 dead plugins disabled (prior), wrap/protected routed via RESOLVER.
 - 2026-07-31 · M2 ✅ COMPLETE — identity + rules + PREAMBLE (+autonomy = M4.7 early). Verify FAIL→round1 (consent-map YAML `- >`, created decisions.jsonl)→PASS. Global CLAUDE.md @-imports USER+SOUL; guard.sh block intact. Backup: revert = drop 3 import lines.
 - 2026-07-31 · M3 ✅ COMPLETE (mechanisms) — 6 pack skills (a0bc7e4) + attester (M3.4). Real z2h metric-pinning = TODO(gal). Cross-repo gate-wiring deferred.
+- 2026-07-31 · M4 ✅ (4.1-4.5, 4.7; 4.6 deferred=NanoClaw) commit d80f808. M5.3-local ✅ (kb-query retired) 9d712a3. `HANDOFF-2026-07-31.md` written (61e17cc).
+- 2026-07-31 · FINAL whole-branch review: **CLEAN** (plugin.json valid, 36 skills / 0 collisions, all frontmatter parses, no dangling refs, hooks fail-safe, no committed secrets, no gitlinks). **Local build scope COMPLETE + verified.** Remaining = Gal/external: hook activation · cross-repo M5.2c/5.3-consumers/5.4 · NanoClaw M4.6 · backfill M4.5 · z2h M3.4 · M6 smoke — all in HANDOFF.
