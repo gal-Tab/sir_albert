@@ -52,11 +52,13 @@ Shared design system: `shared/references/design-tokens.md` and `shared/reference
 
 ## knowledge — Knowledge Management
 
-Skills for querying the sir_albert wiki knowledge base.
+Knowledge is **inherited, not forked** — the canonical engine is the `llm-wiki-agent` plugin.
 
-| Skill | Path | Trigger phrases |
-|---|---|---|
-| kb-query | `skills/knowledge/kb-query/` | "what do I know about X", "check my wiki", domain questions |
+| Query (via llm-wiki-agent) | Pipeline commands |
+|---|---|
+| `wiki-query` · `learn-recall` · `learn-research` | `/wiki-init` · `/wiki-compile` · `/learn-capture` |
+
+> The legacy `kb-query` fork (was `skills/knowledge/kb-query/`) is **retired and deleted** — superseded by `wiki-query`. See `skills/knowledge/README.md`.
 
 ### Knowledge Pipeline
 
@@ -64,9 +66,9 @@ Skills for querying the sir_albert wiki knowledge base.
 
 ```
 raw/ (source drop zone)
-  ↓  /kb-compile
+  ↓  /wiki-compile          (llm-wiki-agent)
 wiki/ (structured pages: sources/, entities/, concepts/, comparisons/)
-  ↑  /kb-query reads        (skills/knowledge/)
+  ↑  wiki-query reads       (llm-wiki-agent)
   ↑  /kw-compound writes back to raw/   (skills/agentic/)
 ```
 
