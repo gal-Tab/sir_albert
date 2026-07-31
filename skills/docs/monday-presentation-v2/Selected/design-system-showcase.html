@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design System – monday.com Deck</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        html, body {
+            overflow: auto;
+            height: auto;
+            display: block;
+        }
+
+        body {
+            padding: 6vmin 8vmin;
+        }
+
+        .ds-page-title {
+            font-size: var(--text-display);
+            font-weight: var(--weight-semibold);
+            margin-bottom: var(--space-10);
+            letter-spacing: var(--tracking-tight);
+        }
+
+        .ds-section {
+            margin-bottom: var(--space-10);
+        }
+
+        .ds-section-title {
+            font-size: var(--text-h2);
+            font-weight: var(--weight-semibold);
+            margin-bottom: var(--space-7);
+            padding-bottom: var(--space-3);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .ds-subsection-title {
+            font-size: var(--text-body);
+            font-weight: var(--weight-semibold);
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: var(--space-5);
+        }
+
+        /* Typography Specimens */
+        .ds-type-row {
+            display: flex;
+            align-items: baseline;
+            gap: var(--space-6);
+            margin-bottom: var(--space-6);
+            padding-bottom: var(--space-6);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .ds-type-meta {
+            flex-shrink: 0;
+            width: 22vmin;
+            font-size: var(--text-caption);
+            color: var(--color-text-muted);
+            line-height: var(--leading-relaxed);
+        }
+
+        .ds-type-meta code {
+            display: block;
+            color: var(--color-purple-light);
+            font-family: monospace;
+            margin-top: var(--space-1);
+        }
+
+        .ds-type-sample {
+            flex: 1;
+        }
+
+        /* Color Swatches */
+        .ds-color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(18vmin, 1fr));
+            gap: var(--space-5);
+        }
+
+        .ds-swatch {
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .ds-swatch-color {
+            height: 10vmin;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+        }
+
+        .ds-swatch-info {
+            background-color: var(--color-surface);
+            padding: var(--space-4);
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+        }
+
+        .ds-swatch-name {
+            font-size: var(--text-body-sm);
+            font-weight: var(--weight-medium);
+            margin-bottom: var(--space-1);
+        }
+
+        .ds-swatch-value {
+            font-size: var(--text-caption);
+            color: var(--color-text-muted);
+            font-family: monospace;
+        }
+
+        /* Radius Demo */
+        .ds-radius-grid {
+            display: flex;
+            gap: var(--space-6);
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .ds-radius-item {
+            text-align: center;
+        }
+
+        .ds-radius-box {
+            width: 12vmin;
+            height: 12vmin;
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
+            margin-bottom: var(--space-4);
+        }
+
+        .ds-radius-label {
+            font-size: var(--text-caption);
+            color: var(--color-text-muted);
+        }
+
+        .ds-radius-label code {
+            display: block;
+            color: var(--color-purple-light);
+            font-family: monospace;
+            margin-top: var(--space-1);
+        }
+
+        /* Spacing Demo */
+        .ds-spacing-row {
+            display: flex;
+            align-items: center;
+            gap: var(--space-6);
+            margin-bottom: var(--space-4);
+        }
+
+        .ds-spacing-label {
+            width: 14vmin;
+            font-size: var(--text-caption);
+            color: var(--color-text-muted);
+            font-family: monospace;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .ds-spacing-bar {
+            height: 3vmin;
+            background: linear-gradient(90deg, var(--color-purple), var(--color-purple-light));
+            border-radius: var(--radius-xs);
+        }
+
+        .ds-spacing-value {
+            font-size: var(--text-caption);
+            color: var(--color-text-secondary);
+            flex-shrink: 0;
+            width: 10vmin;
+        }
+
+        /* Component Examples */
+        .ds-components-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-6);
+        }
+
+        .ds-card-example {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-lg);
+            padding: var(--space-8);
+        }
+
+        .ds-card-example h3 {
+            font-size: var(--text-h3);
+            font-weight: var(--weight-regular);
+            margin: 0 0 var(--space-4) 0;
+        }
+
+        .ds-card-example p {
+            font-size: var(--text-body);
+            font-weight: var(--weight-light);
+            line-height: var(--leading-normal);
+            color: var(--color-text-secondary);
+            margin: 0;
+        }
+
+        .ds-bordered-card {
+            border: 1px solid var(--color-border-strong);
+            border-radius: var(--radius-xl);
+            padding: var(--space-8);
+        }
+
+        .ds-bordered-card h3 {
+            font-size: var(--text-h3);
+            font-weight: var(--weight-regular);
+            margin: 0 0 var(--space-4) 0;
+        }
+
+        .ds-bordered-card p {
+            font-size: var(--text-body);
+            font-weight: var(--weight-light);
+            line-height: var(--leading-normal);
+            color: var(--color-text-secondary);
+            margin: 0;
+        }
+
+        .ds-pill-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            background: var(--color-text);
+            color: var(--color-bg);
+            padding: var(--space-3) var(--space-6);
+            border-radius: var(--radius-full);
+            font-size: var(--text-body-sm);
+            font-weight: var(--weight-semibold);
+            text-decoration: none;
+            margin-top: var(--space-5);
+        }
+
+        .ds-mini-title {
+            display: inline-block;
+            border: 1px solid var(--color-text);
+            border-radius: var(--radius-full);
+            padding: var(--space-1) var(--space-5);
+            font-size: var(--text-caption);
+            font-weight: var(--weight-regular);
+            margin-bottom: var(--space-5);
+        }
+
+        .ds-feature-card {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-md);
+            padding: var(--space-6);
+            display: flex;
+            align-items: center;
+            gap: var(--space-5);
+        }
+
+        .ds-icon-circle {
+            width: 5vmin;
+            height: 5vmin;
+            border-radius: 50%;
+            border: 1px solid var(--color-text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+            font-size: var(--text-h4);
+        }
+
+        .ds-feature-card p {
+            font-size: var(--text-body-sm);
+            line-height: var(--leading-normal);
+            color: var(--color-text-secondary);
+            margin: 0;
+        }
+
+        .ds-instruction-box {
+            background-color: var(--color-red);
+            padding: var(--space-4);
+            border-radius: var(--radius-md);
+            font-size: var(--text-caption);
+            line-height: var(--leading-normal);
+        }
+
+        .ds-instruction-box strong {
+            display: block;
+            font-weight: var(--weight-semibold);
+            margin-bottom: var(--space-2);
+            text-transform: uppercase;
+        }
+
+        /* Icon Gallery */
+        .ds-icon-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(12vmin, 1fr));
+            gap: var(--space-4);
+        }
+
+        .ds-icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-4) var(--space-2);
+            background: var(--color-surface);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+
+        .ds-icon-item span {
+            font-size: var(--text-caption);
+            color: var(--color-text-muted);
+            word-break: break-word;
+            line-height: 1.3;
+        }
+
+        /* Weight Demo */
+        .ds-weight-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: var(--space-5);
+            margin-top: var(--space-5);
+        }
+
+        .ds-weight-item {
+            text-align: center;
+        }
+
+        .ds-weight-item .sample {
+            font-size: var(--text-h3);
+            margin-bottom: var(--space-3);
+        }
+
+        .ds-weight-item .meta {
+            font-size: var(--text-caption);
+            color: var(--color-text-muted);
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="ds-page-title">Design System</h1>
+
+    <!-- ========== TYPOGRAPHY ========== -->
+    <section class="ds-section">
+        <h2 class="ds-section-title">Typography Scale</h2>
+
+        <div class="ds-type-row">
+            <div class="ds-type-meta">
+                Display<br>10.5vmin / Light
+                <code>.text-display</code>
+            </div>
+            <div class="ds-type-sample text-display">The quick brown fox</div>
+        </div>
+
+        <div class="ds-type-row">
+            <div class="ds-type-meta">
+                Heading 1<br>8vmin / Medium
+                <code>.text-h1</code>
+            </div>
+            <div class="ds-type-sample text-h1">The quick brown fox jumps</div>
+        </div>
+
+        <div class="ds-type-row">
+            <div class="ds-type-meta">
+                Heading 2<br>6vmin / Regular
+                <code>.text-h2</code>
+            </div>
+            <div class="ds-type-sample text-h2">The quick brown fox jumps over</div>
+        </div>
+
+        <div class="ds-type-row">
+            <div class="ds-type-meta">
+                Heading 3<br>4vmin / Regular
+                <code>.text-h3</code>
+            </div>
+            <div class="ds-type-sample text-h3">The quick brown fox jumps over the lazy dog</div>
+        </div>
+
+        <div class="ds-type-row">
+            <div class="ds-type-meta">
+                Heading 4<br>3vmin / Regular
+                <code>.text-h4</code>
+            </div>
+            <div class="ds-type-sample text-h4">The quick brown fox jumps over the lazy dog</div>
+        </div>
+
+        <div class="ds-type-row">
+            <div class="ds-type-meta">
+                Body<br>2.2vmin / Regular
+                <code>.text-body</code>
+            </div>
+            <div class="ds-type-sample text-body">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
+        </div>
+
+        <div class="ds-type-row">
+            <div class="ds-type-meta">
+                Body Small<br>1.8vmin / Light
+                <code>.text-body-sm</code>
+            </div>
+            <div class="ds-type-sample text-body-sm">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</div>
+        </div>
+
+        <div class="ds-type-row">
+            <div class="ds-type-meta">
+                Caption<br>1.4vmin / Regular
+                <code>.text-caption</code>
+            </div>
+            <div class="ds-type-sample text-caption">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</div>
+        </div>
+    </section>
+
+    <!-- ========== FONT WEIGHTS ========== -->
+    <section class="ds-section">
+        <h2 class="ds-section-title">Font Weights</h2>
+        <div class="ds-weight-grid">
+            <div class="ds-weight-item">
+                <div class="sample font-light">Aa</div>
+                <div class="meta">300 Light<br>.font-light</div>
+            </div>
+            <div class="ds-weight-item">
+                <div class="sample font-regular">Aa</div>
+                <div class="meta">400 Regular<br>.font-regular</div>
+            </div>
+            <div class="ds-weight-item">
+                <div class="sample font-medium">Aa</div>
+                <div class="meta">500 Medium<br>.font-medium</div>
+            </div>
+            <div class="ds-weight-item">
+                <div class="sample font-semibold">Aa</div>
+                <div class="meta">600 SemiBold<br>.font-semibold</div>
+            </div>
+            <div class="ds-weight-item">
+                <div class="sample font-bold">Aa</div>
+                <div class="meta">700 Bold<br>.font-bold</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== COLORS ========== -->
+    <section class="ds-section">
+        <h2 class="ds-section-title">Color Palette</h2>
+
+        <h3 class="ds-subsection-title">Backgrounds &amp; Surfaces</h3>
+        <div class="ds-color-grid" style="margin-bottom: var(--space-9);">
+            <div class="ds-swatch">
+                <div class="ds-swatch-color" style="background-color: var(--color-bg); border: 1px solid var(--color-border);"></div>
+                <div class="ds-swatch-info">
+                    <div class="ds-swatch-name">Background</div>
+                    <div class="ds-swatch-value">--color-bg<br>#000000</div>
+                </div>
+            </div>
+            <div class="ds-swatch">
+                <div class="ds-swatch-color" style="background-color: var(--color-surface);"></div>
+                <div class="ds-swatch-info">
+                    <div class="ds-swatch-name">Surface</div>
+                    <div class="ds-swatch-value">--color-surface<br>#232427</div>
+                </div>
+            </div>
+            <div class="ds-swatch">
+                <div class="ds-swatch-color" style="background-color: var(--color-surface-alt);"></div>
+                <div class="ds-swatch-info">
+                    <div class="ds-swatch-name">Surface Alt</div>
+                    <div class="ds-swatch-value">--color-surface-alt<br>#2D3035</div>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="ds-subsection-title">Text Colors</h3>
+        <div class="ds-color-grid" style="margin-bottom: var(--space-9);">
+            <div class="ds-swatch">
+                <div class="ds-swatch-color" style="background-color: var(--color-text);"></div>
+                <div class="ds-swatch-info">
+                    <div class="ds-swatch-name">Primary</div>
+                    <div class="ds-swatch-value">--color-text<br>#ffffff</div>
+                </div>
+            </div>
+            <div class="ds-swatch">
+                <div class="ds-swatch-color" style="background-color: var(--color-text-secondary);"></div>
+                <div class="ds-swatch-info">
+                    <div class="ds-swatch-name">Secondary</div>
+                    <div class="ds-swatch-value">--color-text-secondary<br>#c3ced8</div>
+                </div>
+            </div>
+            <div class="ds-swatch">
+                <div class="ds-swatch-color" style="background-color: var(--color-text-muted);"></div>
+                <div class="ds-swatch-info">
+                    <div class="ds-swatch-name">Muted</div>
+                    <div class="ds-swatch-value">--color-text-muted<br>#a0a0a0</div>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="ds-subsection-title">Brand Accents</h3>
+        <div class="ds-color-grid">
+            <div class="ds-swatch">
+                <div class="ds-swatch-color" style="background-color: var(--color-purple);"></div>
+                <div class="ds-swatch-info">
+                    <div class="ds-swatch-name">Purple</div>
+                    <div class="ds-swatch-value">--color-purple<br>#6164ff</div>
+                </div>
+            </div>
+            <div class="ds-swatch">
+                <div class="ds-swatch-color" style="background-color: var(--color-purple-light);"></div>
+                <div class="ds-swatch-info">
+                    <div class="ds-swatch-name">Purple Light</div>
+                    <div class="ds-swatch-value">--color-purple-light<br>#8A99FF</div>
+                </div>
+            </div>
+            <div class="ds-swatch">
+                <div class="ds-swatch-color" style="background-color: var(--color-red);"></div>
+                <div class="ds-swatch-info">
+                    <div class="ds-swatch-name">Red</div>
+                    <div class="ds-swatch-value">--color-red<br>#ff3d57</div>
+                </div>
+            </div>
+            <div class="ds-swatch">
+                <div class="ds-swatch-color" style="background-color: var(--color-yellow);"></div>
+                <div class="ds-swatch-info">
+                    <div class="ds-swatch-name">Yellow</div>
+                    <div class="ds-swatch-value">--color-yellow<br>#ffcb00</div>
+                </div>
+            </div>
+            <div class="ds-swatch">
+                <div class="ds-swatch-color" style="background-color: var(--color-green);"></div>
+                <div class="ds-swatch-info">
+                    <div class="ds-swatch-name">Green</div>
+                    <div class="ds-swatch-value">--color-green<br>#00c875</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== BORDER RADIUS ========== -->
+    <section class="ds-section">
+        <h2 class="ds-section-title">Border Radius</h2>
+        <div class="ds-radius-grid">
+            <div class="ds-radius-item">
+                <div class="ds-radius-box" style="border-radius: var(--radius-xs);"></div>
+                <div class="ds-radius-label">XS<code>--radius-xs<br>0.5vmin</code></div>
+            </div>
+            <div class="ds-radius-item">
+                <div class="ds-radius-box" style="border-radius: var(--radius-sm);"></div>
+                <div class="ds-radius-label">SM<code>--radius-sm<br>1vmin</code></div>
+            </div>
+            <div class="ds-radius-item">
+                <div class="ds-radius-box" style="border-radius: var(--radius-md);"></div>
+                <div class="ds-radius-label">MD<code>--radius-md<br>2vmin</code></div>
+            </div>
+            <div class="ds-radius-item">
+                <div class="ds-radius-box" style="border-radius: var(--radius-lg);"></div>
+                <div class="ds-radius-label">LG<code>--radius-lg<br>3vmin</code></div>
+            </div>
+            <div class="ds-radius-item">
+                <div class="ds-radius-box" style="border-radius: var(--radius-xl);"></div>
+                <div class="ds-radius-label">XL<code>--radius-xl<br>4vmin</code></div>
+            </div>
+            <div class="ds-radius-item">
+                <div class="ds-radius-box" style="border-radius: var(--radius-full);"></div>
+                <div class="ds-radius-label">Full<code>--radius-full<br>999px</code></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== SPACING ========== -->
+    <section class="ds-section">
+        <h2 class="ds-section-title">Spacing Scale</h2>
+
+        <div class="ds-spacing-row">
+            <div class="ds-spacing-label">--space-1</div>
+            <div class="ds-spacing-bar" style="width: var(--space-1);"></div>
+            <div class="ds-spacing-value">0.5vmin</div>
+        </div>
+        <div class="ds-spacing-row">
+            <div class="ds-spacing-label">--space-2</div>
+            <div class="ds-spacing-bar" style="width: var(--space-2);"></div>
+            <div class="ds-spacing-value">1vmin</div>
+        </div>
+        <div class="ds-spacing-row">
+            <div class="ds-spacing-label">--space-3</div>
+            <div class="ds-spacing-bar" style="width: var(--space-3);"></div>
+            <div class="ds-spacing-value">1.5vmin</div>
+        </div>
+        <div class="ds-spacing-row">
+            <div class="ds-spacing-label">--space-4</div>
+            <div class="ds-spacing-bar" style="width: var(--space-4);"></div>
+            <div class="ds-spacing-value">2vmin</div>
+        </div>
+        <div class="ds-spacing-row">
+            <div class="ds-spacing-label">--space-5</div>
+            <div class="ds-spacing-bar" style="width: var(--space-5);"></div>
+            <div class="ds-spacing-value">3vmin</div>
+        </div>
+        <div class="ds-spacing-row">
+            <div class="ds-spacing-label">--space-6</div>
+            <div class="ds-spacing-bar" style="width: var(--space-6);"></div>
+            <div class="ds-spacing-value">4vmin</div>
+        </div>
+        <div class="ds-spacing-row">
+            <div class="ds-spacing-label">--space-7</div>
+            <div class="ds-spacing-bar" style="width: var(--space-7);"></div>
+            <div class="ds-spacing-value">5vmin</div>
+        </div>
+        <div class="ds-spacing-row">
+            <div class="ds-spacing-label">--space-8</div>
+            <div class="ds-spacing-bar" style="width: var(--space-8);"></div>
+            <div class="ds-spacing-value">6vmin</div>
+        </div>
+        <div class="ds-spacing-row">
+            <div class="ds-spacing-label">--space-9</div>
+            <div class="ds-spacing-bar" style="width: var(--space-9);"></div>
+            <div class="ds-spacing-value">8vmin</div>
+        </div>
+        <div class="ds-spacing-row">
+            <div class="ds-spacing-label">--space-10</div>
+            <div class="ds-spacing-bar" style="width: var(--space-10);"></div>
+            <div class="ds-spacing-value">10vmin</div>
+        </div>
+    </section>
+
+    <!-- ========== ICONS ========== -->
+    <section class="ds-section">
+        <h2 class="ds-section-title">Icons</h2>
+
+        <h3 class="ds-subsection-title">Icon Sizes</h3>
+        <div style="display: flex; gap: var(--space-8); align-items: flex-end; margin-bottom: var(--space-9);">
+            <div style="text-align: center;">
+                <img src="Icons/Property 1=Gear.svg" class="ds-icon ds-icon-xs">
+                <div class="ds-radius-label" style="margin-top: var(--space-3);">XS<code>--icon-xs<br>3vmin</code></div>
+            </div>
+            <div style="text-align: center;">
+                <img src="Icons/Property 1=Gear.svg" class="ds-icon ds-icon-sm">
+                <div class="ds-radius-label" style="margin-top: var(--space-3);">SM<code>--icon-sm<br>5vmin</code></div>
+            </div>
+            <div style="text-align: center;">
+                <img src="Icons/Property 1=Gear.svg" class="ds-icon ds-icon-md">
+                <div class="ds-radius-label" style="margin-top: var(--space-3);">MD<code>--icon-md<br>7vmin</code></div>
+            </div>
+            <div style="text-align: center;">
+                <img src="Icons/Property 1=Gear.svg" class="ds-icon ds-icon-lg">
+                <div class="ds-radius-label" style="margin-top: var(--space-3);">LG<code>--icon-lg<br>10vmin</code></div>
+            </div>
+            <div style="text-align: center;">
+                <img src="Icons/Property 1=Gear.svg" class="ds-icon ds-icon-xl">
+                <div class="ds-radius-label" style="margin-top: var(--space-3);">XL<code>--icon-xl<br>15vmin</code></div>
+            </div>
+        </div>
+
+        <h3 class="ds-subsection-title">Color Modifiers</h3>
+        <div style="display: flex; gap: var(--space-8); align-items: center; margin-bottom: var(--space-9);">
+            <div style="text-align: center;">
+                <img src="Icons/Property 1=Gear.svg" class="ds-icon ds-icon-lg">
+                <div class="ds-radius-label" style="margin-top: var(--space-3);">Default<code>Brand purple</code></div>
+            </div>
+            <div style="text-align: center;">
+                <img src="Icons/Property 1=Gear.svg" class="ds-icon ds-icon-lg ds-icon-white">
+                <div class="ds-radius-label" style="margin-top: var(--space-3);">White<code>.ds-icon-white</code></div>
+            </div>
+            <div style="text-align: center; background: var(--color-text); padding: var(--space-5); border-radius: var(--radius-md);">
+                <img src="Icons/Property 1=Gear.svg" class="ds-icon ds-icon-lg ds-icon-dark">
+                <div style="font-size: var(--text-caption); color: var(--color-bg); margin-top: var(--space-3);">Dark<br><code style="color: var(--color-bg);">.ds-icon-dark</code></div>
+            </div>
+        </div>
+
+        <h3 class="ds-subsection-title">Icon Gallery (267 icons)</h3>
+        <div class="ds-icon-gallery">
+            <div class="ds-icon-item"><img src="Icons/Property 1=Academy.svg" class="ds-icon ds-icon-sm"><span>Academy</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Alarm check.svg" class="ds-icon ds-icon-sm"><span>Alarm check</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Alarm.svg" class="ds-icon ds-icon-sm"><span>Alarm</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Apps.svg" class="ds-icon ds-icon-sm"><span>Apps</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Archive.svg" class="ds-icon ds-icon-sm"><span>Archive</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Arrow Path.svg" class="ds-icon ds-icon-sm"><span>Arrow Path</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Arrow up.svg" class="ds-icon ds-icon-sm"><span>Arrow up</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Arrows.svg" class="ds-icon ds-icon-sm"><span>Arrows</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Badge check.svg" class="ds-icon ds-icon-sm"><span>Badge check</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Badge star.svg" class="ds-icon ds-icon-sm"><span>Badge star</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Bar Chart.svg" class="ds-icon ds-icon-sm"><span>Bar Chart</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Bell.svg" class="ds-icon ds-icon-sm"><span>Bell</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Book open.svg" class="ds-icon ds-icon-sm"><span>Book open</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Bookmark.svg" class="ds-icon ds-icon-sm"><span>Bookmark</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Bubble talk.svg" class="ds-icon ds-icon-sm"><span>Bubble talk</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Calendar.svg" class="ds-icon ds-icon-sm"><span>Calendar</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Camera.svg" class="ds-icon ds-icon-sm"><span>Camera</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Chart up.svg" class="ds-icon ds-icon-sm"><span>Chart up</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Checklist.svg" class="ds-icon ds-icon-sm"><span>Checklist</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Checkmark.svg" class="ds-icon ds-icon-sm"><span>Checkmark</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Chip.svg" class="ds-icon ds-icon-sm"><span>Chip</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Click.svg" class="ds-icon ds-icon-sm"><span>Click</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Clock.svg" class="ds-icon ds-icon-sm"><span>Clock</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Cloud.svg" class="ds-icon ds-icon-sm"><span>Cloud</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Coins.svg" class="ds-icon ds-icon-sm"><span>Coins</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Collaboration.svg" class="ds-icon ds-icon-sm"><span>Collaboration</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Compass.svg" class="ds-icon ds-icon-sm"><span>Compass</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Connection user.svg" class="ds-icon ds-icon-sm"><span>Connection user</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Connection.svg" class="ds-icon ds-icon-sm"><span>Connection</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Credit card.svg" class="ds-icon ds-icon-sm"><span>Credit card</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Cube.svg" class="ds-icon ds-icon-sm"><span>Cube</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Database.svg" class="ds-icon ds-icon-sm"><span>Database</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Desktop.svg" class="ds-icon ds-icon-sm"><span>Desktop</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Diamond.svg" class="ds-icon ds-icon-sm"><span>Diamond</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Dollar.svg" class="ds-icon ds-icon-sm"><span>Dollar</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Edit.svg" class="ds-icon ds-icon-sm"><span>Edit</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Email.svg" class="ds-icon ds-icon-sm"><span>Email</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Eye.svg" class="ds-icon ds-icon-sm"><span>Eye</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Filter.svg" class="ds-icon ds-icon-sm"><span>Filter</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Flash.svg" class="ds-icon ds-icon-sm"><span>Flash</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Flow.svg" class="ds-icon ds-icon-sm"><span>Flow</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Folder.svg" class="ds-icon ds-icon-sm"><span>Folder</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Gear.svg" class="ds-icon ds-icon-sm"><span>Gear</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Gift.svg" class="ds-icon ds-icon-sm"><span>Gift</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Globe.svg" class="ds-icon ds-icon-sm"><span>Globe</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Graph up.svg" class="ds-icon ds-icon-sm"><span>Graph up</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Handshake.svg" class="ds-icon ds-icon-sm"><span>Handshake</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Heart.svg" class="ds-icon ds-icon-sm"><span>Heart</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Home.svg" class="ds-icon ds-icon-sm"><span>Home</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Image.svg" class="ds-icon ds-icon-sm"><span>Image</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Key.svg" class="ds-icon ds-icon-sm"><span>Key</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Laptop.svg" class="ds-icon ds-icon-sm"><span>Laptop</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Launch.svg" class="ds-icon ds-icon-sm"><span>Launch</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Layers.svg" class="ds-icon ds-icon-sm"><span>Layers</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Lightbulb.svg" class="ds-icon ds-icon-sm"><span>Lightbulb</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Link.svg" class="ds-icon ds-icon-sm"><span>Link</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Location.svg" class="ds-icon ds-icon-sm"><span>Location</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Lock.svg" class="ds-icon ds-icon-sm"><span>Lock</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Magic wand.svg" class="ds-icon ds-icon-sm"><span>Magic wand</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Magnifying.svg" class="ds-icon ds-icon-sm"><span>Magnifying</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Megaphone.svg" class="ds-icon ds-icon-sm"><span>Megaphone</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Network.svg" class="ds-icon ds-icon-sm"><span>Network</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Organization.svg" class="ds-icon ds-icon-sm"><span>Organization</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Pen.svg" class="ds-icon ds-icon-sm"><span>Pen</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Phone.svg" class="ds-icon ds-icon-sm"><span>Phone</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Play Button.svg" class="ds-icon ds-icon-sm"><span>Play Button</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Plus.svg" class="ds-icon ds-icon-sm"><span>Plus</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Puzzle.svg" class="ds-icon ds-icon-sm"><span>Puzzle</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Refresh.svg" class="ds-icon ds-icon-sm"><span>Refresh</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Search.svg" class="ds-icon ds-icon-sm"><span>Search</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Settings gear.svg" class="ds-icon ds-icon-sm"><span>Settings gear</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Share.svg" class="ds-icon ds-icon-sm"><span>Share</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Shield check.svg" class="ds-icon ds-icon-sm"><span>Shield check</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Shopping Cart.svg" class="ds-icon ds-icon-sm"><span>Shopping Cart</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Signal.svg" class="ds-icon ds-icon-sm"><span>Signal</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Spaceship.svg" class="ds-icon ds-icon-sm"><span>Spaceship</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Stats.svg" class="ds-icon ds-icon-sm"><span>Stats</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Suitcase.svg" class="ds-icon ds-icon-sm"><span>Suitcase</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Target.svg" class="ds-icon ds-icon-sm"><span>Target</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Thumbs Up.svg" class="ds-icon ds-icon-sm"><span>Thumbs Up</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Tool.svg" class="ds-icon ds-icon-sm"><span>Tool</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Trophy.svg" class="ds-icon ds-icon-sm"><span>Trophy</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Unlock.svg" class="ds-icon ds-icon-sm"><span>Unlock</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=User.svg" class="ds-icon ds-icon-sm"><span>User</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Users.svg" class="ds-icon ds-icon-sm"><span>Users</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Video.svg" class="ds-icon ds-icon-sm"><span>Video</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Wallet.svg" class="ds-icon ds-icon-sm"><span>Wallet</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Warning.svg" class="ds-icon ds-icon-sm"><span>Warning</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=WiFi.svg" class="ds-icon ds-icon-sm"><span>WiFi</span></div>
+            <div class="ds-icon-item"><img src="Icons/Property 1=Win.svg" class="ds-icon ds-icon-sm"><span>Win</span></div>
+        </div>
+
+        <p style="font-size: var(--text-body-sm); color: var(--color-text-muted); margin-top: var(--space-5);">
+            Showing 90 of 267 icons. All icons live in <code style="color: var(--color-purple-light);">Icons/Property 1=Name.svg</code>
+        </p>
+    </section>
+
+    <!-- ========== COMPONENTS ========== -->
+    <section class="ds-section">
+        <h2 class="ds-section-title">Component Examples</h2>
+
+        <div class="ds-components-grid">
+            <div class="ds-card-example">
+                <h3>Solid Card</h3>
+                <p>Background uses <code>--color-surface</code>, radius uses <code>--radius-lg</code>, padding uses <code>--space-8</code>.</p>
+            </div>
+
+            <div class="ds-bordered-card">
+                <h3>Bordered Card</h3>
+                <p>Border uses <code>--color-border-strong</code>, radius uses <code>--radius-xl</code>, padding uses <code>--space-8</code>.</p>
+                <a href="#" class="ds-pill-btn">Action button &rsaquo;</a>
+            </div>
+
+            <div>
+                <div class="ds-mini-title">Mini title here</div>
+                <div class="ds-feature-card" style="margin-bottom: var(--space-5);">
+                    <div class="ds-icon-circle">&rarr;</div>
+                    <p>Feature card with icon circle. Uses <code>--color-surface</code> bg, <code>--radius-md</code>, and <code>--space-6</code> padding.</p>
+                </div>
+                <div class="ds-feature-card">
+                    <div class="ds-icon-circle">&rarr;</div>
+                    <p>Second feature card row demonstrating consistent spacing via <code>--space-5</code> gap.</p>
+                </div>
+            </div>
+
+            <div class="ds-instruction-box">
+                <strong>[Delete this when in use]</strong>
+                Instruction callout box using <code>--color-red</code> background with <code>--radius-md</code> corners and <code>--space-4</code> padding.
+            </div>
+        </div>
+    </section>
+
+</body>
+</html>

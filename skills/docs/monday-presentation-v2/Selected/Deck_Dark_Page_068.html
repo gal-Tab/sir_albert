@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3 Images Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        :root {
+            --base-font-size: 1.85vmin;
+        }
+
+        .slide-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .main-title {
+            font-size: var(--text-h3);
+            font-weight: var(--weight-regular);
+            flex-shrink: 0;
+            margin-right: 2vw;
+        }
+
+        .slide-content {
+            display: flex;
+            justify-content: space-between;
+            gap: 2vw;
+            margin-top: 7vh;
+            flex-grow: 1;
+        }
+
+        .card {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-md);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .card-image {
+            height: 30vh;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .card-text {
+            padding: var(--space-6);
+        }
+
+        .card-title {
+            font-size: var(--text-h4);
+            font-weight: var(--weight-medium);
+            margin-bottom: var(--space-5);
+            color: var(--color-text);
+        }
+
+        .card-body {
+            font-size: var(--text-body);
+            font-weight: var(--weight-light);
+            line-height: 1.6;
+            color: var(--color-text);
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <header class="slide-header">
+            <h1 class="main-title">3 Images – Add your title here</h1>
+        </header>
+        <main class="slide-content">
+            <div class="card">
+                <div class="card-image card-image-1" data-image-placeholder="photo"></div>
+                <div class="card-text">
+                    <h2 class="card-title">Add your title</h2>
+                    <p class="card-body">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    </p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-image card-image-2" data-image-placeholder="photo"></div>
+                <div class="card-text">
+                    <h2 class="card-title">Add your title</h2>
+                    <p class="card-body">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    </p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-image card-image-3" data-image-placeholder="photo"></div>
+                <div class="card-text">
+                    <h2 class="card-title">Add your title</h2>
+                    <p class="card-body">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    </p>
+                </div>
+            </div>
+        </main>
+    </div>
+<script src="entrance-animations.js"></script>
+</body>
+</html>

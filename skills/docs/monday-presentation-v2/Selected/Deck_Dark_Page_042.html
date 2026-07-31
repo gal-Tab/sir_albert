@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deck Dark Page 042</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            display: grid;
+            grid-template-columns: 0.8fr 1.2fr;
+            gap: var(--space-9);
+            align-items: center;
+        }
+
+        .left-column {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100%;
+        }
+
+        .main-title {
+            font-size: var(--text-h1);
+            font-weight: var(--weight-medium);
+            line-height: 1.1;
+            margin: 0;
+        }
+
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: var(--space-5);
+            height: 100%;
+        }
+
+        .feature-card {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-md);
+            padding: var(--space-6);
+            display: flex;
+            align-items: center;
+            gap: var(--space-5);
+        }
+
+        .icon-circle {
+            width: 5vmin;
+            height: 5vmin;
+            border-radius: 50%;
+            border: 1px solid var(--color-text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .icon-arrow {
+            font-size: var(--text-h4);
+            color: var(--color-text);
+        }
+
+        .card-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-text {
+            font-size: var(--text-body-sm);
+            font-weight: var(--weight-regular);
+            line-height: 1.5;
+            color: var(--color-text-muted);
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        <div class="left-column">
+            <h1 class="main-title">Add your title here</h1>
+        </div>
+
+        <div class="right-column">
+            <!-- Card 1 -->
+            <div class="feature-card">
+                <div class="icon-circle">
+                    <span class="icon-arrow">→</span>
+                </div>
+                <div class="card-content">
+                    <p class="card-text">Dapibus ultrices in iaculis nunc. Sit amet tellus cras adipiscing enim, Dolor sit amet.</p>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="feature-card">
+                <div class="icon-circle">
+                    <span class="icon-arrow">→</span>
+                </div>
+                <div class="card-content">
+                    <p class="card-text">Dapibus ultrices in iaculis nunc. Sit amet tellus cras adipiscing enim, Dolor sit amet.</p>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="feature-card">
+                <div class="icon-circle">
+                    <span class="icon-arrow">→</span>
+                </div>
+                <div class="card-content">
+                    <p class="card-text">Dapibus ultrices in iaculis nunc. Sit amet tellus cras adipiscing enim, Dolor sit amet.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script src="entrance-animations.js"></script>
+</body>
+</html>

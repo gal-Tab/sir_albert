@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pie Chart Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        :root {
+            --slide-width: 90vw;
+            --slide-height: calc(var(--slide-width) * 9 / 16);
+            --vmin: min(var(--slide-width) / 100, var(--slide-height) / 100);
+            --line-color: #8A8A8A;
+        }
+
+        .slide-container {
+            width: var(--slide-width);
+            height: var(--slide-height);
+            max-width: 1920px;
+            max-height: 1080px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .title-container {
+            flex-basis: 45%;
+            padding-left: calc(80 / 1920 * 100vw);
+        }
+
+        .title {
+            font-size: var(--text-h1);
+            font-weight: var(--weight-light);
+            line-height: 1.2;
+        }
+
+        .chart-container {
+            flex-basis: 58%;
+            height: calc(920 / 1080 * 100%);
+            background-color: var(--color-surface);
+            border-radius: calc(2.5 * var(--vmin));
+            position: relative;
+            display: grid;
+            place-items: center;
+        }
+
+        .pie-chart {
+            width: 55%;
+            aspect-ratio: 1 / 1;
+            border-radius: 50%;
+            background-image: conic-gradient(
+                from 139deg,
+                var(--color-yellow) 0% 10.9%,
+                var(--color-green) 10.9% 45.4%,
+                var(--color-purple) 45.4% 67.2%,
+                var(--color-red) 67.2% 100%
+            );
+            animation: chartScaleIn 0.8s ease-out both;
+        }
+
+        .label {
+            position: absolute;
+            font-size: calc(2 * var(--vmin));
+            color: #B8B8B8;
+        }
+
+        .label p {
+            margin: 0;
+            line-height: 1.3;
+            font-weight: var(--weight-light);
+        }
+
+        .label p:first-child {
+            color: var(--color-text);
+            font-weight: var(--weight-medium);
+        }
+
+        .label::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 1px;
+            background-color: var(--line-color);
+        }
+
+        .label::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: calc(0.8 * var(--vmin));
+            height: calc(0.8 * var(--vmin));
+            background-color: var(--line-color);
+            border-radius: 50%;
+        }
+
+        .label-1, .label-2 {
+            text-align: right;
+        }
+        .label-1::before, .label-2::before {
+            right: 100%;
+            margin-right: calc(1 * var(--vmin));
+        }
+        .label-1::after, .label-2::after {
+            transform: translate(50%, -50%);
+        }
+
+        .label-3, .label-4 {
+            text-align: left;
+        }
+        .label-3::before, .label-4::before {
+            left: 100%;
+            margin-left: calc(1 * var(--vmin));
+        }
+        .label-3::after, .label-4::after {
+            transform: translate(-50%, -50%);
+        }
+        
+        .label-1 {
+            top: 21%;
+            right: 12%;
+        }
+        .label-1::before { width: calc(11 * var(--vmin)); }
+        .label-1::after { right: calc(100% + 1 * var(--vmin) + 11 * var(--vmin)); }
+
+        .label-2 {
+            bottom: 32%;
+            right: 4%;
+        }
+        .label-2::before { width: calc(14 * var(--vmin)); }
+        .label-2::after { right: calc(100% + 1 * var(--vmin) + 14 * var(--vmin)); }
+
+        .label-3 {
+            bottom: 23%;
+            left: 9%;
+        }
+        .label-3::before { width: calc(15 * var(--vmin)); }
+        .label-3::after { left: calc(100% + 1 * var(--vmin) + 15 * var(--vmin)); }
+
+        .label-4 {
+            top: 30%;
+            left: 5%;
+        }
+        .label-4::before { width: calc(18 * var(--vmin)); }
+        .label-4::after { left: calc(100% + 1 * var(--vmin) + 18 * var(--vmin)); }
+
+        .instruction-box {
+            position: absolute;
+            top: 6%;
+            right: 8%;
+            background-color: var(--color-red);
+            border-radius: calc(2.5 * var(--vmin));
+            padding: calc(0.6 * var(--vmin));
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .instruction-box-inner {
+            background-color: var(--color-text);
+            color: var(--color-bg);
+            border-radius: calc(2 * var(--vmin));
+            padding: calc(2 * var(--vmin));
+            font-size: var(--text-caption);
+            line-height: 1.4;
+            width: calc(27 * var(--vmin));
+        }
+
+        .instruction-box-inner p {
+            margin-top: calc(1 * var(--vmin));
+        }
+        
+        .instruction-box-inner strong {
+            font-weight: var(--weight-semibold);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        <div class="title-container">
+            <h1 class="title">Add your title<br>here</h1>
+        </div>
+        <div class="chart-container">
+            <div class="pie-chart"></div>
+
+            <div class="label label-1">
+                <p>Team 1</p>
+                <p>21.8%</p>
+            </div>
+            <div class="label label-2">
+                <p>Team 2</p>
+                <p>32.7%</p>
+            </div>
+            <div class="label label-3">
+                <p>Team 3</p>
+                <p>10.9%</p>
+            </div>
+            <div class="label label-4">
+                <p>Team 4</p>
+                <p>34.5%</p>
+            </div>
+        </div>
+    </div>
+
+<script src="entrance-animations.js"></script>
+</body>
+</html>

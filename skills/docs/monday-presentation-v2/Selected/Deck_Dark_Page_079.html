@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        :root {
+            --chart-gridline: #3C3C47;
+            --chart-axis-text: #A9A9B4;
+        }
+
+        .slide-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .content-wrapper {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--space-4);
+        }
+
+        .title-container {
+            flex-basis: 35%;
+            padding-left: var(--space-7);
+        }
+
+        h1 {
+            font-size: var(--text-h3);
+            font-weight: var(--weight-light);
+            line-height: 1.3;
+        }
+
+        .chart-container {
+            flex-basis: 65%;
+            height: 85%;
+            background-color: var(--color-surface);
+            border-radius: var(--radius-md);
+            padding: var(--space-6);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .note {
+            position: absolute;
+            top: -2.5vmin;
+            right: 2.5vmin;
+            background-color: var(--color-red);
+            padding: 0.7vmin;
+            border-radius: var(--radius-md);
+            z-index: 10;
+        }
+
+        .note-inner {
+            background-color: var(--color-text);
+            color: var(--color-bg);
+            padding: 1.8vmin;
+            border-radius: var(--radius-md);
+            font-size: 1.25vmin;
+            line-height: 1.6;
+            width: 28vmin;
+        }
+        
+        .note-inner b {
+            font-weight: var(--weight-semibold);
+        }
+
+        .chart {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-template-rows: 1fr auto auto;
+            height: 100%;
+            width: 100%;
+            gap: var(--space-3) var(--space-4);
+        }
+
+        .y-axis {
+            grid-column: 1;
+            grid-row: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            text-align: right;
+            font-size: var(--text-caption);
+            font-weight: var(--weight-semibold);
+            color: var(--chart-axis-text);
+            padding-bottom: var(--space-1);
+        }
+
+        .plot-area {
+            grid-column: 2;
+            grid-row: 1;
+            position: relative;
+            border-bottom: 1px solid var(--chart-axis-text);
+        }
+
+        .gridlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .gridline {
+            height: 0.1vmin;
+            background-color: var(--chart-gridline);
+        }
+        
+        .gridline:last-child {
+            background-color: transparent;
+        }
+
+        .bars-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 100%;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .bar-group {
+            display: flex;
+            gap: 0.8vmin;
+            align-items: flex-end;
+            height: 100%;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .bar {
+            width: 2.8vmin;
+            border-radius: var(--radius-xs) var(--radius-xs) 0 0;
+            position: relative;
+            transform-origin: bottom;
+            animation: chartBarGrow 0.6s ease-out both;
+        }
+
+        .bar-group:nth-child(1) .bar { animation-delay: 0.1s; }
+        .bar-group:nth-child(2) .bar { animation-delay: 0.18s; }
+        .bar-group:nth-child(3) .bar { animation-delay: 0.26s; }
+        .bar-group:nth-child(4) .bar { animation-delay: 0.34s; }
+        .bar-group:nth-child(5) .bar { animation-delay: 0.42s; }
+        .bar-group:nth-child(6) .bar { animation-delay: 0.5s; }
+        .bar-group:nth-child(7) .bar { animation-delay: 0.58s; }
+        .bar-group:nth-child(8) .bar { animation-delay: 0.66s; }
+        
+        .bar.actual { background-color: var(--color-green); }
+        .bar.goal { background-color: var(--color-purple); }
+
+        .value-label {
+            position: absolute;
+            top: -2.5vmin;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: var(--text-caption);
+            font-weight: var(--weight-semibold);
+            color: var(--color-text);
+            white-space: nowrap;
+        }
+
+        .x-axis {
+            grid-column: 2;
+            grid-row: 2;
+            display: flex;
+            justify-content: space-around;
+            padding-top: var(--space-1);
+        }
+
+        .x-axis span {
+            font-size: var(--text-caption);
+            font-weight: var(--weight-semibold);
+            color: var(--chart-axis-text);
+            flex: 1;
+            text-align: center;
+        }
+
+        .legend {
+            grid-column: 2;
+            grid-row: 3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: var(--space-5);
+            padding-top: var(--space-4);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .legend-key {
+            width: 1.6vmin;
+            height: 1.6vmin;
+        }
+        
+        .legend-item span {
+            font-size: var(--text-caption);
+            font-weight: var(--weight-semibold);
+            color: var(--chart-axis-text);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <div class="content-wrapper">
+            <div class="title-container">
+                <h1>Add your title<br>here</h1>
+            </div>
+            <div class="chart-container">
+                <div class="chart">
+                    <div class="y-axis">
+                        <span>$8.0M</span>
+                        <span>$6.0M</span>
+                        <span>$4.0M</span>
+                        <span>$2.0M</span>
+                        <span>$0.0M</span>
+                    </div>
+                    <div class="plot-area">
+                        <div class="gridlines">
+                            <div class="gridline"></div>
+                            <div class="gridline"></div>
+                            <div class="gridline"></div>
+                            <div class="gridline"></div>
+                            <div class="gridline"></div>
+                        </div>
+                        <div class="bars-container">
+                            <div class="bar-group">
+                                <div class="bar actual" style="height: 10%;">
+                                    <div class="value-label">$0.8M</div>
+                                </div>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar actual" style="height: 52.5%;">
+                                    <div class="value-label">$4.2M</div>
+                                </div>
+                                <div class="bar goal" style="height: 90%;">
+                                    <div class="value-label">$7.2M</div>
+                                </div>
+                            </div>
+                            <div class="bar-group">
+                                 <div class="bar actual" style="height: 30%;">
+                                    <div class="value-label">$2.4M</div>
+                                </div>
+                                <div class="bar goal" style="height: 90%;">
+                                    <div class="value-label">$7.2M</div>
+                                </div>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar actual" style="height: 46.25%;">
+                                    <div class="value-label">$3.7M</div>
+                                </div>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar actual" style="height: 53.75%;">
+                                    <div class="value-label">$4.3M</div>
+                                </div>
+                                <div class="bar goal" style="height: 72.5%;">
+                                    <div class="value-label">$5.8M</div>
+                                </div>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar actual" style="height: 70%;">
+                                    <div class="value-label">$5.6M</div>
+                                </div>
+                                <div class="bar goal" style="height: 70%;"></div>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar actual" style="height: 70%;">
+                                    <div class="value-label">$5.6M</div>
+                                </div>
+                                <div class="bar goal" style="height: 70%;"></div>
+                            </div>
+                             <div class="bar-group">
+                                <div class="bar actual" style="height: 70%;">
+                                    <div class="value-label">$5.6M</div>
+                                </div>
+                                <div class="bar goal" style="height: 70%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="x-axis">
+                        <span>2024 Q1</span>
+                        <span>2024 Q2</span>
+                        <span>2024 Q3</span>
+                        <span>2024 Q4</span>
+                        <span>2025 Q1</span>
+                        <span>2025 Q2</span>
+                        <span>2025 Q3</span>
+                        <span>2025 Q4</span>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-key" style="background-color: var(--color-green);"></div>
+                            <span>Actual</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-key" style="background-color: var(--color-purple);"></div>
+                            <span>Goal</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="entrance-animations.js"></script>
+</body>
+</html>

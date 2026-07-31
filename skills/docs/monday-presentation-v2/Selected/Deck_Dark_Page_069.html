@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4 Columns Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-title {
+            font-size: var(--text-h2);
+            font-weight: var(--weight-semibold);
+            margin: 0 0 var(--space-7) 0;
+            padding: 0;
+        }
+
+        .columns-container {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            gap: var(--space-3);
+        }
+
+        .column {
+            flex: 1;
+            background-color: var(--color-surface);
+            border-radius: var(--radius-md);
+            padding: var(--space-5) var(--space-5);
+            min-width: 0;
+        }
+
+        .column-title {
+            font-size: var(--text-h4);
+            font-weight: var(--weight-semibold);
+            margin: 0 0 var(--space-4) 0;
+            line-height: 1.2;
+        }
+
+        .column-text {
+            font-size: var(--text-body);
+            font-weight: var(--weight-regular);
+            margin: 0 0 var(--space-5) 0;
+            line-height: 1.5;
+            color: #E6E6E6;
+        }
+
+        .column-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        .column-list li {
+            font-size: var(--text-body);
+            font-weight: var(--weight-regular);
+            line-height: 1.5;
+            padding-left: 1.4em;
+            position: relative;
+            color: #E6E6E6;
+        }
+
+        .column-list li:not(:last-child) {
+            margin-bottom: 1em;
+        }
+
+        .column-list li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            top: 0.1em;
+            color: var(--color-text);
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        <h1 class="main-title">4 columns - Add your title here</h1>
+        <div class="columns-container">
+            <div class="column">
+                <h2 class="column-title">Add your title here</h2>
+                <p class="column-text">Lorem ipsum dolor sit amet consectetur adipiscing elit duis</p>
+                <ul class="column-list">
+                    <li>Ut faucibus pul vinar elementum</li>
+                    <li>Dolor sit consecte adipiscing elit duis dolor</li>
+                </ul>
+            </div>
+            <div class="column">
+                <h2 class="column-title">Add your title here</h2>
+                <p class="column-text">Lorem ipsum dolor sit amet consectetur adipiscing elit duis</p>
+                <ul class="column-list">
+                    <li>Ut faucibus pul vinar elementum</li>
+                    <li>Dolor sit consecte adipiscing elit duis dolor</li>
+                </ul>
+            </div>
+            <div class="column">
+                <h2 class="column-title">Add your title here</h2>
+                <p class="column-text">Lorem ipsum dolor sit amet consectetur adipiscing elit duis</p>
+                <ul class="column-list">
+                    <li>Ut faucibus pul vinar elementum</li>
+                    <li>Dolor sit consecte adipiscing elit duis dolor</li>
+                </ul>
+            </div>
+            <div class="column">
+                <h2 class="column-title">Add your title here</h2>
+                <p class="column-text">Lorem ipsum dolor sit amet consectetur adipiscing elit duis</p>
+                <ul class="column-list">
+                    <li>Ut faucibus pul vinar elementum</li>
+                    <li>Dolor sit consecte adipiscing elit duis dolor</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+<script src="entrance-animations.js"></script>
+</body>
+</html>

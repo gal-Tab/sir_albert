@@ -1,9 +1,18 @@
 ---
-name: brainstorm-council
-description: Convene a council of sharp, opinionated thinkers to brainstorm, sharpen, or attack an idea. Use when the user wants to explore an idea from multiple angles, challenge assumptions, find unexplored directions, or stress-test a concept. Triggers on phrases like "brainstorm this", "challenge this idea", "explore this with me", "sharpen this", "attack this idea", "what would [thinker] say about", or when the user wants a fresh perspective on a product, technical, or strategic idea.
+name: discovery-lens
+description: >
+  AUTO-LOAD during any brainstorm, discovery, or ideation moment. Convene a council of sharp,
+  opinionated thinkers to explore, sharpen, or attack an idea from multiple angles — challenging
+  assumptions, surfacing blind spots, and finding unexplored directions. Fire immediately (without
+  waiting for an explicit slash command) whenever the user: says "brainstorm this", "let's explore",
+  "help me think through X", "sharpen this idea", "attack this idea", "what are we missing",
+  "WDYT", "fresh perspective", "AI-first perspective", "discovery phase", "explore this with me",
+  "challenge this idea", or is clearly entering a discovery / early-thinking phase on a product,
+  technical, GTM, or strategic idea. Also use when the user wants multiple viewpoints, stress-tests
+  a concept, or asks what sharp thinkers would say about an idea.
 ---
 
-# Brainstorm Council
+# Discovery Lens
 
 Convene 2–3 sharp, opinionated voices to engage with an idea. Each voice has a distinct lens. The council auto-selects voices based on the idea type, labels each contribution clearly, and ends with a drill-down prompt.
 

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3 Columns Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            font-size: var(--text-h3);
+            font-weight: var(--weight-regular);
+            margin-bottom: var(--space-7);
+        }
+
+        .columns-container {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            gap: var(--space-5);
+        }
+
+        .column {
+            flex: 1;
+            background-color: var(--color-surface);
+            border-radius: var(--radius-md);
+            padding: var(--space-7);
+            min-width: 0;
+        }
+
+        .column h2 {
+            font-size: var(--text-h4);
+            font-weight: var(--weight-semibold);
+            margin-bottom: var(--space-5);
+        }
+
+        .column p, .column li {
+            font-size: var(--text-body-sm);
+            font-weight: var(--weight-light);
+            line-height: 1.6;
+        }
+
+        .column p {
+            margin-bottom: var(--space-6);
+        }
+
+        .column ul {
+            list-style: none;
+        }
+
+        .column li {
+            position: relative;
+            padding-left: var(--space-5);
+        }
+
+        .column li:not(:last-child) {
+            margin-bottom: var(--space-5);
+        }
+
+        .column li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 1.1vmin;
+            width: 0.8vmin;
+            height: 0.8vmin;
+            background-color: var(--color-text);
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        <h1>3 columns - Add your title here</h1>
+        <div class="columns-container">
+            <div class="column">
+                <h2>Add your title</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                <ul>
+                    <li>Mi quis hendrerit dolor magna eget est.</li>
+                    <li>At urna condimentum mattis pellentesque id nibh tortor id,</li>
+                </ul>
+            </div>
+            <div class="column">
+                <h2>Add your title</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                <ul>
+                    <li>Mi quis hendrerit dolor magna eget est.</li>
+                    <li>At urna condimentum mattis pellentesque id nibh tortor id,</li>
+                </ul>
+            </div>
+            <div class="column">
+                <h2>Add your title</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                <ul>
+                    <li>Mi quis hendrerit dolor magna eget est.</li>
+                    <li>At urna condimentum mattis pellentesque id nibh tortor id,</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+<script src="entrance-animations.js"></script>
+</body>
+</html>

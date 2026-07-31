@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deck Dark Page 035</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-9);
+        }
+
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            gap: var(--space-5);
+        }
+
+        .main-title {
+            font-size: var(--text-h1);
+            font-weight: var(--weight-medium);
+            line-height: 1.1;
+            margin: 0;
+        }
+
+        .intro-text {
+            font-size: var(--text-h4);
+            font-weight: var(--weight-regular);
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        .bullet-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+            font-size: var(--text-body);
+            font-weight: var(--weight-regular);
+            line-height: 1.5;
+        }
+
+        .bullet-list li {
+            padding-left: 3.5vmin;
+            position: relative;
+            margin-bottom: var(--space-4);
+        }
+
+        .bullet-list li::before {
+            content: '•';
+            font-size: var(--text-h4);
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .tags-container {
+            display: flex;
+            gap: var(--space-3);
+            margin-top: var(--space-7);
+        }
+
+        .tag {
+            padding: 0.8vmin var(--space-5);
+            border-radius: var(--radius-xl);
+            font-size: var(--text-body-sm);
+            font-weight: var(--weight-regular);
+        }
+
+        .tag-blue { background-color: var(--color-purple); color: var(--color-text); }
+        .tag-yellow { background-color: var(--color-yellow); color: var(--color-bg); }
+        .tag-gray { background-color: var(--color-surface); color: var(--color-text); }
+
+        .right-column {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-lg);
+            padding: var(--space-8);
+            height: 90%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .placeholder-icon {
+            width: var(--icon-xl);
+            height: var(--icon-xl);
+            object-fit: contain;
+            opacity: 0.4;
+        }
+
+        .instruction-box {
+            position: absolute;
+            top: var(--space-6);
+            right: var(--space-6);
+            background-color: var(--color-red);
+            color: var(--color-text);
+            padding: 2.2vmin;
+            border-radius: var(--radius-md);
+            width: 30vmin;
+            font-size: var(--text-body-sm);
+            line-height: 1.5;
+            z-index: 100;
+            box-shadow: 0 1vmin 3vmin rgba(0,0,0,0.4);
+            text-align: left;
+        }
+
+        .instruction-header {
+            font-weight: var(--weight-semibold);
+            margin-bottom: var(--space-2);
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        <div class="left-column">
+            <h1 class="main-title">Add your title here</h1>
+            <p class="intro-text">This is a key in your sentence, use it wisely & keep it short</p>
+            <ul class="bullet-list">
+                <li>If you want to become a great speaker, you must become a great storyteller</li>
+                <li>This is a key in your sentence, use it wisely & keep it short</li>
+                <li>If you want to become a great speaker, you must become a great storyteller</li>
+            </ul>
+            <div class="tags-container">
+                <div class="tag tag-blue">Lorem ipsum</div>
+                <div class="tag tag-yellow">Lorem ipsum</div>
+                <div class="tag tag-gray">Lorem ipsum</div>
+            </div>
+        </div>
+
+        <div class="right-column" data-image-placeholder="photo">
+            <img src="Icons/Property 1=Image.svg" class="placeholder-icon ds-icon-white" alt="Image placeholder">
+            
+        </div>
+    </div>
+
+<script src="entrance-animations.js"></script>
+</body>
+</html>

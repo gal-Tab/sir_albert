@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deck Dark Page 001</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .content-wrapper {
+            text-align: center;
+            margin-bottom: 12vmin;
+        }
+
+        h1 {
+            color: var(--color-text);
+            font-weight: var(--weight-regular);
+            font-size: var(--text-h1);
+            margin: 0 0 var(--space-4) 0;
+            letter-spacing: -0.03em;
+        }
+
+        .highlight {
+            color: var(--color-yellow);
+            font-weight: var(--weight-semibold);
+        }
+
+        p {
+            color: var(--color-text);
+            font-size: var(--text-h4);
+            line-height: 1.5;
+            font-weight: var(--weight-light);
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .logo-container {
+            position: absolute;
+            bottom: var(--space-8);
+            display: flex;
+            justify-content: center;
+        }
+
+        .monday-logo {
+            height: 4vmin;
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        <div class="content-wrapper">
+            <h1>First make a <span class="highlight">copy.</span></h1>
+            <p>
+                This is an explanatory slide for internal use only.<br>
+                Be sure to save it in your drive and delete this slide before use.
+            </p>
+        </div>
+
+        <div class="logo-container">
+            <img src="monday_logo.svg" alt="monday.com" class="monday-logo">
+        </div>
+    </div>
+
+<script src="entrance-animations.js"></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table chart vertical rows</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            font-size: var(--text-h1);
+            font-weight: var(--weight-light);
+            margin: 0 0 var(--space-8) 0;
+            line-height: 1.2;
+            text-align: left;
+        }
+
+        .chart {
+            flex: 1;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: auto repeat(6, 1fr);
+            column-gap: var(--space-4);
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+            padding: var(--space-5) 0;
+            min-height: 0;
+        }
+
+        .column.boxed {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-md);
+            padding: var(--space-5) var(--space-4);
+        }
+
+        .cell {
+            font-size: var(--text-h4);
+            font-weight: var(--weight-regular);
+            display: flex;
+            align-items: center;
+        }
+
+        .column.labels .cell {
+            justify-content: flex-start;
+        }
+
+        .column.data-col .cell {
+            justify-content: center;
+        }
+
+        .column.labels .cell:first-child {
+            visibility: hidden;
+        }
+
+        .column.data-col { animation: chartFadeUp 0.5s ease-out both; }
+        .column.data-col:nth-child(2) { animation-delay: 0.1s; }
+        .column.data-col:nth-child(3) { animation-delay: 0.2s; }
+        .column.data-col:nth-child(4) { animation-delay: 0.3s; }
+        .column.data-col:nth-child(5) { animation-delay: 0.4s; }
+        .column.data-col:nth-child(6) { animation-delay: 0.5s; }
+        .column.data-col:nth-child(7) { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <h1>Table chart vertical rows - Add your title here</h1>
+        <div class="chart">
+            <div class="column labels">
+                <div class="cell"></div>
+                <div class="cell">Lorem ipsum</div>
+                <div class="cell">Lorem ipsum</div>
+                <div class="cell">Lorem ipsum</div>
+                <div class="cell">Lorem ipsum</div>
+            </div>
+
+            <div class="column data-col boxed">
+                <div class="cell">Add your title</div>
+                <div class="cell">45</div>
+                <div class="cell">35</div>
+                <div class="cell">68</div>
+                <div class="cell">90</div>
+            </div>
+            <div class="column data-col">
+                <div class="cell">Add your title</div>
+                <div class="cell">-630</div>
+                <div class="cell">235%</div>
+                <div class="cell">+730%</div>
+                <div class="cell">250</div>
+            </div>
+            <div class="column data-col boxed">
+                <div class="cell">Add your title</div>
+                <div class="cell">10</div>
+                <div class="cell">9</div>
+                <div class="cell">3</div>
+                <div class="cell">7</div>
+            </div>
+            <div class="column data-col">
+                <div class="cell">Add your title</div>
+                <div class="cell">35%</div>
+                <div class="cell">10/50</div>
+                <div class="cell">579</div>
+                <div class="cell">$542,780</div>
+            </div>
+            <div class="column data-col boxed">
+                <div class="cell">Add your title</div>
+                <div class="cell">4000%</div>
+                <div class="cell">234</div>
+                <div class="cell">678</div>
+                <div class="cell">168,753</div>
+            </div>
+            <div class="column data-col">
+                <div class="cell">Add your title</div>
+                <div class="cell">100%</div>
+                <div class="cell">55.68</div>
+                <div class="cell">357</div>
+                <div class="cell">40%</div>
+            </div>
+
+        </div>
+    </div>
+<script src="entrance-animations.js"></script>
+</body>
+</html>

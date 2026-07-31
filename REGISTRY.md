@@ -43,6 +43,8 @@ Skills that generate interactive HTML documents (plans, specs, PRDs).
 |---|---|---|
 | html-plans | `skills/docs/html-plans/` | "write a plan", "implementation steps", "plan this feature" |
 | to-prd | `skills/docs/to-prd/` | "write a PRD", "create a spec", "document this feature" |
+| monday-presentation-v2 | `skills/docs/monday-presentation-v2/` | "create a presentation", "build slides", "make a deck", "slide deck with monday branding" |
+| monday-brand-guidelines | `skills/docs/monday-brand-guidelines/` | "monday brand", "apply monday colors", "monday design identity", monday branding for HTML/charts/marketing/UI |
 
 Shared design system: `shared/references/design-tokens.md` and `shared/references/mermaid-patterns.md`
 
@@ -76,12 +78,24 @@ Skills for business reasoning, decision-making, and work-management integrations
 
 | Skill | Path | Trigger phrases |
 |---|---|---|
+| discovery-lens | `skills/biz/discovery-lens/` | "brainstorm this", "let's explore", "help me think through X", "sharpen this idea", "attack this idea", "what are we missing", "WDYT", "fresh perspective", "discovery phase", "AI-first perspective" |
 | board-of-advisors | `skills/biz/board-of-advisors/` | "board of advisors", "4 perspectives", "multiple viewpoints" |
 | devils-advocate | `skills/biz/devils-advocate/` | "play devil's advocate", "stress test this", "challenge my idea" |
 | zoom-out | `skills/biz/zoom-out/` | "zoom out", "bigger picture", "how does this fit" |
 | monday-mops-triage | `skills/biz/monday-mops-triage/` | "add a task to MOPs", "open a ticket", "put this in the iteration" |
 | slack-in-my-voice | `skills/biz/slack-in-my-voice/` | "send a Slack", "draft a slack message", "write this for slack" |
 | linkedin-in-my-voice | `skills/biz/linkedin-in-my-voice/` | "write a LinkedIn post", "draft a linkedin post", "כתוב פוסט ללינקדאין" |
+
+---
+
+## packs — Domain Packs
+
+Skills for specific technology domains and platforms.
+
+| Skill | Path | Trigger phrases |
+|---|---|---|
+| ga4-regex | `skills/packs/gtm/ga4-regex/` | "GA4 regex", "regex for page_path", "match these URLs", "exclude this campaign", "RE2", "why doesn't my regex match in GA4", GA4/GTM + regex/pattern/match/exclude/filter |
+| monday-data-viz-vibe | `skills/packs/data/monday-data-viz-vibe/` | monday charts/dashboards in Python (Plotly/Matplotlib), Streamlit, or Tableau with Vibe design system; typography (Figtree), monday color palettes |
 
 ---
 

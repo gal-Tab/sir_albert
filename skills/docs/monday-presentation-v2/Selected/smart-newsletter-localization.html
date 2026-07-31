@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Newsletter Localization</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        /* Base styling for multi-slide presentation */
+        .slide-container {
+            width: 100vw;
+            height: 56.25vw;
+            max-height: 100vh;
+            max-width: 177.78vh;
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;
+            padding: var(--slide-padding-y) var(--slide-padding-x);
+        }
+
+        /* Hide inactive slides without touching their display type */
+        .slide-container:not(.slide-active) {
+            display: none !important;
+        }
+
+        /* ========== SLIDE 1: TITLE (from Deck_Dark_Page_001) ========== */
+        .slide-1.slide-active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .slide-1 .content-wrapper {
+            text-align: center;
+            margin-bottom: 12vmin;
+        }
+
+        .slide-1 h1 {
+            color: var(--color-text);
+            font-weight: var(--weight-regular);
+            font-size: var(--text-h1);
+            margin: 0 0 var(--space-4) 0;
+            letter-spacing: -0.03em;
+        }
+
+        .slide-1 .highlight {
+            color: var(--color-yellow);
+            font-weight: var(--weight-semibold);
+        }
+
+        .slide-1 p {
+            color: var(--color-text);
+            font-size: var(--text-h4);
+            line-height: 1.5;
+            font-weight: var(--weight-light);
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .slide-1 .logo-container {
+            position: absolute;
+            bottom: var(--space-8);
+            display: flex;
+            justify-content: center;
+        }
+
+        .slide-1 .monday-logo {
+            height: 4vmin;
+            width: auto;
+        }
+
+        /* ========== SLIDE 2: TIPS (from Deck_Dark_Page_003) ========== */
+        .slide-2.slide-active {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            grid-template-rows: auto 1fr auto;
+            gap: var(--space-5);
+        }
+
+        .slide-2 .left-col {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-8);
+        }
+
+        .slide-2 h1 {
+            font-size: var(--text-h2);
+            font-weight: var(--weight-light);
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        .slide-2 .tip-section {
+            display: grid;
+            grid-template-columns: 24vmin 1fr;
+            gap: var(--space-6);
+            align-items: center;
+        }
+
+        .slide-2 .tip-content h3 {
+            font-size: var(--text-h4);
+            margin: 0 0 var(--space-1) 0;
+            font-weight: var(--weight-regular);
+        }
+
+        .slide-2 .tip-content p {
+            font-size: var(--text-body);
+            line-height: 1.4;
+            margin: 0;
+            opacity: 0.9;
+            font-weight: var(--weight-light);
+            max-width: 50vmin;
+        }
+
+        .slide-2 .tip-content b { font-weight: var(--weight-semibold); }
+        .slide-2 .tip-content u { text-underline-offset: 0.4vmin; }
+
+        .slide-2 .right-col {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-5);
+        }
+
+        .slide-2 .card {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            padding: var(--space-7);
+        }
+
+        .slide-2 .card h2 { font-size: var(--text-h3); margin: 0 0 var(--space-3) 0; font-weight: var(--weight-regular); letter-spacing: -0.01em; }
+        .slide-2 .card p { font-size: var(--text-body); line-height: 1.5; font-weight: var(--weight-light); opacity: 0.8; }
+
+        .slide-2 .logo-container {
+            grid-column: span 2;
+            display: flex;
+            justify-content: center;
+            margin-top: var(--space-9);
+        }
+
+        .slide-2 .monday-logo {
+            height: 4.5vmin;
+        }
+
+        /* ========== SLIDE 3: METRICS ========== */
+        .slide-3.slide-active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .slide-3 .metrics-title {
+            font-size: var(--text-h2);
+            font-weight: var(--weight-light);
+            margin: 0 0 var(--space-8) 0;
+            letter-spacing: -0.01em;
+        }
+
+        .slide-3 .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-8);
+            width: 100%;
+            max-width: 90vmin;
+        }
+
+        .slide-3 .metric-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .slide-3 .metric-value {
+            font-size: var(--text-display);
+            font-weight: var(--weight-semibold);
+            color: var(--color-yellow);
+            margin: 0;
+        }
+
+        .slide-3 .metric-label {
+            font-size: var(--text-h4);
+            font-weight: var(--weight-regular);
+            color: var(--color-text);
+            margin: 0;
+        }
+
+        .slide-3 .metric-icon {
+            width: 5vmin;
+            height: 5vmin;
+        }
+
+        /* ========== SLIDE 4: FEATURES (from Deck_Dark_Page_044) ========== */
+        .slide-4.slide-active {
+            display: grid;
+            grid-template-columns: 0.6fr 1.4fr;
+            gap: var(--space-9);
+            align-items: center;
+        }
+
+        .slide-5 .left-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: var(--space-4);
+        }
+
+        .slide-5 .main-title {
+            font-size: var(--text-h1);
+            font-weight: var(--weight-medium);
+            line-height: 1.1;
+            margin: 0;
+        }
+
+        .slide-5 .subtitle {
+            font-size: var(--text-h4);
+            font-weight: var(--weight-regular);
+            color: #dddddd;
+            margin: 0;
+        }
+
+        .slide-5 .right-panel {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-lg);
+            padding: var(--space-8);
+            height: 90%;
+            box-sizing: border-box;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: var(--space-6);
+        }
+
+        .slide-5 .feature-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+
+        .slide-5 .feature-icon {
+            margin-bottom: var(--space-2);
+        }
+
+        .slide-5 .feature-icon img {
+            width: 32px;
+            height: 32px;
+        }
+
+        .slide-5 .feature-title {
+            font-size: var(--text-body);
+            font-weight: var(--weight-semibold);
+            margin: 0;
+        }
+
+        .slide-5 .feature-desc {
+            font-size: var(--text-body-sm);
+            font-weight: var(--weight-regular);
+            line-height: 1.5;
+            color: var(--color-text-muted);
+            margin: 0;
+        }
+
+        /* ========== SLIDE 5: BULLETS (from Deck_Dark_Page_037) ========== */
+        .slide-5.slide-active {
+            display: grid;
+            grid-template-columns: 1fr 1.4fr;
+            gap: var(--space-9);
+        }
+
+        .slide-5 .left-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            gap: var(--space-6);
+        }
+
+        .slide-5 .main-title {
+            font-size: var(--text-h1);
+            font-weight: var(--weight-medium);
+            line-height: 1.1;
+            margin: 0;
+        }
+
+        .slide-5 .bullet-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+            font-size: var(--text-body);
+            font-weight: var(--weight-regular);
+            line-height: 1.5;
+        }
+
+        .slide-5 .bullet-list li {
+            padding-left: 3.5vmin;
+            position: relative;
+            margin-bottom: var(--space-5);
+        }
+
+        .slide-5 .bullet-list li::before {
+            content: '•';
+            font-size: var(--text-h4);
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .slide-5 .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-5);
+            height: 100%;
+        }
+
+        .slide-5 .image-panel {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            flex: 1.5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .slide-5 .capabilities-panel {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: var(--space-4);
+        }
+
+        .slide-5 .cap-header {
+            font-size: var(--text-h4);
+            font-weight: var(--weight-semibold);
+            margin: 0;
+        }
+
+        .slide-5 .cap-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-3);
+        }
+
+        .slide-5 .cap-button {
+            background-color: var(--color-yellow);
+            color: var(--color-bg);
+            padding: var(--space-3);
+            border-radius: var(--radius-sm);
+            font-size: var(--text-caption);
+            font-weight: var(--weight-medium);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide-5 .placeholder-icon {
+            width: var(--icon-xl);
+            height: var(--icon-xl);
+            object-fit: contain;
+            opacity: 0.4;
+        }
+
+        .slide-5 .instruction-box {
+            position: absolute;
+            top: -3vmin;
+            right: -3vmin;
+            background-color: var(--color-red);
+            color: var(--color-text);
+            padding: 2.2vmin;
+            border-radius: var(--radius-md);
+            width: 30vmin;
+            font-size: var(--text-body-sm);
+            line-height: 1.5;
+            z-index: 100;
+            box-shadow: 0 1vmin 3vmin rgba(0,0,0,0.4);
+            text-align: left;
+        }
+
+        .slide-5 .instruction-header {
+            font-weight: var(--weight-semibold);
+            margin-bottom: var(--space-2);
+            text-transform: uppercase;
+        }
+
+        /* ========== SLIDE 6: IMPACT (from Deck_Dark_Page_021) ========== */
+        .slide-6.slide-active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding-bottom: 18vmin;
+        }
+
+        .slide-6 h1 {
+            font-size: var(--text-h1);
+            font-weight: var(--weight-regular);
+            margin: 0 0 var(--space-5) 0;
+            letter-spacing: -0.02em;
+        }
+
+        .slide-6 p {
+            font-size: var(--text-h3);
+            font-weight: var(--weight-light);
+            line-height: 1.5;
+            max-width: 80%;
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .slide-6 .logo-container {
+            position: absolute;
+            bottom: 5vmin;
+            display: flex;
+            justify-content: center;
+        }
+
+        .slide-6 .monday-logo {
+            height: 4.2vmin;
+        }
+
+        /* Navigation counter */
+        #slide-counter {
+            position: fixed;
+            bottom: var(--space-5);
+            right: var(--space-5);
+            font-family: 'Poppins', sans-serif;
+            font-size: var(--text-body-sm);
+            color: var(--color-text-muted);
+            cursor: pointer;
+            user-select: none;
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-full);
+            transition: all 0.2s ease;
+            z-index: 100;
+        }
+
+        #slide-counter:hover {
+            background-color: var(--color-surface);
+            color: var(--color-text);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SLIDE 1: TITLE -->
+    <div class="slide-container slide-1" data-slide-index="0">
+        <div class="content-wrapper">
+            <h1>Smart Newsletter <span class="highlight">Localization</span></h1>
+            <p>Enhancing content reach and relevance across global audiences</p>
+        </div>
+        <div class="logo-container">
+            <img src="monday_logo.svg" alt="monday.com" class="monday-logo">
+        </div>
+    </div>
+
+    <!-- SLIDE 2: TIPS (from Deck_Dark_Page_003) -->
+    <div class="slide-container slide-2" data-slide-index="1">
+        <div class="left-col">
+            <h1>Why Localization Matters</h1>
+            <div class="tip-section">
+                <div></div>
+                <div class="tip-content">
+                    <h3>Broader Reach</h3>
+                    <p>Content in native languages drives <b>3.5x higher engagement</b> across regions</p>
+                </div>
+            </div>
+            <div class="tip-section">
+                <div style="display: flex; flex-direction: row; gap: var(--space-6); justify-content: center; align-items: center;">
+                    <img src="Icons/Property 1=Globe.svg" class="ds-icon ds-icon-sm ds-icon-white" alt="Globe">
+                    <img src="Icons/Property 1=Users.svg" class="ds-icon ds-icon-sm ds-icon-white" alt="Users">
+                </div>
+                <div class="tip-content">
+                    <h3>Cultural Relevance</h3>
+                    <p>Tailored messaging respects <b>regional preferences</b> and cultural context</p>
+                </div>
+            </div>
+            <div class="tip-section">
+                <div style="display: flex; flex-direction: row; gap: var(--space-6); justify-content: center; align-items: center;">
+                    <img src="Icons/Property 1=Graph arrow up.svg" class="ds-icon ds-icon-sm ds-icon-white" alt="Growth">
+                    <img src="Icons/Property 1=Checkmark.svg" class="ds-icon ds-icon-sm ds-icon-white" alt="Success">
+                </div>
+                <div class="tip-content">
+                    <h3>Better Conversion</h3>
+                    <p>Localized CTAs improve <b>action rates by 40%</b> on average</p>
+                </div>
+            </div>
+        </div>
+        <div class="right-col">
+            <div class="card">
+                <h2>Global Strategy</h2>
+                <p>Localization is not just translation. It's about understanding your audience in every market and delivering content that resonates.</p>
+            </div>
+            <div class="card">
+                <h2>Design System Approach</h2>
+                <p>Using a unified design system with language-aware CSS variables ensures visual consistency while supporting text expansion and regional adaptations.</p>
+            </div>
+        </div>
+        <div class="logo-container">
+            <img src="monday_logo.svg" alt="monday.com" class="monday-logo">
+        </div>
+    </div>
+
+    <!-- SLIDE 3: METRICS -->
+    <div class="slide-container slide-3" data-slide-index="2">
+        <h2 class="metrics-title">Impact Metrics</h2>
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <img src="Icons/Property 1=Graph arrow up.svg" class="ds-icon ds-icon-lg" alt="Growth" style="filter: drop-shadow(0 0 0 var(--color-green)); stroke: var(--color-green); color: var(--color-green);">
+                <p class="metric-value">3.5x</p>
+                <p class="metric-label">Higher Engagement</p>
+            </div>
+            <div class="metric-card">
+                <img src="Icons/Property 1=Users.svg" class="ds-icon ds-icon-lg" alt="Audience" style="filter: drop-shadow(0 0 0 var(--color-purple)); stroke: var(--color-purple); color: var(--color-purple);">
+                <p class="metric-value">45+</p>
+                <p class="metric-label">Supported Languages</p>
+            </div>
+            <div class="metric-card">
+                <img src="Icons/Property 1=Checkmark.svg" class="ds-icon ds-icon-lg" alt="Success" style="filter: drop-shadow(0 0 0 var(--color-red)); stroke: var(--color-red); color: var(--color-red);">
+                <p class="metric-value">40%</p>
+                <p class="metric-label">Better Conversion</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: FEATURES -->
+    <div class="slide-container slide-4" data-slide-index="3">
+        <div class="left-column">
+            <h1 class="main-title">Design System Approach</h1>
+            <p class="subtitle">4 core pillars</p>
+        </div>
+        <div class="right-panel">
+            <div class="feature-item">
+                <div class="feature-icon"><img src="Icons/Property 1=Settings gear.svg" class="ds-icon ds-icon-md" alt="Visual Standards"></div>
+                <h3 class="feature-title">Visual Standards</h3>
+                <p class="feature-desc">Consistent branding across all locales and languages globally</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon"><img src="Icons/Property 1=Desktop.svg" class="ds-icon ds-icon-md" alt="Responsive"></div>
+                <h3 class="feature-title">Responsive Layouts</h3>
+                <p class="feature-desc">Adapts to different screen sizes and text expansion</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon"><img src="Icons/Property 1=Globe.svg" class="ds-icon ds-icon-md" alt="Language"></div>
+                <h3 class="feature-title">Language-Aware Typography</h3>
+                <p class="feature-desc">Font families and sizing optimized per language</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon"><img src="Icons/Property 1=Checkmark.svg" class="ds-icon ds-icon-md" alt="QA"></div>
+                <h3 class="feature-title">Quality Assurance</h3>
+                <p class="feature-desc">Automated checks for text overflow and rendering</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: IMPLEMENTATION -->
+    <div class="slide-container slide-5" data-slide-index="4">
+        <div class="left-column">
+            <h1 class="main-title">Implementation Details</h1>
+            <ul class="bullet-list">
+                <li><strong>Template System:</strong> YAML-based with locale-specific overrides for flexibility at scale</li>
+                <li><strong>Image Localization:</strong> Alt text auto-translates with captions and regional imagery</li>
+                <li><strong>CSS Flexibility:</strong> Variables adapt font sizes, spacing per language requirements</li>
+                <li><strong>Mobile-First:</strong> Responsive breakpoints handle text expansion gracefully</li>
+            </ul>
+        </div>
+        <div class="right-column">
+            <div class="image-panel" data-image-placeholder="photo">
+                <img src="Icons/Property 1=Image.svg" class="placeholder-icon ds-icon-white" alt="Localization diagram">
+            </div>
+            <div class="capabilities-panel">
+                <h3 class="cap-header">Key Capabilities</h3>
+                <div class="cap-grid">
+                    <div class="cap-button">Template System</div>
+                    <div class="cap-button">Auto Translation</div>
+                    <div class="cap-button">Image Adaptation</div>
+                    <div class="cap-button">QA Automation</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: IMPACT -->
+    <div class="slide-container slide-6" data-slide-index="5">
+        <h1>Expected Impact</h1>
+        <p>
+            Conservative estimates based on industry benchmarks<br>
+            and similar global rollouts across regions
+        </p>
+        <div class="logo-container">
+            <img src="monday_logo.svg" alt="monday.com" class="monday-logo">
+        </div>
+    </div>
+
+    <script src="entrance-animations.js"></script>
+    <script>
+        (function() {
+            let currentSlide = 0;
+            let slides = [];
+
+            function init() {
+                slides = document.querySelectorAll('[data-slide-index]');
+                if (slides.length === 0) return;
+                showSlide(0);
+                addNavigationUI();
+                document.addEventListener('keydown', handleKeyDown);
+                addTouchNavigation();
+            }
+
+            function showSlide(n) {
+                if (n >= slides.length) currentSlide = 0;
+                else if (n < 0) currentSlide = slides.length - 1;
+                else currentSlide = n;
+
+                slides.forEach((slide, index) => {
+                    slide.classList.toggle('slide-active', index === currentSlide);
+                });
+                updateCounter();
+            }
+
+            function handleKeyDown(e) {
+                if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+                else if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+            }
+
+            function nextSlide() { showSlide(currentSlide + 1); }
+            function prevSlide() { showSlide(currentSlide - 1); }
+
+            function addNavigationUI() {
+                const counter = document.createElement('div');
+                counter.id = 'slide-counter';
+                counter.addEventListener('click', jumpToSlide);
+                counter.addEventListener('mouseover', () => {
+                    counter.style.backgroundColor = 'var(--color-surface)';
+                    counter.style.color = 'var(--color-text)';
+                });
+                counter.addEventListener('mouseout', () => {
+                    counter.style.backgroundColor = 'transparent';
+                    counter.style.color = 'var(--color-text-muted)';
+                });
+                document.body.appendChild(counter);
+            }
+
+            function updateCounter() {
+                const c = document.getElementById('slide-counter');
+                if (c) c.textContent = `${currentSlide + 1} / ${slides.length}`;
+            }
+
+            function jumpToSlide() {
+                const input = prompt(`Enter slide (1-${slides.length}):`, String(currentSlide + 1));
+                if (input) {
+                    const n = parseInt(input);
+                    if (!isNaN(n) && n >= 1 && n <= slides.length) showSlide(n - 1);
+                }
+            }
+
+            function addTouchNavigation() {
+                let start = 0;
+                document.addEventListener('touchstart', e => start = e.touches[0].screenX);
+                document.addEventListener('touchend', e => {
+                    const diff = start - e.changedTouches[0].screenX;
+                    if (Math.abs(diff) > 50) diff > 0 ? nextSlide() : prevSlide();
+                });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
+    </script>
+</body>
+</html>

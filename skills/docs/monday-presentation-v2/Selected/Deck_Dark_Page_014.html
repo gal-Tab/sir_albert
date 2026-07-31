@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deck Dark Page 014</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            display: grid;
+            grid-template-columns: 0.85fr 1.15fr;
+            align-items: center;
+            gap: var(--space-7);
+        }
+
+        h1 {
+            font-size: var(--text-display);
+            font-weight: var(--weight-light);
+            margin: 0;
+            letter-spacing: -0.015em;
+            display: flex;
+            align-items: center;
+            height: 88vh;
+        }
+
+        .content-card {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-lg);
+            padding: var(--space-9) var(--space-10);
+            height: 88vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-5);
+        }
+
+        li {
+            font-size: var(--text-h4);
+            font-weight: var(--weight-regular);
+            display: flex;
+            align-items: center;
+            gap: var(--space-5);
+            white-space: nowrap;
+        }
+
+        li span {
+            font-weight: var(--weight-light);
+            opacity: 0.95;
+        }
+
+        li::before {
+            content: "";
+            width: 0.8vmin;
+            height: 0.8vmin;
+            background-color: var(--color-text);
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        <h1>Agenda</h1>
+
+        <div class="content-card">
+            <ul>
+                <li>Chapter A - <span>Opening slides</span></li>
+                <li>Chapter B - <span>Speakers</span></li>
+                <li>Chapter C - <span>Text slides</span></li>
+                <li>Chapter D - <span>Images / boards</span></li>
+                <li>Chapter E - <span>Items</span></li>
+                <li>Chapter F - <span>Teams</span></li>
+                <li>Chapter G - <span>Charts</span></li>
+                <li>Chapter H - <span>Bottom line</span></li>
+                <li>Chapter I - <span>Icons to use</span></li>
+                <li>Chapter J - <span>Slides to use</span></li>
+            </ul>
+        </div>
+    </div>
+
+<script src="entrance-animations.js"></script>
+</body>
+</html>

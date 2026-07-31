@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testimonial Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        :root {
+            --card-width: 65vw;
+            --padding: 7vw;
+            --border-radius: var(--radius-md);
+        }
+
+        .slide-container {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        .quote-box {
+            position: relative;
+            background-color: var(--color-surface);
+            width: 100%;
+            border-radius: var(--border-radius);
+            padding: var(--padding);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .quote-mark {
+            position: absolute;
+            top: 4vw;
+            left: var(--padding);
+            width: 7vw;
+            height: auto;
+            color: var(--color-text);
+            opacity: 1;
+            user-select: none;
+        }
+
+        .quote-text {
+            font-size: var(--text-h2);
+            font-weight: var(--weight-semibold);
+            line-height: 1.3;
+            padding-top: 3vw;
+        }
+
+        .attribution {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5vw;
+        }
+
+        .person {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2vw;
+        }
+
+        .name {
+            font-size: var(--text-body);
+            font-weight: var(--weight-semibold);
+        }
+
+        .title {
+            font-size: var(--text-body);
+            font-weight: var(--weight-light);
+        }
+
+        .company {
+            display: flex;
+            align-items: center;
+            gap: 0.8vw;
+        }
+
+        .company-logo {
+            height: 1.8vw;
+            width: auto;
+        }
+
+        .company-name {
+            font-size: var(--text-body);
+            font-weight: var(--weight-regular);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        <div class="quote-box">
+            <div class="quote-mark">
+                <svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M70.3032 28.0852C57.6976 30.998 46.581 38.3782 38.9995 48.8489C57.1278 50.5294 71.3208 65.7797 71.3208 84.3469C71.3207 104.038 55.3575 120 35.6665 120C15.9756 120 0.0132047 104.038 0.013149 84.3469C0.013149 83.8671 0.0246441 83.3895 0.0434224 82.9143C-0.539732 64.9643 4.76269 47.2498 15.2348 32.5208C26.906 16.1053 44.1885 4.53605 63.813 0.0012207L70.3032 28.0852Z" fill="#6164ff"/>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M158.695 28.084C146.089 30.9969 134.972 38.3774 127.391 48.8486C145.52 50.5283 159.714 65.7788 159.714 84.3467C159.714 104.038 143.751 120.001 124.06 120.001C104.369 120.001 88.4062 104.038 88.4062 84.3467C88.4062 83.8714 88.4181 83.3985 88.4365 82.9277C87.85 64.9727 93.1519 47.2526 103.627 32.5195C115.298 16.104 132.581 4.53483 152.205 0L158.695 28.084Z" fill="#6164ff"/>
+                </svg>
+            </div>
+            <p class="quote-text">
+                With monday.com, we're 30% more efficient at delivering hundreds of campaigns seen by millions of customers.
+            </p>
+            <div class="attribution">
+                <div class="person">
+                    <span class="name">Tye Rapley-Hawkins</span>
+                    <span class="title">Head of Delivery</span>
+                </div>
+                <div class="company">
+                    <svg class="company-logo" viewBox="0 0 48 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="2.8" cy="2.8" r="2.8" fill="white"/>
+                        <circle cx="12.4" cy="2.8" r="2.8" fill="white"/>
+                        <circle cx="22" cy="2.8" r="2.8" fill="white"/>
+                        <circle cx="31.6" cy="2.8" r="2.8" fill="white"/>
+                        <circle cx="41.2" cy="2.8" r="2.8" fill="white"/>
+                        <circle cx="12.4" cy="12.4" r="2.8" fill="white"/>
+                        <circle cx="22" cy="12.4" r="2.8" fill="white"/>
+                        <circle cx="31.6" cy="12.4" r="2.8" fill="white"/>
+                        <circle cx="17.2" cy="22" r="2.8" fill="white"/>
+                        <circle cx="26.8" cy="22" r="2.8" fill="white"/>
+                    </svg>
+                    <span class="company-name">Telefónica</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script src="entrance-animations.js"></script>
+</body>
+</html>

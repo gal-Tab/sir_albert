@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deck Dark Page 037</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            display: grid;
+            grid-template-columns: 1fr 1.4fr;
+            gap: var(--space-9);
+        }
+
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            gap: var(--space-6);
+        }
+
+        .main-title {
+            font-size: var(--text-h1);
+            font-weight: var(--weight-medium);
+            line-height: 1.1;
+            margin: 0;
+        }
+
+        .bullet-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+            font-size: var(--text-body);
+            font-weight: var(--weight-regular);
+            line-height: 1.5;
+        }
+
+        .bullet-list li {
+            padding-left: 3.5vmin;
+            position: relative;
+            margin-bottom: var(--space-5);
+        }
+
+        .bullet-list li::before {
+            content: '•';
+            font-size: var(--text-h4);
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-5);
+            height: 100%;
+        }
+
+        .image-panel {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            flex: 1.5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .capabilities-panel {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: var(--space-4);
+        }
+
+        .cap-header {
+            font-size: var(--text-h4);
+            font-weight: var(--weight-semibold);
+            margin: 0;
+        }
+
+        .cap-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-3);
+        }
+
+        .cap-button {
+            background-color: var(--color-yellow);
+            color: var(--color-bg);
+            padding: var(--space-3);
+            border-radius: var(--radius-sm);
+            font-size: var(--text-caption);
+            font-weight: var(--weight-medium);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .placeholder-icon {
+            width: var(--icon-xl);
+            height: var(--icon-xl);
+            object-fit: contain;
+            opacity: 0.4;
+        }
+
+        .instruction-box {
+            position: absolute;
+            top: -3vmin;
+            right: -3vmin;
+            background-color: var(--color-red);
+            color: var(--color-text);
+            padding: 2.2vmin;
+            border-radius: var(--radius-md);
+            width: 30vmin;
+            font-size: var(--text-body-sm);
+            line-height: 1.5;
+            z-index: 100;
+            box-shadow: 0 1vmin 3vmin rgba(0,0,0,0.4);
+            text-align: left;
+        }
+
+        .instruction-header {
+            font-weight: var(--weight-semibold);
+            margin-bottom: var(--space-2);
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        <div class="left-column">
+            <h1 class="main-title">Add your title here</h1>
+            <ul class="bullet-list">
+                <li><strong>Title goes here:</strong> your sentence, use it wisely & keep it short. If you want to become a great speaker, you must become a great storyteller.</li>
+                <li><strong>Title goes here:</strong> your sentence, use it wisely & keep it short. If you want to become a great speaker, you must become a great storyteller.</li>
+                <li><strong>Title goes here:</strong> your sentence, use it wisely & keep it short. If you want to become a great speaker, you must become a great storyteller.</li>
+            </ul>
+        </div>
+
+        <div class="right-column">
+            <div class="image-panel" data-image-placeholder="photo">
+                <img src="Icons/Property 1=Image.svg" class="placeholder-icon ds-icon-white" alt="Image placeholder">
+            </div>
+            <div class="capabilities-panel">
+                <h3 class="cap-header">Key capabilities</h3>
+                <div class="cap-grid">
+                    <div class="cap-button">AI notetaker & data extraction</div>
+                    <div class="cap-button">AI sequences & email generation</div>
+                    <div class="cap-button">AI-powered automations & workflows</div>
+                    <div class="cap-button">AI driven deal-risk assessment</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script src="entrance-animations.js"></script>
+</body>
+</html>

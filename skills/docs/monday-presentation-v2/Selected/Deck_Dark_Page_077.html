@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chart Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            width: 90vw;
+            max-width: 1920px;
+            aspect-ratio: 16 / 9;
+            display: flex;
+            align-items: center;
+        }
+
+        .title-section {
+            flex: 0 0 40%;
+            padding-right: 5%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .title-section h1 {
+            font-size: var(--text-h2);
+            font-weight: var(--weight-light);
+            line-height: 1.1;
+        }
+
+        .chart-panel {
+            flex: 0 0 60%;
+            height: 88%;
+            background-color: var(--color-surface);
+            border-radius: var(--radius-md);
+            padding: 3.5vmin var(--space-6);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .annotation {
+            position: absolute;
+            top: 1.5vmin;
+            right: 10vmin;
+            background-color: var(--color-red);
+            padding: var(--space-1);
+            border-radius: var(--radius-md);
+            z-index: 10;
+        }
+
+        .annotation-inner {
+            background-color: var(--color-text);
+            border: 1px solid var(--color-red);
+            border-radius: var(--radius-md);
+            padding: var(--space-3);
+            color: var(--color-bg);
+            font-size: var(--text-caption);
+            line-height: 1.2;
+            max-width: 30vmin;
+        }
+        
+        .annotation-inner strong {
+            font-weight: var(--weight-semibold);
+        }
+
+        .chart-wrapper {
+            flex-grow: 1;
+            display: flex;
+            position: relative;
+        }
+        
+        .y-axis {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-size: var(--text-caption);
+            color: var(--color-text-muted);
+            padding-right: var(--space-3);
+            text-align: right;
+        }
+
+        .y-axis span:first-child {
+            margin-top: -0.7vmin;
+        }
+        .y-axis span:last-child {
+            margin-bottom: -0.7vmin;
+        }
+
+        .chart-area {
+            flex-grow: 1;
+            position: relative;
+        }
+
+        .grid-lines {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .grid-lines .line {
+            height: 1px;
+            background-color: #484a53;
+            width: 100%;
+        }
+
+        .bars {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            padding: 0 4%;
+        }
+
+        .bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            width: 12%;
+            justify-content: flex-end;
+        }
+
+        .bar {
+            width: 100%;
+            background-color: var(--color-purple);
+            border-radius: 0;
+            transform-origin: bottom;
+            animation: chartBarGrow 0.6s ease-out both;
+        }
+
+        .bar-group:nth-child(1) .bar { animation-delay: 0.1s; }
+        .bar-group:nth-child(2) .bar { animation-delay: 0.18s; }
+        .bar-group:nth-child(3) .bar { animation-delay: 0.26s; }
+        .bar-group:nth-child(4) .bar { animation-delay: 0.34s; }
+        .bar-group:nth-child(5) .bar { animation-delay: 0.42s; }
+        
+        .x-label {
+            padding-top: var(--space-2);
+            font-size: var(--text-caption);
+            color: var(--color-text-muted);
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: var(--space-5);
+            font-size: var(--text-body-sm);
+            color: var(--color-text-muted);
+        }
+        
+        .legend-key {
+            width: 1.3vmin;
+            height: 1.3vmin;
+            background-color: var(--color-purple);
+            margin-right: var(--space-2);
+        }
+
+    </style>
+</head>
+<body>
+
+    <main class="slide-container">
+        <section class="title-section">
+            <h1>Add your title<br>here</h1>
+        </section>
+        <section class="chart-panel">
+            <div class="chart-wrapper">
+                <div class="y-axis">
+                    <span>800</span>
+                    <span>600</span>
+                    <span>400</span>
+                    <span>200</span>
+                    <span>0</span>
+                </div>
+                <div class="chart-area">
+                    <div class="grid-lines">
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                        <div class="line"></div>
+                    </div>
+                    <div class="bars">
+                        <div class="bar-group">
+                            <div class="bar" style="height: 6.25%;"></div>
+                            <span class="x-label">2016</span>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar" style="height: 12.5%;"></div>
+                            <span class="x-label">2017</span>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar" style="height: 22.5%;"></div>
+                            <span class="x-label">2018</span>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar" style="height: 47.5%;"></div>
+                            <span class="x-label">2019</span>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar" style="height: 87.5%;"></div>
+                            <span class="x-label">2020</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="legend">
+                <div class="legend-key"></div>
+                <span>Period</span>
+            </div>
+        </section>
+    </main>
+
+<script src="entrance-animations.js"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5 Columns Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .main-title {
+            font-size: var(--text-h3);
+            font-weight: var(--weight-regular);
+            margin: 0 0 var(--space-7) 0;
+            padding: 0;
+        }
+
+        .grid-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-4);
+        }
+
+        .card {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-md);
+            padding: var(--space-5);
+            flex-grow: 1;
+        }
+
+        .card.small {
+            flex-basis: calc((100% - 4vmin) / 3);
+        }
+
+        .card.large {
+            flex-basis: calc((100% - 2vmin) / 2);
+        }
+
+        .card h2 {
+            font-size: var(--text-h4);
+            font-weight: var(--weight-medium);
+            margin: 0 0 1.8vmin 0;
+        }
+
+        .card p {
+            font-size: var(--text-body);
+            font-weight: var(--weight-light);
+            line-height: 1.5;
+            margin: 0;
+            color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <h1 class="main-title">5 columns – Add your title here</h1>
+        <div class="grid-container">
+            <div class="card small">
+                <h2>Add your title</h2>
+                <p>Lorem ipsum dolor sit amet consectetur adipiscing elit, et dolore magna aliqua.</p>
+            </div>
+            <div class="card small">
+                <h2>Add your title</h2>
+                <p>Lorem ipsum dolor sit amet consectetur adipiscing elit, et dolore magna aliqua.</p>
+            </div>
+            <div class="card small">
+                <h2>Add your title</h2>
+                <p>Lorem ipsum dolor sit amet consectetur adipiscing elit, et dolore magna aliqua.</p>
+            </div>
+            <div class="card large">
+                <h2>Add your title</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            </div>
+            <div class="card large">
+                <h2>Add your title</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            </div>
+        </div>
+    </div>
+<script src="entrance-animations.js"></script>
+</body>
+</html>

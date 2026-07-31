@@ -1,0 +1,120 @@
+            <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentation Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-header h1 {
+            font-size: var(--text-h3);
+            font-weight: var(--weight-regular);
+            margin-bottom: 40px;
+        }
+
+        .slide-content {
+            flex-grow: 1;
+            display: grid;
+            grid-template-columns: 0.9fr 2fr;
+            gap: 24px;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .tab {
+            background-color: var(--color-surface);
+            color: var(--color-text);
+            border: none;
+            outline: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Poppins', sans-serif;
+            font-size: var(--text-body);
+            font-weight: var(--weight-regular);
+            cursor: pointer;
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease;
+        }
+
+        .tab.active {
+            background-color: var(--color-purple);
+        }
+        
+        .content-panel {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-sm);
+            padding: 40px;
+        }
+
+        .content-panel h2 {
+            font-size: var(--text-body);
+            font-weight: var(--weight-semibold);
+            margin-bottom: 20px;
+        }
+
+        .content-panel p {
+            font-size: var(--text-body-sm);
+            font-weight: var(--weight-light);
+            line-height: 1.6;
+            color: #E0E0E0;
+            margin-bottom: 0;
+        }
+
+        .content-panel ul {
+            list-style: disc;
+            padding-left: 24px;
+            margin-top: 24px;
+        }
+
+        .content-panel li {
+            font-size: var(--text-body-sm);
+            font-weight: var(--weight-light);
+            line-height: 1.6;
+            margin-bottom: 12px;
+            color: #E0E0E0;
+        }
+
+        .content-panel li::marker {
+            color: #E0E0E0;
+            font-size: 1.2em;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <header class="slide-header">
+            <h1>Add your title here</h1>
+        </header>
+        <main class="slide-content">
+            <nav class="sidebar">
+                <button class="tab active">Add your title</button>
+                <button class="tab">Add your title</button>
+                <button class="tab">Add your title</button>
+                <button class="tab">Add your title</button>
+            </nav>
+            <section class="content-panel">
+                <h2>Add your title</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                <ul>
+                    <li>Mi quis hendrerit dolor magna eget est.</li>
+                    <li>At urna condimentum mattis pellentesque id nibh tortor id.</li>
+                </ul>
+            </section>
+        </main>
+    </div>
+<script src="entrance-animations.js"></script>
+</body>
+</html>

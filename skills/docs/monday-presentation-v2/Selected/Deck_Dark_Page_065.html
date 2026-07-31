@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pros and Cons Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        :root {
+            --slide-width: 1920;
+            --slide-height: 1080;
+        }
+
+        .slide-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-title {
+            font-size: var(--text-h3);
+            font-weight: var(--weight-semibold);
+            margin-bottom: 4.5vmin;
+            flex-shrink: 0;
+        }
+
+        .content-wrapper {
+            display: flex;
+            flex-grow: 1;
+            gap: var(--space-4);
+            min-height: 0;
+        }
+
+        .card {
+            flex: 1;
+            background-color: var(--color-surface);
+            border-radius: var(--radius-md);
+            padding: 4.5vmin;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tag {
+            align-self: flex-start;
+            padding: var(--space-3) var(--space-5);
+            border-radius: var(--radius-full);
+            font-size: var(--text-body);
+            font-weight: var(--weight-medium);
+            margin-bottom: var(--space-5);
+        }
+
+        .pro-tag {
+            background-color: var(--color-red);
+        }
+
+        .con-tag {
+            background-color: var(--color-green);
+        }
+
+        .card-title {
+            font-size: var(--text-h3);
+            font-weight: var(--weight-semibold);
+            margin-bottom: var(--space-4);
+        }
+
+        .card-text {
+            font-size: var(--text-body);
+            font-weight: var(--weight-light);
+            line-height: 1.5;
+            margin-bottom: var(--space-5);
+        }
+
+        .card-list {
+            list-style: none;
+        }
+
+        .card-list li {
+            font-size: var(--text-body);
+            font-weight: var(--weight-light);
+            line-height: 1.5;
+            padding-left: var(--space-4);
+            position: relative;
+        }
+
+        .card-list li::before {
+            content: '•';
+            color: var(--color-text);
+            font-weight: var(--weight-semibold);
+            display: inline-block;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .card-list li:not(:last-child) {
+            margin-bottom: var(--space-3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        <h1 class="main-title">Pros and cons – Add your title here</h1>
+        <div class="content-wrapper">
+            <div class="card">
+                <span class="tag pro-tag">Mini title here</span>
+                <h2 class="card-title">Add your title</h2>
+                <p class="card-text">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>
+                <ul class="card-list">
+                    <li>Mi quis hendrerit dolor magna eget est.</li>
+                    <li>At urna condimentum mattis pellentesque id nibh tortor id,</li>
+                </ul>
+            </div>
+            <div class="card">
+                <span class="tag con-tag">Mini title here</span>
+                <h2 class="card-title">Add your title</h2>
+                <p class="card-text">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>
+                <ul class="card-list">
+                    <li>Mi quis hendrerit dolor magna eget est.</li>
+                    <li>At urna condimentum mattis pellentesque id nibh tortor id,</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+<script src="entrance-animations.js"></script>
+</body>
+</html>

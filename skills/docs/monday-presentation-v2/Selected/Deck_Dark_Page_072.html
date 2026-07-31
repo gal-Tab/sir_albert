@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4 Boxes Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            width: 90vw;
+            max-width: 1600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-title {
+            color: var(--color-text);
+            font-size: var(--text-h2);
+            font-weight: var(--weight-regular);
+            margin: 0 0 4vh 0;
+        }
+
+        .grid-container {
+            flex-grow: 1;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2vw;
+        }
+
+        .card {
+            border-radius: var(--radius-lg);
+            padding: 2.5vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .card-1 {
+            background-color: var(--color-purple);
+            color: var(--color-text);
+        }
+
+        .card-1 p {
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .card-2 {
+            background-color: var(--color-purple-light);
+            color: var(--color-bg);
+        }
+
+        .card-3 {
+            background-color: #D9D7FF;
+            color: var(--color-bg);
+        }
+
+        .card-4 {
+            background-color: var(--color-yellow);
+            color: var(--color-bg);
+        }
+
+        .card h2 {
+            font-size: var(--text-h2);
+            font-weight: var(--weight-semibold);
+            line-height: 1.1;
+            margin: 0 0 1.5vh 0;
+        }
+
+        .card p {
+            font-size: var(--text-body);
+            font-weight: var(--weight-regular);
+            line-height: 1.5;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <h1 class="slide-title">4 boxes – Add your title here</h1>
+        <div class="grid-container">
+            <div class="card card-1">
+                <h2>Your main initiative title goes here</h2>
+                <p>A short supporting line describing the focus area, goal, or why this initiative matters.</p>
+            </div>
+            <div class="card card-2">
+                <h2>New structure/program/ team title</h2>
+                <p>Optional space for a name, owner, or role – describe what's being created or reshaped.</p>
+            </div>
+            <div class="card card-3">
+                <h2>Cross-functional collaboration headline</h2>
+                <p>Bullet-style or concise list of how teams will align: metrics, workflows, cadences, shared language.</p>
+            </div>
+            <div class="card card-4">
+                <h2>Future-facing or impact-focused title</h2>
+                <p>One line about leveraging innovation, tools, or mindset shifts to unlock big wins.</p>
+            </div>
+        </div>
+    </div>
+<script src="entrance-animations.js"></script>
+</body>
+</html>

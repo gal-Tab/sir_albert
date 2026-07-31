@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deck Dark — Presentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+      background: #000;
+      color: #fff;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* ── Slide stage ── */
+    #stage {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+    }
+
+    #stage iframe {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: none;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    #stage iframe.active {
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 2;
+    }
+
+    #stage iframe.preload {
+      opacity: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ── Navigation arrows ── */
+    .nav-arrow {
+      position: fixed;
+      top: 0;
+      width: 80px;
+      height: 100%;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 0;
+    }
+
+    .nav-arrow:hover { opacity: 1; }
+    .nav-arrow:active .arrow-icon { transform: scale(0.85); }
+
+    #prevBtn { left: 0; }
+    #nextBtn { right: 0; }
+
+    .arrow-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s ease, background 0.2s ease;
+    }
+
+    .arrow-icon:hover { background: rgba(255,255,255,0.22); }
+
+    .arrow-icon svg {
+      width: 18px; height: 18px;
+      fill: none;
+      stroke: #fff;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ── Bottom bar ── */
+    #bottomBar {
+      position: fixed;
+      bottom: 0;
+      left: 0; right: 0;
+      height: 48px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      background: linear-gradient(transparent, rgba(0,0,0,0.7));
+      padding: 0 24px;
+    }
+
+    body:hover #bottomBar,
+    body:hover .nav-arrow { opacity: 1; }
+
+    #slideCounter {
+      font-size: 13px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 0.04em;
+      min-width: 70px;
+      text-align: center;
+    }
+
+    /* ── Progress bar ── */
+    #progressTrack {
+      position: fixed;
+      bottom: 0;
+      left: 0; right: 0;
+      height: 3px;
+      background: rgba(255,255,255,0.08);
+      z-index: 25;
+    }
+
+    #progressFill {
+      height: 100%;
+      background: #6164ff;
+      transition: width 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+      border-radius: 0 2px 2px 0;
+    }
+
+    /* ── Toolbar buttons ── */
+    .toolbar-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: rgba(255,255,255,0.6);
+      padding: 6px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s, background 0.2s;
+      outline: none;
+    }
+
+    .toolbar-btn:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.1);
+    }
+
+    .toolbar-btn svg {
+      width: 18px; height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ── Overview grid ── */
+    #overview {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(0,0,0,0.95);
+      overflow-y: auto;
+      padding: 40px;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    #overview.visible {
+      display: block;
+      opacity: 1;
+    }
+
+    #overviewHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    #overviewHeader h2 {
+      font-size: 20px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.9);
+    }
+
+    #overviewGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .overview-card {
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.2s, transform 0.2s;
+      background: #111;
+      aspect-ratio: 16/9;
+    }
+
+    .overview-card:hover {
+      border-color: rgba(97, 100, 255, 0.6);
+      transform: scale(1.03);
+    }
+
+    .overview-card.current {
+      border-color: #6164ff;
+    }
+
+    .overview-card iframe {
+      width: 1920px;
+      height: 1080px;
+      border: none;
+      pointer-events: none;
+      transform-origin: top left;
+    }
+
+    .overview-label {
+      position: absolute;
+      bottom: 0;
+      left: 0; right: 0;
+      padding: 6px 10px;
+      background: rgba(0,0,0,0.7);
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+      text-align: center;
+    }
+
+    /* ── Help overlay ── */
+    #helpOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0,0,0,0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    #helpOverlay.visible {
+      display: flex;
+      opacity: 1;
+    }
+
+    #helpCard {
+      background: #1a1a1a;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 36px 44px;
+      max-width: 520px;
+      width: 90%;
+    }
+
+    #helpCard h3 {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 24px;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .shortcut-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .shortcut-row:last-child { border-bottom: none; }
+
+    .shortcut-label {
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .shortcut-keys {
+      display: flex;
+      gap: 6px;
+    }
+
+    kbd {
+      display: inline-block;
+      padding: 3px 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.8);
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 5px;
+    }
+
+    /* ── Loading spinner ── */
+    #loadingOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      transition: opacity 0.5s ease;
+    }
+
+    #loadingOverlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: #6164ff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #loadingText {
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* ── Click zones ── */
+    .click-zone {
+      position: fixed;
+      top: 0;
+      height: 100%;
+      z-index: 5;
+      cursor: pointer;
+    }
+
+    #clickPrev {
+      left: 0;
+      width: 25%;
+      cursor: w-resize;
+    }
+
+    #clickNext {
+      right: 0;
+      width: 75%;
+      cursor: e-resize;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading -->
+  <div id="loadingOverlay">
+    <div class="spinner"></div>
+    <div id="loadingText">Loading slides…</div>
+  </div>
+
+  <!-- Slide stage -->
+  <div id="stage"></div>
+
+  <!-- Click zones for mouse navigation -->
+  <div id="clickPrev" class="click-zone"></div>
+  <div id="clickNext" class="click-zone"></div>
+
+  <!-- Nav arrows -->
+  <button id="prevBtn" class="nav-arrow" aria-label="Previous slide">
+    <span class="arrow-icon">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </span>
+  </button>
+  <button id="nextBtn" class="nav-arrow" aria-label="Next slide">
+    <span class="arrow-icon">
+      <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+    </span>
+  </button>
+
+  <!-- Bottom bar -->
+  <div id="bottomBar">
+    <button class="toolbar-btn" id="overviewBtn" title="Slide overview (O)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    </button>
+    <span id="slideCounter">1 / 1</span>
+    <button class="toolbar-btn" id="fullscreenBtn" title="Fullscreen (F)">
+      <svg viewBox="0 0 24 24"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+    </button>
+    <button class="toolbar-btn" id="helpBtn" title="Keyboard shortcuts (?)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </button>
+  </div>
+
+  <!-- Progress bar -->
+  <div id="progressTrack"><div id="progressFill"></div></div>
+
+  <!-- Overview panel -->
+  <div id="overview">
+    <div id="overviewHeader">
+      <h2>Slide Overview</h2>
+      <button class="toolbar-btn" id="closeOverview" title="Close">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="overviewGrid"></div>
+  </div>
+
+  <!-- Help overlay -->
+  <div id="helpOverlay">
+    <div id="helpCard">
+      <h3>Keyboard Shortcuts</h3>
+      <div class="shortcut-row">
+        <span class="shortcut-label">Next slide</span>
+        <span class="shortcut-keys"><kbd>→</kbd><kbd>↓</kbd><kbd>Space</kbd><kbd>Enter</kbd></span>
+      </div>
+      <div class="shortcut-row">
+        <span class="shortcut-label">Previous slide</span>
+        <span class="shortcut-keys"><kbd>←</kbd><kbd>↑</kbd><kbd>Backspace</kbd></span>
+      </div>
+      <div class="shortcut-row">
+        <span class="shortcut-label">First slide</span>
+        <span class="shortcut-keys"><kbd>Home</kbd></span>
+      </div>
+      <div class="shortcut-row">
+        <span class="shortcut-label">Last slide</span>
+        <span class="shortcut-keys"><kbd>End</kbd></span>
+      </div>
+      <div class="shortcut-row">
+        <span class="shortcut-label">Slide overview</span>
+        <span class="shortcut-keys"><kbd>O</kbd><kbd>Esc</kbd></span>
+      </div>
+      <div class="shortcut-row">
+        <span class="shortcut-label">Fullscreen</span>
+        <span class="shortcut-keys"><kbd>F</kbd></span>
+      </div>
+      <div class="shortcut-row">
+        <span class="shortcut-label">Show help</span>
+        <span class="shortcut-keys"><kbd>?</kbd></span>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  'use strict';
+
+  const SLIDES = [
+    'Deck_Dark_Page_001.html',
+    'Deck_Dark_Page_003.html',
+    'Deck_Dark_Page_007.html',
+    'Deck_Dark_Page_009.html',
+    'Deck_Dark_Page_010.html',
+    'Deck_Dark_Page_011.html',
+    'Deck_Dark_Page_012.html',
+    'Deck_Dark_Page_014.html',
+    'Deck_Dark_Page_015.html',
+    'Deck_Dark_Page_016.html',
+    'Deck_Dark_Page_017.html',
+    'Deck_Dark_Page_018.html',
+    'Deck_Dark_Page_021.html',
+    'Deck_Dark_Page_023.html',
+    'Deck_Dark_Page_030.html',
+    'Deck_Dark_Page_031.html',
+    'Deck_Dark_Page_032.html',
+    'Deck_Dark_Page_033.html',
+    'Deck_Dark_Page_034.html',
+    'Deck_Dark_Page_035.html',
+    'Deck_Dark_Page_036.html',
+    'Deck_Dark_Page_037.html',
+    'Deck_Dark_Page_038.html',
+    'Deck_Dark_Page_041.html',
+    'Deck_Dark_Page_042.html',
+    'Deck_Dark_Page_043.html',
+    'Deck_Dark_Page_044.html',
+    'Deck_Dark_Page_045.html',
+    'Deck_Dark_Page_046.html',
+    'Deck_Dark_Page_047.html',
+    'Deck_Dark_Page_049.html',
+    'Deck_Dark_Page_050.html',
+    'Deck_Dark_Page_051.html',
+    'Deck_Dark_Page_052.html',
+    'Deck_Dark_Page_053.html',
+    'Deck_Dark_Page_054.html',
+    'Deck_Dark_Page_056.html',
+    'Deck_Dark_Page_057.html',
+    'Deck_Dark_Page_058.html',
+    'Deck_Dark_Page_059.html',
+    'Deck_Dark_Page_061.html',
+    'Deck_Dark_Page_062.html',
+    'Deck_Dark_Page_064.html',
+    'Deck_Dark_Page_065.html',
+    'Deck_Dark_Page_066.html',
+    'Deck_Dark_Page_067.html',
+    'Deck_Dark_Page_068.html',
+    'Deck_Dark_Page_069.html',
+    'Deck_Dark_Page_070.html',
+    'Deck_Dark_Page_071.html',
+    'Deck_Dark_Page_072.html',
+    'Deck_Dark_Page_073.html',
+    'Deck_Dark_Page_074.html',
+    'Deck_Dark_Page_075.html',
+    'Deck_Dark_Page_077.html',
+    'Deck_Dark_Page_079.html',
+    'Deck_Dark_Page_080.html',
+    'Deck_Dark_Page_081.html',
+    'Deck_Dark_Page_083.html',
+    'Deck_Dark_Page_084.html',
+    'Deck_Dark_Page_085.html',
+    'Deck_Dark_Page_086.html',
+    'Deck_Dark_Page_088.html',
+    'Deck_Dark_Page_089.html',
+    'Deck_Dark_Page_091.html',
+    'Deck_Dark_Page_099.html',
+    'Deck_Dark_Page_100.html',
+  ];
+
+  const TOTAL = SLIDES.length;
+  const TRANSITION_MS = 350;
+
+  let currentIndex = 0;
+  let navigating = false;
+  let overviewOpen = false;
+  let helpOpen = false;
+  let overviewBuilt = false;
+
+  const stage = document.getElementById('stage');
+  const counter = document.getElementById('slideCounter');
+  const progressFill = document.getElementById('progressFill');
+  const loadingOverlay = document.getElementById('loadingOverlay');
+  const loadingText = document.getElementById('loadingText');
+
+  let activeFrame = null;
+
+  function freshIframe(index) {
+    const iframe = document.createElement('iframe');
+    iframe.src = SLIDES[index];
+    iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+    iframe.dataset.index = index;
+    stage.appendChild(iframe);
+    return iframe;
+  }
+
+  function goTo(index, instant) {
+    if (index < 0 || index >= TOTAL) return;
+    if (navigating && !instant) return;
+
+    const oldIndex = currentIndex;
+    if (index === oldIndex && activeFrame) return;
+    navigating = true;
+
+    currentIndex = index;
+    updateUI();
+
+    const oldFrame = activeFrame;
+    const newFrame = freshIframe(index);
+
+    const activate = () => {
+      newFrame.classList.add('active');
+
+      if (oldFrame) {
+        oldFrame.classList.remove('active');
+        oldFrame.classList.add('preload');
+        setTimeout(() => {
+          oldFrame.remove();
+        }, TRANSITION_MS + 50);
+      }
+
+      activeFrame = newFrame;
+      setTimeout(() => { navigating = false; }, TRANSITION_MS);
+    };
+
+    newFrame.addEventListener('load', activate, { once: true });
+  }
+
+  function next() { goTo(currentIndex + 1); }
+  function prev() { goTo(currentIndex - 1); }
+  function first() { goTo(0); }
+  function last() { goTo(TOTAL - 1); }
+
+  function updateUI() {
+    counter.textContent = `${currentIndex + 1} / ${TOTAL}`;
+    const pct = TOTAL > 1 ? ((currentIndex) / (TOTAL - 1)) * 100 : 100;
+    progressFill.style.width = pct + '%';
+
+    document.getElementById('prevBtn').style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
+    document.getElementById('nextBtn').style.visibility = currentIndex === TOTAL - 1 ? 'hidden' : 'visible';
+  }
+
+  // ── Overview ──
+  function toggleOverview() {
+    const el = document.getElementById('overview');
+    overviewOpen = !overviewOpen;
+
+    if (overviewOpen) {
+      if (!overviewBuilt) buildOverview();
+      highlightCurrentCard();
+      el.classList.add('visible');
+      scrollToCurrentCard();
+    } else {
+      el.classList.remove('visible');
+    }
+  }
+
+  function buildOverview() {
+    const grid = document.getElementById('overviewGrid');
+    grid.innerHTML = '';
+
+    SLIDES.forEach((file, i) => {
+      const card = document.createElement('div');
+      card.className = 'overview-card';
+      card.dataset.index = i;
+
+      const iframe = document.createElement('iframe');
+      iframe.src = file;
+      iframe.loading = 'lazy';
+      iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+
+      const label = document.createElement('div');
+      label.className = 'overview-label';
+      label.textContent = `Slide ${i + 1}`;
+
+      card.appendChild(iframe);
+      card.appendChild(label);
+
+      card.addEventListener('click', () => {
+        goTo(i, true);
+        toggleOverview();
+      });
+
+      grid.appendChild(card);
+
+      requestAnimationFrame(() => {
+        const cardWidth = card.offsetWidth;
+        const scale = cardWidth / 1920;
+        iframe.style.transform = `scale(${scale})`;
+      });
+    });
+
+    overviewBuilt = true;
+  }
+
+  function highlightCurrentCard() {
+    document.querySelectorAll('.overview-card').forEach((card, i) => {
+      card.classList.toggle('current', i === currentIndex);
+    });
+  }
+
+  function scrollToCurrentCard() {
+    requestAnimationFrame(() => {
+      const card = document.querySelector('.overview-card.current');
+      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }
+
+  // ── Help ──
+  function toggleHelp() {
+    const el = document.getElementById('helpOverlay');
+    helpOpen = !helpOpen;
+    el.classList.toggle('visible', helpOpen);
+  }
+
+  // ── Fullscreen ──
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen();
+    }
+  }
+
+  // ── Keyboard ──
+  document.addEventListener('keydown', (e) => {
+    if (helpOpen) {
+      if (e.key === 'Escape' || e.key === '?') { toggleHelp(); e.preventDefault(); }
+      return;
+    }
+
+    if (overviewOpen) {
+      if (e.key === 'Escape' || e.key === 'o' || e.key === 'O') { toggleOverview(); e.preventDefault(); }
+      return;
+    }
+
+    switch (e.key) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+      case ' ':
+      case 'Enter':
+      case 'PageDown':
+        e.preventDefault();
+        next();
+        break;
+      case 'ArrowLeft':
+      case 'ArrowUp':
+      case 'Backspace':
+      case 'PageUp':
+        e.preventDefault();
+        prev();
+        break;
+      case 'Home':
+        e.preventDefault();
+        first();
+        break;
+      case 'End':
+        e.preventDefault();
+        last();
+        break;
+      case 'f':
+      case 'F':
+        e.preventDefault();
+        toggleFullscreen();
+        break;
+      case 'o':
+      case 'O':
+      case 'Escape':
+        e.preventDefault();
+        toggleOverview();
+        break;
+      case '?':
+        e.preventDefault();
+        toggleHelp();
+        break;
+    }
+  });
+
+  // ── Mouse click zones ──
+  document.getElementById('clickNext').addEventListener('click', next);
+  document.getElementById('clickPrev').addEventListener('click', prev);
+  document.getElementById('prevBtn').addEventListener('click', (e) => { e.stopPropagation(); prev(); });
+  document.getElementById('nextBtn').addEventListener('click', (e) => { e.stopPropagation(); next(); });
+  document.getElementById('overviewBtn').addEventListener('click', toggleOverview);
+  document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
+  document.getElementById('helpBtn').addEventListener('click', toggleHelp);
+  document.getElementById('closeOverview').addEventListener('click', toggleOverview);
+  document.getElementById('helpOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) toggleHelp();
+  });
+
+  // ── Mouse wheel ──
+  let wheelCooldown = false;
+  document.addEventListener('wheel', (e) => {
+    if (overviewOpen || helpOpen) return;
+    if (wheelCooldown) return;
+    wheelCooldown = true;
+
+    if (e.deltaY > 30) next();
+    else if (e.deltaY < -30) prev();
+
+    setTimeout(() => { wheelCooldown = false; }, 400);
+  }, { passive: true });
+
+  // ── Touch swipe ──
+  let touchStartX = 0;
+  let touchStartY = 0;
+
+  document.addEventListener('touchstart', (e) => {
+    if (overviewOpen || helpOpen) return;
+    touchStartX = e.changedTouches[0].clientX;
+    touchStartY = e.changedTouches[0].clientY;
+  }, { passive: true });
+
+  document.addEventListener('touchend', (e) => {
+    if (overviewOpen || helpOpen) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+      if (dx < 0) next();
+      else prev();
+    }
+  }, { passive: true });
+
+  // ── Init ──
+  function init() {
+    loadingText.textContent = `Loading ${TOTAL} slides…`;
+
+    const firstFrame = freshIframe(0);
+
+    firstFrame.addEventListener('load', () => {
+      firstFrame.classList.add('active');
+      activeFrame = firstFrame;
+      updateUI();
+
+      loadingOverlay.classList.add('hidden');
+      setTimeout(() => loadingOverlay.remove(), 600);
+    }, { once: true });
+  }
+
+  init();
+})();
+</script>
+
+</body>
+</html>
