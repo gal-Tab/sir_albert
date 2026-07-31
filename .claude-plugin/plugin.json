@@ -16,6 +16,11 @@
     "./skills/dev",
     "./skills/docs",
     "./skills/knowledge",
-    "./skills/biz"
+    "./skills/biz",
+    "./skills/core",
+    "./skills/packs/gtm",
+    "./skills/packs/data",
+    "./skills/packs/build",
+    "./skills/packs/automation"
   ]
 }
