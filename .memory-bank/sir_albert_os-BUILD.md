@@ -37,11 +37,11 @@ Reversible-first: `claude plugin enable/disable`, `git mv` on branch; deletes on
 - ✅ 1.4 /sync (skills/core/sync) — verify PASS (fetch --prune, TLDR verdict, `-d` only, ask-before-delete, no force-push/reset). Commit d69277b. **M1 COMPLETE.**
 - Note: SessionStart /resume nudge hook = deferred to hooks step (global settings; must append to existing token-optimizer/axcli SessionStart, not clobber).
 
-## M2 · Personal-context (OKF format)
-- ⬜ 2.1 identity USER/SOUL/HEARTBEAT + CLAUDE.md @imports; voice skills read USER.md
-- ⬜ 2.2 rules/gtm-naming.md + pre-apply gate
-- ⬜ 2.3 rules/consent-map.md (OKF frontmatter: sources/stale_after/status)
-- ⬜ 2.4 rules/output-style.md + PREAMBLE.md (anti-slop + use-the-skill contract)
+## M2 · Personal-context (OKF format) — COMPLETE ✅
+- ✅ 2.1 identity USER/SOUL/HEARTBEAT (OKF drafts, TODO(gal) placeholders); global CLAUDE.md @-imports USER+SOUL (guard.sh block confirmed intact). voice-skills-read-USER wiring = TODO (M3/M6).
+- ✅ 2.2 rules/gtm-naming.md (OKF draft; ce + constant-var + pre-apply gate). Gate WIRING deferred to M3.1.
+- ✅ 2.3 rules/consent-map.md (OKF; container→consent table + timeline). Round1 fix: YAML `- >` → quoted.
+- ✅ 2.4 rules/output-style.md + PREAMBLE.md (the contract). Verify PASS after round1 (consent YAML + created os/state/decisions.jsonl).
 
 ## M3 · Domain packs
 - ⬜ 3.1 GTM pack + /param-audit (maintain-mode)
@@ -56,7 +56,7 @@ Reversible-first: `claude plugin enable/disable`, `git mv` on branch; deletes on
 - ⬜ 4.4 Discover front door (discovery-lens + advisors + grilling + zoom-out…)
 - ⬜ 4.5 retro loop + SessionEnd hook + historical backfill PR
 - ⬜ 4.6 dream cycle (NanoClaw; HEARTBEAT-driven; proposes via PR)
-- ⬜ 4.7 autonomy.md — ask-vs-act tiers + parallelism/cost cap
+- ✅ 4.7 (early) autonomy.md — ask-vs-act tiers + parallelism cap ~3-5 + budget throttle. OKF valid; referenced by PREAMBLE/SOUL/RESOLVER.
 
 ## M5 · remaining
 - ⬜ 5.3 Inherit llm-wiki from agent_knowledgebase main; delete kb-query; align consumers (open_claw, Investment-agent)
@@ -73,3 +73,4 @@ Reversible-first: `claude plugin enable/disable`, `git mv` on branch; deletes on
 - 2026-07-31 · M5.2 ✅ fold+rename — commits d027833 (fold; embedded-.git bug fixed) . Loose copies moved to /tmp backup (guard blocked rm). 5.2c deferred.
 - 2026-07-31 · M1 ✅ COMPLETE — /handoff (82a25fc), /resume + /sync (d69277b); all verify PASS. 1.1 resolved by Q3.
 - 2026-07-31 · M5.0 ✅ — 3 dead plugins disabled (prior), wrap/protected routed via RESOLVER.
+- 2026-07-31 · M2 ✅ COMPLETE — identity + rules + PREAMBLE (+autonomy = M4.7 early). Verify FAIL→round1 (consent-map YAML `- >`, created decisions.jsonl)→PASS. Global CLAUDE.md @-imports USER+SOUL; guard.sh block intact. Backup: revert = drop 3 import lines.
