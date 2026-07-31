@@ -44,10 +44,10 @@ Reversible-first: `claude plugin enable/disable`, `git mv` on branch; deletes on
 - ✅ 2.4 rules/output-style.md + PREAMBLE.md (the contract). Verify PASS after round1 (consent YAML + created os/state/decisions.jsonl).
 
 ## M3 · Domain packs
-- ⬜ 3.1 GTM pack + /param-audit (maintain-mode)
-- ⬜ 3.2 Building pack — named sub-loops + data-review + OS-vs-team boundary doc
-- ⬜ 3.3 Automation pack + /n8n-triage + HubSpot API-safety check
-- ⬜ 3.4 Attested metrics — z2h looks + OKF mirrors + attester (drift fails)
+- ✅ 3.1 GTM pack — param-audit + gtm-gate (verify PASS). Gate-into-apply wiring is cross-repo (gtm_agent) → deferred.
+- ✅ 3.2 Building pack — build-discipline (loop + 3 named sub-loops + OS-vs-team boundary) + data-review (verify PASS).
+- ✅ 3.3 Automation pack — n8n-triage + hubspot-safety (verify PASS; ask-before-prod guardrails).
+- 🔄 3.4 Attested metrics — LEAN build next (attester script + OKF metric template); real look-pinning needs Gal's z2h metrics (TODO).
 
 ## M4 · Core machinery
 - ⬜ 4.1 /decide + decisions.jsonl (auto-apply settled decisions)

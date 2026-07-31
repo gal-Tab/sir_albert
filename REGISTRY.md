@@ -88,6 +88,18 @@ Skills for business reasoning, decision-making, and work-management integrations
 
 ---
 
+## core — OS skills
+
+Domain-agnostic OS spine. Every core skill boots from `os/PREAMBLE.md`.
+
+| Skill | Path | Trigger phrases |
+|---|---|---|
+| handoff | `skills/core/handoff/` | "hand this off", "write a handoff", "wrap this session", "prep to /clear" |
+| resume | `skills/core/resume/` | "resume", "pick up where we left off", "load the handoff" |
+| sync | `skills/core/sync/` | "sync", "are we in sync", "merged are we in sync", "post-merge cleanup" |
+
+---
+
 ## packs — Domain Packs
 
 Skills for specific technology domains and platforms.
@@ -96,6 +108,12 @@ Skills for specific technology domains and platforms.
 |---|---|---|
 | ga4-regex | `skills/packs/gtm/ga4-regex/` | "GA4 regex", "regex for page_path", "match these URLs", "exclude this campaign", "RE2", "why doesn't my regex match in GA4", GA4/GTM + regex/pattern/match/exclude/filter |
 | monday-data-viz-vibe | `skills/packs/data/monday-data-viz-vibe/` | monday charts/dashboards in Python (Plotly/Matplotlib), Streamlit, or Tableau with Vibe design system; typography (Figtree), monday color palettes |
+| param-audit | `skills/packs/gtm/param-audit/` | "/param-audit", "audit sGTM params", "check tag parameters", "is_desktop vs monday_is_desktop" |
+| gtm-gate | `skills/packs/gtm/gtm-gate/` | "gtm-gate", "pre-apply check", "validate before apply", "check naming and consent" |
+| build-discipline | `skills/packs/build/build-discipline/` | "build discipline", "how do I build X", "start a new dashboard/wiki/MCP/agent" |
+| data-review | `skills/packs/data/data-review/` | "data-review", "check this dashboard before I share", "data quality check" |
+| n8n-triage | `skills/packs/automation/n8n-triage/` | "/n8n-triage", "n8n execution failed", "debug this n8n run" |
+| hubspot-safety | `skills/packs/automation/hubspot-safety/` | "hubspot safety", "check hubspot api", "hubspot v1 migration" |
 
 ---
 
