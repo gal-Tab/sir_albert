@@ -47,7 +47,7 @@ Reversible-first: `claude plugin enable/disable`, `git mv` on branch; deletes on
 - ✅ 3.1 GTM pack — param-audit + gtm-gate (verify PASS). Gate-into-apply wiring is cross-repo (gtm_agent) → deferred.
 - ✅ 3.2 Building pack — build-discipline (loop + 3 named sub-loops + OS-vs-team boundary) + data-review (verify PASS).
 - ✅ 3.3 Automation pack — n8n-triage + hubspot-safety (verify PASS; ask-before-prod guardrails).
-- 🔄 3.4 Attested metrics — LEAN build next (attester script + OKF metric template); real look-pinning needs Gal's z2h metrics (TODO).
+- ✅ 3.4 (mechanism) attester.py — functional-tested (JSON key-order-insensitive match=exit0, drift=exit1+diff, SQL-normalized match, usage=exit2) + OKF `_TEMPLATE.md` + README, wired to data-review. **Real look-pinning = TODO(gal)** (needs z2h metrics: delivery funnel / MQL / tag-blocking). **M3 COMPLETE (mechanisms).**
 
 ## M4 · Core machinery
 - ⬜ 4.1 /decide + decisions.jsonl (auto-apply settled decisions)
@@ -74,3 +74,4 @@ Reversible-first: `claude plugin enable/disable`, `git mv` on branch; deletes on
 - 2026-07-31 · M1 ✅ COMPLETE — /handoff (82a25fc), /resume + /sync (d69277b); all verify PASS. 1.1 resolved by Q3.
 - 2026-07-31 · M5.0 ✅ — 3 dead plugins disabled (prior), wrap/protected routed via RESOLVER.
 - 2026-07-31 · M2 ✅ COMPLETE — identity + rules + PREAMBLE (+autonomy = M4.7 early). Verify FAIL→round1 (consent-map YAML `- >`, created decisions.jsonl)→PASS. Global CLAUDE.md @-imports USER+SOUL; guard.sh block intact. Backup: revert = drop 3 import lines.
+- 2026-07-31 · M3 ✅ COMPLETE (mechanisms) — 6 pack skills (a0bc7e4) + attester (M3.4). Real z2h metric-pinning = TODO(gal). Cross-repo gate-wiring deferred.
