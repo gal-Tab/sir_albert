@@ -16,15 +16,20 @@ Boot from `os/PREAMBLE.md` — load USER identity + active rules + anti-slop / u
 
 ---
 
-## 1. Signal sources (three layers — none alone is enough)
+## 1. Signal sources — transcripts PRIMARY, axcli OPTIONAL
 
-1. **Session index** — `~/.claude/sir-albert-sessions.jsonl` (from the `session-record.sh` SessionEnd hook). One line/session: `timestamp, iso, project, cwd, session_id, git_branch, git_head, git_dirty`. This is the *index* of which sessions to review + their project/git context.
-2. **axcli analytics (structural)** — `~/.claude/analytics.duckdb` (DuckDB, built by axcli's `ingest.py`). Rich metadata: which skills fired, tool usage, AskUserQuestion rejections, slash commands, cost/turns per session & project. **No prompt text** (privacy — `user_messages` is metadata only). Query with `duckdb`.
-3. **Raw transcripts (textual)** — the session JSONL files. The ONLY place actual corrections / re-explained context live. Read the *flagged* recent ones for the §3 textual signals.
+**PRIMARY (always present, zero external deps): the raw Claude Code transcripts** at `~/.claude/projects/<project-hash>/*.jsonl` — every session's full text (corrections, re-explained context, missed triggers). **Retro works from these alone — proven.** This is the Claude-Code-native data source; it needs nothing installed.
 
-## 2. Freshen + query axcli (structural signals)
+**OPTIONAL (metrics enhancement): axcli analytics** — `~/.claude/analytics.duckdb`. Adds structural cuts (skill-firing counts, AskUserQuestion rejections, slash commands). **Requires `duckdb`; if it's not installed, SKIP §2 entirely and work from transcripts.**
 
-Ensure the analytics DB is fresh, then query it:
+The three layers:
+1. **Raw transcripts (textual — PRIMARY)** — `~/.claude/projects/<hash>/*.jsonl`. The only place actual corrections / re-explains live. Always read these.
+2. **axcli analytics (structural — OPTIONAL)** — `~/.claude/analytics.duckdb` (DuckDB). Skip if `duckdb` absent. No prompt text (privacy: metadata only).
+3. **Session index (context)** — `~/.claude/sir-albert-sessions.jsonl` (the `session-record.sh` hook): `session_id, project, git_branch/head/dirty`. Maps a session → git context. Nice-to-have.
+
+## 2. Freshen + query axcli (structural signals — OPTIONAL; skip if no duckdb)
+
+**First: `command -v duckdb >/dev/null || { echo "duckdb absent — skipping structural pass, using transcripts only"; }` and skip the rest of §2 if it's missing.** Otherwise ensure the analytics DB is fresh, then query it:
 
 ```bash
 DB="$HOME/.claude/analytics.duckdb"
