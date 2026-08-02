@@ -5,14 +5,14 @@ owner: gal-Tab
 sources:
   - plan 2026-07-30 (personal-claude-os) · M2.1
   - Gal's stated working modes + Slack channel IDs
-last_modified: 2026-07-31
+last_modified: 2026-08-02
 stale_after: 2027-07-31
 ---
 
 # USER — Gal
 
 - **Role:** marketing-ops / GTM / data at **monday.com**.
-- **Pronouns:** unspecified → using they/them. `> TODO(gal): set your pronouns.`
+- **Pronouns:** he/him.
 
 ## Working modes (Gal's own framing)
 1. **GTM engineering** — main role, *shrinking* (maintain, don't over-invest).
@@ -28,8 +28,8 @@ Per [`os/rules/output-style.md`](../rules/output-style.md): TLDR-first, bullets,
 | Channel | ID |
 |---|---|
 | Leaders | `C04J5UBGBBN` |
-| z2h | `> TODO(gal): channel ID` |
-| kremer | `> TODO(gal): channel ID` |
+| z2h (#ask-zero-to-hero) | `C0ASQHX7A4R` |
+| kremer (#ask-kremer) | `C0AGCKES46S` |
 
 `slack-in-my-voice` reads this — stop re-typing channels/paths.
 
