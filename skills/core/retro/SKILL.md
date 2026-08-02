@@ -1,9 +1,9 @@
 ---
 name: retro
 description: >
-  Self-improving skills loop. Scans recent session records and .compound/ ledgers to surface
-  recommended skill edits — new trigger phrases, description tweaks, skill merges, new-skill
-  candidates — and emits them as a draft for Gal to approve. Never auto-applies changes.
+  Self-improving skills loop. Reads recent sessions (index + axcli analytics + transcripts),
+  surfaces recommended skill edits — new trigger phrases, description tweaks, skill merges,
+  new-skill candidates — and emits them as a draft for Gal to approve. Never auto-applies.
   Use when the user says "/retro", "retro", "self-improve skills", "what should the OS learn",
   "review my corrections", or "skill trigger fixes".
 ---
@@ -12,141 +12,81 @@ description: >
 
 Boot from `os/PREAMBLE.md` — load USER identity + active rules + anti-slop / use-the-skill contract before proceeding.
 
-**Announce at start:** "Running /sir-albert:retro — scanning sessions for skill improvement signals."
+**Announce at start:** "Running /sir-albert:retro — scanning sessions for skill-improvement signals."
 
 ---
 
-## 2. Capture — how session records are produced
+## 1. Signal sources (three layers — none alone is enough)
 
-A `SessionEnd` hook (`hooks/session-record.sh`) appends one JSON line per session to
-`~/.claude/sir-albert-sessions.jsonl`. Each line carries: `timestamp`, `cwd`, `session_id`
-(best-effort), and whatever metadata was available on stdin. The retro reads that file — no
-other instrumentation is needed from skills or agents.
+1. **Session index** — `~/.claude/sir-albert-sessions.jsonl` (from the `session-record.sh` SessionEnd hook). One line/session: `timestamp, iso, project, cwd, session_id, git_branch, git_head, git_dirty`. This is the *index* of which sessions to review + their project/git context.
+2. **axcli analytics (structural)** — `~/.claude/analytics.duckdb` (DuckDB, built by axcli's `ingest.py`). Rich metadata: which skills fired, tool usage, AskUserQuestion rejections, slash commands, cost/turns per session & project. **No prompt text** (privacy — `user_messages` is metadata only). Query with `duckdb`.
+3. **Raw transcripts (textual)** — the session JSONL files. The ONLY place actual corrections / re-explained context live. Read the *flagged* recent ones for the §3 textual signals.
 
----
+## 2. Freshen + query axcli (structural signals)
 
-## 3. Retro run
-
-### 3a. Load the windows
-
-- **24h window:** all lines in `~/.claude/sir-albert-sessions.jsonl` where `timestamp ≥ now - 86400`.
-- **7d window:** all lines where `timestamp ≥ now - 604800`.
-- **`.compound/` ledgers:** if the directory exists, read every file under it.
+Ensure the analytics DB is fresh, then query it:
 
 ```bash
-# 24h
-since_24h=$(date -v-24H +%s 2>/dev/null || date -d '24 hours ago' +%s)
-awk -F'"timestamp":' 'NF>1 { split($2,a,","); gsub(/[^0-9]/,"",a[1]); if (a[1]+0 >= '"$since_24h"') print }' \
-  ~/.claude/sir-albert-sessions.jsonl
-
-# 7d
-since_7d=$(date -v-7d +%s 2>/dev/null || date -d '7 days ago' +%s)
-awk -F'"timestamp":' 'NF>1 { split($2,a,","); gsub(/[^0-9]/,"",a[1]); if (a[1]+0 >= '"$since_7d"') print }' \
-  ~/.claude/sir-albert-sessions.jsonl
+DB="$HOME/.claude/analytics.duckdb"
+if [ ! -f "$DB" ] || [ $(( $(date +%s) - $(stat -f %m "$DB" 2>/dev/null || stat -c %Y "$DB") )) -gt 3600 ]; then
+  INGEST=$(find "$HOME/.claude/plugins/cache/agentic-builders-hub/axcli" -name ingest.py 2>/dev/null | head -1)
+  [ -n "$INGEST" ] && python3 "$INGEST"   # ~10-30s; reads all session JSONL
+fi
 ```
 
-### 3b. Detection signals — what to look for
+**MANDATORY before writing SQL:** read `**/axcli/knowledge/semantic-layers.md` (Glob) for exact columns/joins. Then run structural cuts over the last 7d (`duckdb "$DB" -markdown -c "..."`), filtering `is_agent = false`:
+- **Skill adoption** — `tool_uses` where `tool_name='Skill'`: which sir-albert skills fired, how often, in which projects. A skill that never fires despite relevant work = a trigger/description gap.
+- **Friction / rejections** — sessions with `AskUserQuestion` rejections (proxy: I asked and Gal redirected) → flag those `session_id`s for a transcript read in §3.
+- **Slash commands** — `history` where `display LIKE '/%'`: what Gal invokes by hand that a skill could auto-trigger.
+- **Missed-skill candidates** — projects with high activity but zero sir-albert skill invocations.
+
+(Join to `session_meta.project_path` for readable project names.)
+
+## 3. Read flagged transcripts (textual signals)
+
+For sessions flagged in §2 (rejections / high-activity-no-skill), locate the raw transcript by `session_id` and read it for:
 
 | Signal | Examples |
 |---|---|
 | Explicit corrections | "did you use the skill?", "use X instead", "that's not how X works" |
-| Missed triggers | A skill's name or trigger words appeared in a prompt but the skill didn't fire |
-| Slop / quality corrections | "too verbose", "cut the fluff", "anti-slop" repeated in a session |
-| Re-explained context | The same background re-stated across ≥2 sessions → candidate for a rule/skill |
-| Naming drift | Gal used a variant phrase that no existing trigger catches |
+| Missed triggers | a skill's trigger words appeared but the skill didn't fire |
+| Slop / quality | "too verbose", "cut the fluff", repeated anti-slop nudges |
+| Re-explained context | the same background re-stated across ≥2 sessions → rule/skill candidate |
+| Naming drift | a variant phrase no existing trigger catches |
 
-### 3c. Emit RECOMMENDED edits
+**Scope it:** only read transcripts the structural pass flagged (or the last few in the window) — never read every transcript every run.
 
-For each signal found, produce a structured recommendation block:
+## 4. Emit RECOMMENDED edits (draft for approval)
 
 ```
 RECOMMENDED: <skill-name or "new skill">
   type: trigger-phrase | description-tweak | skill-merge | new-skill
-  signal: <what was observed, with session id/date>
-  proposed change:
-    <exact diff or new text>
+  signal: <what was observed, with session id/date + source layer>
+  proposed change: <exact diff or new text>
   rationale: <one sentence>
 ```
-
-- List every recommendation, even minor ones.
-- If nothing was found in the windows, say so explicitly — do not fabricate signals.
-
----
-
-## 4. Output — draft for Gal to approve
-
-- Emit the full list of recommendations as a **draft**.
-- **Never auto-apply** any change to a SKILL.md or settings.json. Apply only after Gal
-  explicitly approves each item (draft→approve contract from `rules/autonomy.md`).
-- Keep the report tight: one table of signals, then the recommendation blocks.
-
----
+- List every recommendation, even minor. If nothing found, say so — do not fabricate.
+- **Never auto-apply** to any SKILL.md or settings.json. Apply only after Gal approves each item (draft→approve, `rules/autonomy.md`).
 
 ## 5. Pairing note
-
-Retro handles the long tail of trigger misses and quality drift. Hard gates (consent naming,
-safety rules) are handled by dedicated guardrails — retro does not touch those.
-
----
+Retro handles the long tail of trigger misses + quality drift. Hard gates (consent, naming, safety) stay in dedicated guardrails — retro doesn't touch those.
 
 ## 6. Bootstrap / historical backfill
-
-> **TODO(gal): run the historical backfill retro once (heavy).**
-> The first retro pass should scan the ~3,853 historical prompts + all `.compound/` ledgers
-> in one batch run to seed the recommendations. This is a large separate run — do not attempt
-> it automatically during a normal retro invocation.
-
----
+> **TODO(gal): run the backfill once (heavy).** First pass = one big axcli query over ALL history (skill adoption + rejection hotspots across the ~3,853 prompts) + a transcript sweep of the top-flagged sessions. Large separate run — not part of a normal retro.
 
 ## 7. Activation — APPEND to settings.json (do NOT do this automatically)
+Append this as the **third** element of the existing `SessionEnd` array in `~/.claude/settings.json`.
 
-To activate the `SessionEnd` hook that feeds this retro, **append** the following object to
-the existing `SessionEnd` array in `~/.claude/settings.json`.
-
-> **WARNING: APPEND, do NOT replace the existing SessionEnd array or you will break
-> token-optimizer (measure.py collect) and axcli (_session-end). The array must keep all
-> three entries.**
-
-Exact snippet to append as the third element of the `SessionEnd` array:
+> **WARNING: APPEND — do NOT replace the array, or you break token-optimizer (measure.py collect) and axcli (_session-end). Keep all three entries.**
 
 ```json
-{
-  "hooks": [
-    {
-      "type": "command",
-      "command": "bash /Users/galta/Development/sir_albert/hooks/session-record.sh"
-    }
-  ]
-}
+{ "hooks": [ { "type": "command", "command": "bash /Users/galta/Development/sir_albert/hooks/session-record.sh" } ] }
 ```
-
-Resulting `SessionEnd` array (complete, for reference):
-
+Full resulting array for reference:
 ```json
 "SessionEnd": [
-  {
-    "hooks": [
-      {
-        "command": "python3 /Users/galta/.claude/token-optimizer/skills/token-optimizer/scripts/measure.py collect --quiet",
-        "type": "command"
-      }
-    ]
-  },
-  {
-    "hooks": [
-      {
-        "command": "/Users/galta/.local/bin/axcli _session-end",
-        "type": "command"
-      }
-    ]
-  },
-  {
-    "hooks": [
-      {
-        "type": "command",
-        "command": "bash /Users/galta/Development/sir_albert/hooks/session-record.sh"
-      }
-    ]
-  }
+  { "hooks": [ { "command": "python3 /Users/galta/.claude/token-optimizer/skills/token-optimizer/scripts/measure.py collect --quiet", "type": "command" } ] },
+  { "hooks": [ { "command": "/Users/galta/.local/bin/axcli _session-end", "type": "command" } ] },
+  { "hooks": [ { "type": "command", "command": "bash /Users/galta/Development/sir_albert/hooks/session-record.sh" } ] }
 ]
 ```
