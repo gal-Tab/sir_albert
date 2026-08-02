@@ -55,6 +55,7 @@ Reversible-first: `claude plugin enable/disable`, `git mv` on branch; deletes on
 - ✅ 4.3 /freeze skill + hooks/freeze-guard.sh (functional-tested: outside→exit2, fail-open→exit0). ⚠️ ACTIVATION = live settings.json PreToolUse edit → Gal applies (snippet in SKILL.md).
 - ✅ 4.4 /discover front door (7-lens routing; phase-not-pack) (verify PASS).
 - ✅ 4.5 /retro skill + hooks/session-record.sh (tested: exit0 + valid-JSON append). Verify FAIL round0 (Boot-after-Announce)→fixed. ⚠️ ACTIVATION = APPEND SessionEnd (don't clobber token-optimizer/axcli) → Gal. **Backfill over ~3,853 prompts = heavy TODO(gal).**
+  - UPGRADED (5e60ee3): hook now logs git branch/head/dirty+project (functionally tested); retro rewritten to 3-layer signal — session index + **axcli analytics.duckdb** (structural; no prompt text) + raw transcripts (textual). Retro works off axcli even without the hook active. Scheduling: retro=daily Cron, learnings+wiki-compile=weekly (needs a target KB) — pending Gal.
 - ⛔ 4.6 dream cycle → DEFERRED: runs on NanoClaw (external; no Claude Code daemon). Spec = HEARTBEAT.md weekly section → needs a NanoClaw cron (handoff item).
 - ✅ 4.7 (early) autonomy.md — ask-vs-act tiers + parallelism cap ~3-5 + budget throttle. OKF valid; referenced by PREAMBLE/SOUL/RESOLVER.
 
