@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deck Dark Page 043</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .header-section {
+            width: 80%;
+        }
+
+        .main-header {
+            font-size: var(--text-h2);
+            font-weight: var(--weight-medium);
+            line-height: 1.3;
+            margin: 0;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-5);
+            flex-grow: 1;
+            margin-top: var(--space-8);
+            margin-bottom: var(--space-8);
+        }
+
+        .step-card {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-md);
+            padding: var(--space-6);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: var(--space-4);
+        }
+
+        .step-number {
+            font-size: var(--text-h1);
+            font-weight: var(--weight-semibold);
+            margin: 0;
+            line-height: 1;
+        }
+
+        .step-text {
+            font-size: var(--text-body);
+            font-weight: var(--weight-regular);
+            line-height: 1.5;
+            color: #eeeeee;
+            margin: 0;
+        }
+
+        .dot-blue { color: var(--color-purple); }
+        .dot-yellow { color: var(--color-yellow); }
+        .dot-green { color: var(--color-green); }
+        .dot-red { color: var(--color-red); }
+
+        .footer-text {
+            font-size: var(--text-body-sm);
+            font-weight: var(--weight-semibold);
+            margin: 0;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        <div class="header-section">
+            <h1 class="main-header">Use This Area to Write a Longer, Descriptive Header That Sets the Tone</h1>
+        </div>
+
+        <div class="cards-container">
+            <!-- Card 1 -->
+            <div class="step-card">
+                <div class="step-number">1<span class="dot-blue">.</span></div>
+                <p class="step-text">Add a short message or key point here.</p>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="step-card">
+                <div class="step-number">2<span class="dot-yellow">.</span></div>
+                <p class="step-text">This space is for a quick description or callout.</p>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="step-card">
+                <div class="step-number">3<span class="dot-green">.</span></div>
+                <p class="step-text">Insert a concise statement to support the title.</p>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="step-card">
+                <div class="step-number">4<span class="dot-red">.</span></div>
+                <p class="step-text">Your summary or key insight goes right in this area.</p>
+            </div>
+        </div>
+
+        <div class="footer-text">Based on a very important research</div>
+    </div>
+
+<script src="entrance-animations.js"></script>
+</body>
+</html>

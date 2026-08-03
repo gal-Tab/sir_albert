@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deck Dark Page 007</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .top-section {
+            flex: 2.5;
+            border: 1px solid var(--color-text);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .logo-container {
+            position: absolute;
+            top: var(--space-6);
+            left: var(--space-6);
+        }
+
+        .monday-logo {
+            height: 4vmin;
+            width: auto;
+        }
+
+        h1 {
+            color: var(--color-text);
+            font-size: var(--text-display);
+            font-weight: var(--weight-regular);
+            line-height: 1.2;
+            margin: 0;
+            margin-top: var(--space-7);
+        }
+
+        .bottom-section {
+            flex: 1;
+            background-color: var(--color-purple);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            padding: 0 var(--space-6);
+        }
+
+        p {
+            color: var(--color-text);
+            font-size: var(--text-h4);
+            font-weight: var(--weight-light);
+            margin: 0;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        <div class="top-section">
+            <div class="logo-container">
+                <img src="monday_logo.svg" alt="monday.com" class="monday-logo">
+            </div>
+            <h1>The casual<br>opening slide.</h1>
+        </div>
+
+        <div class="bottom-section">
+            <p>Lorem ipsum dolor sit amet consectetur,<br>
+            Mi quis hendrerit dolor magna eget est.</p>
+        </div>
+    </div>
+
+<script src="entrance-animations.js"></script>
+</body>
+</html>

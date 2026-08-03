@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6 Columns Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-title {
+            font-size: var(--text-h3);
+            font-weight: var(--weight-semibold);
+            margin-bottom: var(--space-5);
+        }
+
+        .grid-container {
+            flex: 1;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: var(--space-4);
+        }
+
+        .grid-item {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-md);
+            padding: var(--space-5);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            min-height: 0;
+        }
+
+        .item-title {
+            font-size: var(--text-h4);
+            font-weight: var(--weight-semibold);
+            margin-bottom: var(--space-3);
+        }
+
+        .item-text {
+            font-size: var(--text-body);
+            font-weight: var(--weight-light);
+            line-height: 1.7;
+            color: #ADB5BD;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        <h1 class="main-title">6 columns – Add your title here</h1>
+        <div class="grid-container">
+            <div class="grid-item">
+                <h2 class="item-title">Add your title</h2>
+                <p class="item-text">Lorem ipsum dolor sit amet consectetur adipiscing elit, et dolore magna aliqua.</p>
+            </div>
+            <div class="grid-item">
+                <h2 class="item-title">Add your title</h2>
+                <p class="item-text">Lorem ipsum dolor sit amet consectetur adipiscing elit, et dolore magna aliqua.</p>
+            </div>
+            <div class="grid-item">
+                <h2 class="item-title">Add your title</h2>
+                <p class="item-text">Lorem ipsum dolor sit amet consectetur adipiscing elit, et dolore magna aliqua.</p>
+            </div>
+            <div class="grid-item">
+                <h2 class="item-title">Add your title</h2>
+                <p class="item-text">Lorem ipsum dolor sit amet consectetur adipiscing elit, et dolore magna aliqua.</p>
+            </div>
+            <div class="grid-item">
+                <h2 class="item-title">Add your title</h2>
+                <p class="item-text">Lorem ipsum dolor sit amet consectetur adipiscing elit, et dolore magna aliqua.</p>
+            </div>
+            <div class="grid-item">
+                <h2 class="item-title">Add your title</h2>
+                <p class="item-text">Lorem ipsum dolor sit amet consectetur adipiscing elit, et dolore magna aliqua.</p>
+            </div>
+        </div>
+    </div>
+
+<script src="entrance-animations.js"></script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentation Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        :root {
+            --text-color-light: #E0E0E0;
+            --connector-height: 10vmin;
+        }
+
+        .title {
+            position: absolute;
+            top: var(--slide-padding-y);
+            left: var(--slide-padding-x);
+            font-size: var(--text-h2);
+            font-weight: var(--weight-light);
+            color: var(--color-text);
+        }
+
+        .timeline {
+            position: absolute;
+            top: 59%;
+            left: 4%;
+            width: 92%;
+            height: 1px;
+        }
+
+        .line {
+            width: 100%;
+            height: 2px;
+            background-color: var(--color-purple-light);
+            position: absolute;
+            top: 0;
+        }
+
+        .item {
+            position: absolute;
+            top: 0;
+        }
+
+        .dot {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1.2vmin;
+            height: 1.2vmin;
+            background-color: var(--color-purple-light);
+            border: 1px solid var(--color-bg);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+        }
+
+        .date {
+            position: absolute;
+            left: 0;
+            transform: translateX(-50%);
+            font-size: var(--text-body);
+            font-weight: var(--weight-semibold);
+            color: var(--color-purple-light);
+            white-space: nowrap;
+        }
+
+        .date.below {
+            top: var(--space-6);
+        }
+
+        .date.above {
+            bottom: var(--space-6);
+        }
+
+        .milestone {
+            position: absolute;
+            left: 0;
+            width: 28vmin;
+            transform: translateX(calc(-1 * var(--space-3)));
+        }
+
+        .milestone.top {
+            bottom: var(--connector-height);
+        }
+
+        .milestone.bottom {
+            top: var(--connector-height);
+        }
+
+        .milestone::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            width: 2px;
+            background-image: linear-gradient(to bottom, var(--color-purple-light) 40%, transparent 40%);
+            background-size: 2px 8px;
+            background-repeat: repeat-y;
+        }
+
+        .milestone.top::before {
+            top: 100%;
+            height: var(--connector-height);
+        }
+
+        .milestone.bottom::before {
+            bottom: 100%;
+            height: var(--connector-height);
+        }
+
+        .milestone h3 {
+            font-size: var(--text-body);
+            font-weight: var(--weight-semibold);
+            margin-bottom: var(--space-2);
+            padding-left: var(--space-3);
+            color: var(--color-text);
+        }
+
+        .milestone p {
+            font-size: var(--text-body-sm);
+            font-weight: var(--weight-light);
+            line-height: 1.5;
+            padding-left: var(--space-3);
+            color: var(--text-color-light);
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <h1 class="title">Timeline - Add your title here</h1>
+        <div class="timeline">
+            <div class="line"></div>
+
+            <div class="item" style="left: 2%;">
+                <div class="dot"></div>
+                <div class="date below">1970-1979</div>
+                <div class="milestone top">
+                    <h3>Milestone 1</h3>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                </div>
+            </div>
+
+            <div class="item" style="left: 21%;">
+                <div class="dot"></div>
+                <div class="date above">1980-1989</div>
+                <div class="milestone bottom">
+                    <h3>Milestone 2</h3>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                </div>
+            </div>
+
+            <div class="item" style="left: 40%;">
+                <div class="dot"></div>
+                <div class="date below">1990-1999</div>
+                <div class="milestone top">
+                    <h3>Milestone 3</h3>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                </div>
+            </div>
+
+            <div class="item" style="left: 59%;">
+                <div class="dot"></div>
+                <div class="date above">2000-2009</div>
+                <div class="milestone bottom">
+                    <h3>Milestone 4</h3>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                </div>
+            </div>
+
+            <div class="item" style="left: 78%;">
+                <div class="dot"></div>
+                <div class="date below">2010-Present</div>
+                <div class="milestone top">
+                    <h3>Milestone 5</h3>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                </div>
+            </div>
+
+            <div class="item" style="left: 97%;">
+                <div class="dot"></div>
+                <div class="date above">Future State</div>
+                <div class="milestone bottom">
+                    <h3>Milestone 6</h3>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+<script src="entrance-animations.js"></script>
+</body>
+</html>

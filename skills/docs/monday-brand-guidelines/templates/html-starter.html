@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Monday.com branded page - update this description">
+  <title>Monday.com - Your Title Here</title>
+
+  <!-- Google Fonts: Poppins (Brand) and Figtree (Platform) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ===== CSS VARIABLES ===== */
+    /* Monday.com brand colors - modify these based on product context */
+    :root {
+      /* Primary Brand Colors */
+      --monday-purple: #6161FF;
+      --monday-purple-hover: #4B4BFF;
+      --monday-dark: #181B34;
+      --monday-light: #F0F3FF;
+      --monday-white: #FFFFFF;
+
+      /* Supportive Colors (Status) */
+      --monday-green: #00CA72;
+      --monday-yellow: #FFCC00;
+      --monday-red: #FB275D;
+
+      /* Product-Specific Colors (uncomment as needed) */
+      --crm-turquoise: #00D2D2;
+      --crm-turquoise-hover: #00B8B8;
+      --dev-green: #00CA72;
+      --dev-green-hover: #00B065;
+      --service-red: #FB275D;
+      --service-red-hover: #E91548;
+
+      /* Typography */
+      --font-brand: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-platform: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+      /* Spacing Scale (4px base unit) */
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+      --space-3xl: 64px;
+      --space-4xl: 80px;
+
+      /* Border Radius */
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
+      --shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    /* ===== RESET & BASE STYLES ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-brand);
+      background: var(--monday-white);
+      color: var(--monday-dark);
+      line-height: 1.6;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    h1, h2, h3, h4, h5, h6 {
+      line-height: 1.2;
+      font-weight: 700;
+      margin-bottom: var(--space-md);
+    }
+
+    h1 {
+      font-size: 48px;
+      font-weight: 700;
+    }
+
+    h2 {
+      font-size: 36px;
+      font-weight: 600;
+    }
+
+    h3 {
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    p {
+      margin-bottom: var(--space-md);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    a {
+      color: var(--monday-purple);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    a:hover {
+      color: var(--monday-purple-hover);
+      text-decoration: underline;
+    }
+
+    /* ===== LAYOUT UTILITIES ===== */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 var(--space-lg);
+    }
+
+    .container-wide {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 var(--space-lg);
+    }
+
+    .section {
+      padding: var(--space-4xl) 0;
+    }
+
+    .section-light {
+      background: var(--monday-light);
+    }
+
+    /* ===== MONDAY.COM COMPONENT LIBRARY ===== */
+
+    /* Primary Button (Purple CTA) */
+    .monday-button-primary {
+      display: inline-block;
+      background: var(--monday-purple);
+      color: var(--monday-white);
+      padding: 14px 28px;
+      border-radius: var(--radius-md);
+      font-family: var(--font-brand);
+      font-weight: 600;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+      text-decoration: none;
+    }
+
+    .monday-button-primary:hover {
+      background: var(--monday-purple-hover);
+      color: var(--monday-white);
+      text-decoration: none;
+      transform: translateY(-1px);
+    }
+
+    .monday-button-primary:focus {
+      outline: 2px solid rgba(97, 97, 255, 0.5);
+      outline-offset: 2px;
+    }
+
+    /* Secondary Button (Outline) */
+    .monday-button-secondary {
+      display: inline-block;
+      background: transparent;
+      color: var(--monday-purple);
+      padding: 14px 28px;
+      border-radius: var(--radius-md);
+      font-family: var(--font-brand);
+      font-weight: 600;
+      font-size: 16px;
+      border: 2px solid var(--monday-purple);
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+      text-decoration: none;
+    }
+
+    .monday-button-secondary:hover {
+      background: var(--monday-light);
+      color: var(--monday-purple);
+      text-decoration: none;
+    }
+
+    /* Card Component */
+    .monday-card {
+      background: var(--monday-white);
+      border-radius: var(--radius-md);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-md);
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+
+    .monday-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .monday-card h3 {
+      color: var(--monday-dark);
+      margin-bottom: var(--space-md);
+    }
+
+    .monday-card p {
+      color: var(--monday-dark);
+      margin-bottom: var(--space-md);
+    }
+
+    /* Grid System */
+    .grid {
+      display: grid;
+      gap: var(--space-xl);
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    /* Input Field */
+    .monday-input {
+      width: 100%;
+      height: 48px;
+      border: 1px solid #C5CAE9;
+      border-radius: var(--radius-md);
+      padding: 0 16px;
+      font-family: var(--font-brand);
+      font-size: 16px;
+      transition: border-color 0.2s ease;
+    }
+
+    .monday-input:focus {
+      border-color: var(--monday-purple);
+      border-width: 2px;
+      outline: none;
+      padding: 0 15px; /* Compensate for border width change */
+    }
+
+    .monday-input::placeholder {
+      color: #9FA2B4;
+    }
+
+    /* Form Group */
+    .form-group {
+      margin-bottom: var(--space-lg);
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: var(--space-sm);
+      font-weight: 600;
+      color: var(--monday-dark);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 32px;
+      }
+
+      h2 {
+        font-size: 28px;
+      }
+
+      h3 {
+        font-size: 20px;
+      }
+
+      .section {
+        padding: var(--space-2xl) 0;
+      }
+
+      .monday-card {
+        padding: var(--space-lg);
+      }
+
+      .grid-2,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ===== UTILITY CLASSES ===== */
+    .text-center {
+      text-align: center;
+    }
+
+    .text-purple {
+      color: var(--monday-purple);
+    }
+
+    .bg-light {
+      background: var(--monday-light);
+    }
+
+    .bg-white {
+      background: var(--monday-white);
+    }
+
+    .mt-sm { margin-top: var(--space-sm); }
+    .mt-md { margin-top: var(--space-md); }
+    .mt-lg { margin-top: var(--space-lg); }
+    .mt-xl { margin-top: var(--space-xl); }
+
+    .mb-sm { margin-bottom: var(--space-sm); }
+    .mb-md { margin-bottom: var(--space-md); }
+    .mb-lg { margin-bottom: var(--space-lg); }
+    .mb-xl { margin-bottom: var(--space-xl); }
+  </style>
+</head>
+<body>
+
+  <!-- ===== EXAMPLE HERO SECTION ===== -->
+  <!-- Replace with your content -->
+  <section class="section">
+    <div class="container text-center">
+      <h1>
+        Work without limits
+        <!-- Note: Sentence case, no period on headline -->
+        <!-- Use Monday purple for accent if desired: <span class="text-purple">without limits</span> -->
+      </h1>
+      <p style="font-size: 18px; max-width: 600px; margin: 0 auto var(--space-xl);">
+        One platform for every team, project, and workflow. See your entire operation at a glance.
+        <!-- Note: Active voice, no jargon, clear benefits -->
+      </p>
+      <div>
+        <a href="#" class="monday-button-primary">Get started free</a>
+        <a href="#" class="monday-button-secondary" style="margin-left: var(--space-md);">See how it works</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== EXAMPLE FEATURE GRID ===== -->
+  <section class="section bg-light">
+    <div class="container">
+      <h2 class="text-center mb-xl">Built for the way your team works</h2>
+      <div class="grid grid-3">
+
+        <!-- Feature Card 1 -->
+        <div class="monday-card">
+          <h3>Customize everything</h3>
+          <p>Build workflows that match how your team works. No coding required.</p>
+          <a href="#">Learn more →</a>
+        </div>
+
+        <!-- Feature Card 2 -->
+        <div class="monday-card">
+          <h3>Automate the boring stuff</h3>
+          <p>Set up automations once and let monday.com handle repetitive tasks.</p>
+          <a href="#">Explore automations →</a>
+        </div>
+
+        <!-- Feature Card 3 -->
+        <div class="monday-card">
+          <h3>See everything in real time</h3>
+          <p>Track progress across every project. No more digging for updates.</p>
+          <a href="#">View dashboards →</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== EXAMPLE FORM SECTION ===== -->
+  <section class="section">
+    <div class="container" style="max-width: 600px;">
+      <h2 class="text-center mb-xl">Try monday.com free</h2>
+
+      <form>
+        <div class="form-group">
+          <label for="name" class="form-label">Your name</label>
+          <input type="text" id="name" class="monday-input" placeholder="Jane Smith">
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">Work email</label>
+          <input type="email" id="email" class="monday-input" placeholder="jane@company.com">
+        </div>
+
+        <div class="form-group">
+          <label for="company" class="form-label">Company name</label>
+          <input type="text" id="company" class="monday-input" placeholder="Acme Corp">
+        </div>
+
+        <button type="submit" class="monday-button-primary" style="width: 100%;">
+          Get started
+        </button>
+      </form>
+
+      <p class="text-center mt-md" style="font-size: 14px; color: #9FA2B4;">
+        No credit card required · Free forever for up to 2 seats
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== EXAMPLE CTA SECTION ===== -->
+  <section class="section bg-light">
+    <div class="container text-center">
+      <h2>Ready to get started?</h2>
+      <p style="font-size: 18px; max-width: 600px; margin: 0 auto var(--space-xl);">
+        Join 150,000+ teams running on monday.com
+      </p>
+      <a href="#" class="monday-button-primary">Start free trial</a>
+    </div>
+  </section>
+
+  <!-- ===== BRAND COMPLIANCE NOTES ===== -->
+  <!--
+    MONDAY.COM BRAND GUIDELINES APPLIED:
+
+    COLORS:
+    - Primary: Monday Purple (#6161FF) for CTAs and accents
+    - Text: Monday Dark (#181B34) for all body text
+    - Background: White (#FFFFFF) main, Light Purple (#F0F3FF) alternating sections
+    - Hover states: Darker purple (#4B4BFF)
+
+    TYPOGRAPHY:
+    - Font: Poppins (Bold 700, Semi-bold 600, Regular 400)
+    - Hierarchy: H1 48px, H2 36px, H3 24px, Body 16px
+    - Line height: 1.6 for body, 1.2 for headings
+    - All copy in sentence case, no periods on headlines
+
+    SPACING:
+    - Generous padding: 80px on sections (desktop)
+    - Breathing room with whitespace
+    - Consistent spacing scale (4, 8, 16, 24, 32, 48, 64, 80px)
+
+    COMPONENTS:
+    - Border radius: 8-12px on buttons and cards
+    - Shadows: Subtle, level 2 (0 2px 8px rgba(0,0,0,0.08))
+    - Hover effects: Lift cards, darken buttons
+
+    VOICE & TONE:
+    - Active voice: "Customize everything" not "Everything can be customized"
+    - No jargon: "Boring stuff" not "Repetitive operational processes"
+    - Confident but not arrogant
+    - Clear benefits: "See everything in real time" not "Enhanced visibility"
+
+    ACCESSIBILITY:
+    - All text meets AA contrast minimum (Monday Dark on white = 14.6:1)
+    - Focus states visible (purple outline)
+    - Semantic HTML (h1, h2, section, etc.)
+    - Touch targets 48px minimum
+
+    TO CUSTOMIZE FOR PRODUCT:
+    - Work Management: Keep purple primary (default)
+    - CRM: Change primary to turquoise (#00D2D2), keep purple as accent
+    - dev: Change primary to green (#00CA72), optional dark backgrounds
+    - service: Change primary to red (#FB275D), add yellow accents
+
+    Replace --monday-purple with product color in CSS variables.
+  -->
+
+</body>
+</html>

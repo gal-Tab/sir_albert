@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        :root {
+            --base-unit: 1vmin;
+            --circle-size: calc(var(--base-unit) * 26);
+        }
+
+        .slide-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .slide-header {
+            position: absolute;
+            top: calc(var(--base-unit) * 8);
+            left: calc(var(--base-unit) * 10);
+            font-size: var(--text-h3);
+            font-weight: var(--weight-light);
+        }
+
+        .slide-header span {
+            font-weight: var(--weight-semibold);
+        }
+
+        .timeline-container {
+            width: 85%;
+            position: relative;
+            margin-top: var(--space-7);
+        }
+        
+        .timeline-line {
+            position: absolute;
+            top: calc(var(--circle-size) / 2 - var(--base-unit) * 0.15);
+            left: calc(var(--circle-size) / 2);
+            right: calc(var(--circle-size) / 2);
+            height: calc(var(--base-unit) * 0.3);
+            background-color: var(--color-purple);
+            z-index: 0;
+        }
+
+        .timeline-steps {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-8);
+            align-items: flex-start;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timeline-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: calc(var(--base-unit) * 28);
+        }
+
+        .circle {
+            width: var(--circle-size);
+            height: var(--circle-size);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: var(--space-5);
+            box-sizing: border-box;
+            background-color: var(--color-bg);
+            position: relative;
+        }
+
+        .circle.active {
+            background-color: var(--color-purple);
+            color: var(--color-text);
+        }
+
+        .circle.inactive {
+            border: 1px solid var(--color-purple);
+            color: var(--color-purple);
+        }
+
+        .circle .icon {
+            width: calc(var(--base-unit) * 9);
+            height: calc(var(--base-unit) * 9);
+        }
+
+        .circle .icon img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .circle .step-label {
+            font-size: var(--text-body);
+            font-weight: var(--weight-regular);
+            margin-top: var(--space-3);
+        }
+
+        .timeline-item .title {
+            font-size: var(--text-body);
+            font-weight: var(--weight-semibold);
+            margin: 0 0 var(--space-2) 0;
+        }
+
+        .timeline-item .description {
+            font-size: var(--text-body-sm);
+            font-weight: var(--weight-light);
+            line-height: 1.5;
+            padding: 0 var(--space-2);
+            max-width: calc(var(--base-unit) * 22);
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <header class="slide-header">Timeline – <span>Add your title here</span></header>
+        
+        <div class="timeline-container">
+            <div class="timeline-line"></div>
+            <div class="timeline-steps">
+                
+                <div class="timeline-item">
+                    <div class="circle active">
+                        <div class="icon">
+                            <img src="Icons/Property 1=Arrows.svg" class="ds-icon ds-icon-white" alt="Arrows" style="width: 100%; height: 100%;">
+                        </div>
+                        <div class="step-label">Step 1</div>
+                    </div>
+                    <h3 class="title">Add your title</h3>
+                    <p class="description">In fermentum et sollicitudin ac orci phasellus.</p>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="circle inactive">
+                        <div class="icon">
+                            <img src="Icons/Property 1=Settings gear.svg" alt="Settings gear" style="width: 100%; height: 100%;">
+                        </div>
+                        <div class="step-label">Step 2</div>
+                    </div>
+                    <h3 class="title">Add your title</h3>
+                    <p class="description">In fermentum et sollicitudin ac orci phasellus.</p>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="circle inactive">
+                        <div class="icon">
+                            <img src="Icons/Property 1=Dollar.svg" alt="Dollar" style="width: 100%; height: 100%;">
+                        </div>
+                        <div class="step-label">Step 3</div>
+                    </div>
+                    <h3 class="title">Add your title</h3>
+                    <p class="description">In fermentum et sollicitudin ac orci phasellus.</p>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="circle inactive">
+                        <div class="icon">
+                            <img src="Icons/Property 1=Connection user.svg" alt="Connection user" style="width: 100%; height: 100%;">
+                        </div>
+                        <div class="step-label">Step 4</div>
+                    </div>
+                    <h3 class="title">Add your title</h3>
+                    <p class="description">In fermentum et sollicitudin ac orci phasellus.</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+<script src="entrance-animations.js"></script>
+</body>
+</html>

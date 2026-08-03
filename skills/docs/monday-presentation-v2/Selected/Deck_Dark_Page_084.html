@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        :root {
+            --base-font-size: 1.85vmin;
+        }
+
+        .slide-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .left-panel {
+            flex-basis: 42%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-left: 5vw;
+            box-sizing: border-box;
+        }
+
+        .left-panel h1 {
+            font-size: var(--text-h1);
+            font-weight: var(--weight-light);
+            line-height: 1.2;
+            margin: 0;
+        }
+
+        .right-panel {
+            flex-basis: 58%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 85%;
+            height: 80%;
+            background-color: var(--color-surface);
+            border-radius: var(--radius-md);
+            padding: var(--space-6);
+            box-sizing: border-box;
+        }
+        
+        .note-box {
+            position: absolute;
+            top: 3.5vmin;
+            right: 4vmin;
+            background-color: var(--color-red);
+            border-radius: var(--radius-md);
+            padding: var(--space-1);
+            z-index: 10;
+        }
+
+        .note-box-inner {
+            background-color: var(--color-text);
+            color: #1f1f1f;
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+            font-size: var(--text-caption);
+            line-height: 1.5;
+            width: 28vmin;
+            font-weight: var(--weight-regular);
+        }
+        
+        .note-box-inner p {
+            margin: 0;
+        }
+        
+        .note-box-inner p:first-child {
+            margin-bottom: var(--space-2);
+        }
+        
+        .note-box-inner strong {
+            font-weight: var(--weight-semibold);
+        }
+
+        .legend {
+            position: absolute;
+            top: 25.5vmin;
+            right: 5vmin;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-caption);
+            color: #aeb1b8;
+            font-weight: var(--weight-regular);
+        }
+
+        .legend-color-box {
+            width: var(--space-4);
+            height: var(--space-1);
+            background-color: var(--color-yellow);
+        }
+
+        .chart-area {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .y-axis-labels {
+            position: absolute;
+            left: 0;
+            top: 1.5%;
+            height: 83%;
+            width: 6%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+            font-size: var(--text-caption);
+            color: #aeb1b8;
+            font-weight: var(--weight-regular);
+        }
+
+        .x-axis-labels {
+            position: absolute;
+            bottom: 3%;
+            left: 10%;
+            right: 4%;
+            display: flex;
+            justify-content: space-between;
+            font-size: var(--text-caption);
+            color: #aeb1b8;
+            font-weight: var(--weight-regular);
+        }
+
+        .chart-svg {
+            position: absolute;
+            top: 1.5%;
+            left: 9%;
+            width: 91%;
+            height: 83%;
+        }
+
+        .grid-line {
+            stroke: #5A5C61;
+            stroke-width: 1;
+        }
+
+        .data-line {
+            fill: none;
+            stroke-width: 1;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 2000;
+            stroke-dashoffset: 2000;
+            animation: chartLineDraw 1.5s ease-out forwards;
+        }
+
+        .line-purple {
+            stroke: var(--color-purple);
+        }
+
+        .line-yellow {
+            stroke: var(--color-yellow);
+        }
+
+        .line-green {
+            stroke: var(--color-green);
+        }
+
+        .line-purple { animation-delay: 0.2s; }
+        .line-yellow { animation-delay: 0.5s; }
+        .line-green { animation-delay: 0.8s; }
+
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <div class="left-panel">
+            <h1>Add your title<br>here</h1>
+        </div>
+        <div class="right-panel">
+            <div class="chart-container">
+
+
+                <div class="legend">
+                    <div class="legend-color-box"></div>
+                    <span>Period 3</span>
+                </div>
+
+                <div class="chart-area">
+                    <div class="y-axis-labels">
+                        <span>100</span>
+                        <span>75</span>
+                        <span>50</span>
+                        <span>25</span>
+                        <span>0</span>
+                    </div>
+                    <div class="x-axis-labels">
+                        <span>Team 1</span>
+                        <span>Team 2</span>
+                        <span>Team 3</span>
+                        <span>Team 4</span>
+                    </div>
+                    <svg class="chart-svg" viewBox="0 0 1000 400" preserveAspectRatio="none">
+                        <!-- Grid Lines -->
+                        <line class="grid-line" x1="0" y1="0" x2="1000" y2="0"></line>
+                        <line class="grid-line" x1="0" y1="100" x2="1000" y2="100"></line>
+                        <line class="grid-line" x1="0" y1="200" x2="1000" y2="200"></line>
+                        <line class="grid-line" x1="0" y1="300" x2="1000" y2="300"></line>
+                        
+                        <!-- Y-axis values map to SVG coords: svgY = 400 - (value/100 * 400) -->
+                        <!-- Purple Line Values: 90, 25, 50, 65 -->
+                        <polyline class="data-line line-purple" points="50,40 350,300 650,200 950,140"></polyline>
+                        
+                        <!-- Yellow Line Values: 18, 35, 45, 85 -->
+                        <polyline class="data-line line-yellow" points="50,328 350,260 650,220 950,60"></polyline>
+                        
+                        <!-- Green Line Values: 25, 30, 15, 40 -->
+                        <polyline class="data-line line-green" points="50,300 350,280 650,340 950,240"></polyline>
+                    </svg>
+                </div>
+
+            </div>
+        </div>
+    </div>
+<script src="entrance-animations.js"></script>
+</body>
+</html>

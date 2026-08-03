@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3 Columns Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-title {
+            font-size: var(--text-h3);
+            font-weight: var(--weight-light);
+            margin-bottom: 3.5vmin;
+        }
+
+        .main-title span {
+            font-weight: var(--weight-regular);
+        }
+
+        .columns-container {
+            display: flex;
+            gap: var(--space-5);
+            width: 100%;
+            flex: 1;
+            align-items: flex-start;
+        }
+
+        .column {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-md);
+            padding: 3.5vmin;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .column-title {
+            font-size: var(--text-h4);
+            font-weight: var(--weight-medium);
+            margin-bottom: var(--space-5);
+        }
+
+        .column p {
+            font-size: var(--text-body-sm);
+            font-weight: var(--weight-light);
+            line-height: 1.6;
+            margin-bottom: 3.5vmin;
+        }
+
+        .column ul {
+            list-style: none;
+        }
+
+        .column li {
+            font-size: var(--text-body-sm);
+            font-weight: var(--weight-light);
+            line-height: 1.6;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .column li:not(:last-child) {
+            margin-bottom: var(--space-3);
+        }
+
+        .column li::before {
+            content: '•';
+            margin-right: var(--space-3);
+            font-size: var(--space-5);
+            line-height: 1.35;
+            color: var(--color-text);
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <h1 class="main-title">3 columns – <span>Add your title here</span></h1>
+        <div class="columns-container">
+            <div class="column">
+                <h2 class="column-title">Add your title</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                <ul>
+                    <li>Mi quis hendrerit dolor magna eget est.</li>
+                    <li>At urna condimentum mattis pellentesque id nibh tortor id,</li>
+                </ul>
+            </div>
+            <div class="column">
+                <h2 class="column-title">Add your title</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                <ul>
+                    <li>Mi quis hendrerit dolor magna eget est.</li>
+                    <li>At urna condimentum mattis pellentesque id nibh tortor id,</li>
+                </ul>
+            </div>
+            <div class="column">
+                <h2 class="column-title">Add your title</h2>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                <ul>
+                    <li>Mi quis hendrerit dolor magna eget est.</li>
+                    <li>At urna condimentum mattis pellentesque id nibh tortor id,</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+<script src="entrance-animations.js"></script>
+</body>
+</html>

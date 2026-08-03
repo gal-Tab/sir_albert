@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .title {
+            position: absolute;
+            top: 10.5%;
+            left: 8.5%;
+            font-size: var(--text-h3);
+            font-weight: var(--weight-regular);
+            letter-spacing: -0.01em;
+        }
+
+        .timeline-container {
+            position: absolute;
+            top: 32%;
+            left: 8.5%;
+            width: 83%;
+            height: 60%;
+        }
+
+        .timeline-line {
+            position: absolute;
+            top: 7.6vw;
+            left: 7%;
+            width: 86%;
+            height: 0.1vw;
+            background-color: var(--color-text);
+        }
+
+        .timeline-line::before,
+        .timeline-line::after {
+            content: '';
+            position: absolute;
+            width: 0.4vw;
+            height: 0.4vw;
+            border-radius: 50%;
+            background-color: var(--color-text);
+            top: 50%;
+        }
+
+        .timeline-line::before {
+            left: 0;
+            transform: translate(-50%, -50%);
+        }
+
+        .timeline-line::after {
+            right: 0;
+            transform: translate(50%, -50%);
+        }
+
+        .milestones {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            height: 100%;
+        }
+
+        .milestone {
+            width: 14%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .date-bubble {
+            border: 1px solid var(--color-text);
+            border-radius: var(--radius-full);
+            padding: 0.45vw 1.5vw;
+            font-size: var(--text-body-sm);
+            font-weight: var(--weight-regular);
+            white-space: nowrap;
+        }
+
+        .date-bubble.today {
+            background: linear-gradient(135deg, var(--color-purple-light), var(--color-purple));
+            border: none;
+            color: var(--color-text);
+        }
+
+        .connector {
+            width: 0.1vw;
+            height: 4.5vw;
+            background-color: var(--color-text);
+            margin-top: 1.1vw;
+        }
+
+        .dot {
+            width: 0.6vw;
+            height: 0.6vw;
+            border-radius: 50%;
+            background-color: var(--color-text);
+            margin-top: -0.05vw;
+        }
+
+        .content {
+            margin-top: 2.2vw;
+            width: 100%;
+            text-align: left;
+        }
+
+        .content h3 {
+            font-size: var(--text-body);
+            font-weight: var(--weight-semibold);
+            line-height: 1.4;
+            margin-bottom: 0.8vw;
+        }
+
+        .content p {
+            font-size: var(--text-caption);
+            font-weight: var(--weight-light);
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <h1 class="title">Timeline – Add your title here</h1>
+        <div class="timeline-container">
+            <div class="timeline-line"></div>
+            <div class="milestones">
+                <div class="milestone">
+                    <div class="date-bubble">20XX</div>
+                    <div class="connector"></div>
+                    <div class="dot"></div>
+                    <div class="content">
+                        <h3>Your product debut</h3>
+                        <p>Mark the moment when your product launched or was first ideated. Mention early reactions from users and reviewers.</p>
+                    </div>
+                </div>
+                <div class="milestone">
+                    <div class="date-bubble">20XX</div>
+                    <div class="connector"></div>
+                    <div class="dot"></div>
+                    <div class="content">
+                        <h3>A major milestone</h3>
+                        <p>Celebrate your first major achievement. This could be a new feature, your 100th user or download, etc.</p>
+                    </div>
+                </div>
+                <div class="milestone">
+                    <div class="date-bubble">20XX</div>
+                    <div class="connector"></div>
+                    <div class="dot"></div>
+                    <div class="content">
+                        <h3>Another milestone</h3>
+                        <p>This can be an extension of your previous milestone, or something completely new.</p>
+                    </div>
+                </div>
+                <div class="milestone">
+                    <div class="date-bubble">20XX</div>
+                    <div class="connector"></div>
+                    <div class="dot"></div>
+                    <div class="content">
+                        <h3>A turning point for your company</h3>
+                        <p>Describe any major organizational events, such as mergers or acquisitions.</p>
+                    </div>
+                </div>
+                <div class="milestone">
+                    <div class="date-bubble">20XX</div>
+                    <div class="connector"></div>
+                    <div class="dot"></div>
+                    <div class="content">
+                        <h3>A new phase for your product</h3>
+                        <p>List any new features, product lines, subscriber tiers, or marketing activities.</p>
+                    </div>
+                </div>
+                <div class="milestone">
+                    <div class="date-bubble today">Today</div>
+                    <div class="connector"></div>
+                    <div class="dot"></div>
+                    <div class="content">
+                        <h3>What's happening now</h3>
+                        <p>Mention current efforts, such as features you're launching or opportunities you're pursuing. If possible, connect these to the purpose of the demo.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="entrance-animations.js"></script>
+</body>
+</html>

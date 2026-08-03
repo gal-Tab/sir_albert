@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2 Columns Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        :root {
+            --separator-dots: rgba(255, 255, 255, 0.6);
+        }
+
+        .slide-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-title {
+            font-size: var(--text-h3);
+            font-weight: var(--weight-light);
+            margin: 0 0 var(--space-6) 0;
+        }
+
+        .content-grid {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            gap: 3vw;
+            flex: 1;
+        }
+
+        .card {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-md);
+            padding: 3vw;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .card-title {
+            font-size: var(--text-h4);
+            font-weight: var(--weight-medium);
+            margin-bottom: var(--space-5);
+        }
+
+        .highlight-yellow {
+            color: var(--color-yellow);
+            font-weight: var(--weight-semibold);
+        }
+
+        .highlight-green {
+            color: var(--color-green);
+            font-weight: var(--weight-semibold);
+        }
+
+        .separator {
+            position: relative;
+            height: var(--space-3);
+            width: 100%;
+            margin-bottom: 3.5vmin;
+            display: flex;
+            align-items: center;
+        }
+
+        .separator::before {
+            content: '';
+            display: block;
+            width: 100%;
+            border-bottom: 0.2vmin dotted var(--separator-dots);
+        }
+
+        .separator::after {
+            content: '';
+            position: absolute;
+            width: var(--space-3);
+            height: var(--space-3);
+            border-radius: 50%;
+            top: 50%;
+        }
+
+        .challenge-card .separator::after {
+            background-color: var(--color-yellow);
+            right: -1.5vw;
+            transform: translate(50%, -50%);
+        }
+
+        .solution-card .separator::after {
+            background-color: var(--color-green);
+            left: -1.5vw;
+            transform: translate(-50%, -50%);
+        }
+
+        .card-text {
+            font-size: var(--text-body);
+            line-height: 1.6;
+            font-weight: var(--weight-light);
+            color: #e0e0e0;
+            margin-bottom: 3.5vmin;
+        }
+
+        .card-list {
+            list-style: none;
+            padding-left: 0;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-5);
+        }
+
+        .card-list li {
+            position: relative;
+            padding-left: var(--space-6);
+            font-size: var(--text-body);
+            line-height: 1.5;
+            font-weight: var(--weight-light);
+            color: #e0e0e0;
+        }
+
+        .card-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.75em;
+            transform: translateY(-50%);
+            width: var(--space-2);
+            height: var(--space-2);
+            background-color: var(--color-text);
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <h1 class="slide-title">2 columns – Add your title here</h1>
+        <main class="content-grid">
+            <div class="card challenge-card">
+                <h2 class="card-title">The <span class="highlight-yellow">challenge</span></h2>
+                <div class="separator"></div>
+                <p class="card-text">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>
+                <ul class="card-list">
+                    <li>Mi quis hendrerit dolor magna eget est.</li>
+                    <li>At urna condimentum mattis pellentesque id nibh tortor id,</li>
+                </ul>
+            </div>
+            <div class="card solution-card">
+                <h2 class="card-title">The <span class="highlight-green">Solution</span></h2>
+                <div class="separator"></div>
+                <p class="card-text">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>
+                <ul class="card-list">
+                    <li>Mi quis hendrerit dolor magna eget est.</li>
+                    <li>At urna condimentum mattis pellentesque id nibh tortor id,</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+<script src="entrance-animations.js"></script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deck Dark Page 049</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: var(--space-10);
+        }
+
+        .main-title {
+            font-size: var(--text-h2);
+            font-weight: var(--weight-medium);
+            margin: 0;
+            position: absolute;
+            top: 8vmin;
+            left: 8vmin;
+        }
+
+        .timeline-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: var(--space-7);
+        }
+
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 0.3vmin;
+            background-color: var(--color-text);
+            transform: translateY(-50%);
+            z-index: 0;
+        }
+
+        .timeline-point {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .point-circle {
+            width: 2vmin;
+            height: 2vmin;
+            background-color: var(--color-bg);
+            border: 1px solid var(--color-text);
+            border-radius: 50%;
+        }
+
+        .point-active .point-circle {
+            width: 3vmin;
+            height: 3vmin;
+            background-color: var(--color-bg);
+            border: 1px solid var(--color-text);
+            position: relative;
+            z-index: 2;
+        }
+
+        .point-active::before {
+            content: '';
+            position: absolute;
+            top: -2.5vmin;
+            width: 8vmin;
+            height: 8vmin;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .point-label {
+            font-size: var(--text-body);
+            font-weight: var(--weight-regular);
+            position: absolute;
+            top: 6vmin;
+            white-space: nowrap;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        <h1 class="main-title">Timeline - Add your title here</h1>
+
+        <div class="timeline-container">
+            <div class="timeline-line"></div>
+
+            <div class="timeline-point point-active">
+                <div class="point-circle"></div>
+                <div class="point-label">Lorem ipsum</div>
+            </div>
+
+            <div class="timeline-point">
+                <div class="point-circle"></div>
+                <div class="point-label">Lorem ipsum</div>
+            </div>
+
+            <div class="timeline-point">
+                <div class="point-circle"></div>
+                <div class="point-label">Lorem ipsum</div>
+            </div>
+
+            <div class="timeline-point">
+                <div class="point-circle"></div>
+                <div class="point-label">Lorem ipsum</div>
+            </div>
+
+            <div class="timeline-point">
+                <div class="point-circle"></div>
+                <div class="point-label">Lorem ipsum</div>
+            </div>
+        </div>
+    </div>
+
+<script src="entrance-animations.js"></script>
+</body>
+</html>

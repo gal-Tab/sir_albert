@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagram Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        :root {
+            font-size: 1vmin;
+            --line-color: #4A4A4A;
+            --line-width: 0.15rem;
+            --vertical-gap: 8rem;
+            --connector-height: calc(var(--vertical-gap) / 2);
+        }
+
+        .slide-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-title {
+            position: absolute;
+            top: 5rem;
+            left: 7rem;
+            font-size: var(--text-h3);
+            font-weight: var(--weight-light);
+            margin: 0;
+        }
+
+        .diagram-area {
+            margin-top: 12rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .level {
+            display: flex;
+            justify-content: center;
+            position: relative;
+            margin-bottom: var(--vertical-gap);
+        }
+
+        .level-3 {
+             margin-bottom: 12rem;
+        }
+
+        .level:last-child {
+            margin-bottom: 0;
+        }
+
+        .node {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border-radius: var(--radius-sm);
+            font-size: var(--text-body-sm);
+            position: relative;
+            background-color: var(--color-bg);
+            z-index: 1;
+        }
+
+        .root-node {
+            background-color: var(--color-purple);
+            padding: 1.5rem 3.5rem;
+            font-weight: var(--weight-regular);
+        }
+
+        .subitem {
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            width: 16rem;
+            height: 6rem;
+            margin: 0 1.5rem;
+        }
+
+        .conclusions {
+            background-color: var(--color-surface);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: var(--radius-md);
+            padding: 2.5rem 3.5rem;
+            width: 44rem;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .conclusions strong {
+            font-weight: var(--weight-semibold);
+            font-size: var(--text-body);
+            margin-bottom: 1rem;
+        }
+
+        .conclusions p {
+            margin: 0;
+            font-weight: var(--weight-regular);
+            line-height: 1.5;
+            font-size: var(--text-body-sm);
+        }
+
+        /* --- Connectors --- */
+
+        .root-node::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: var(--line-width);
+            height: var(--connector-height);
+            background-color: var(--line-color);
+        }
+
+        .level-2::before {
+            content: '';
+            position: absolute;
+            top: calc(var(--connector-height) * -1);
+            left: 50%;
+            transform: translateX(-50%);
+            height: var(--line-width);
+            width: 38rem;
+            background-color: var(--line-color);
+        }
+
+        .level-2 .subitem::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: var(--line-width);
+            height: var(--connector-height);
+            background-color: var(--line-color);
+        }
+
+        .level-2 .subitem::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: var(--line-width);
+            height: var(--connector-height);
+            background-color: var(--line-color);
+        }
+
+        .level-3::before {
+            content: '';
+            position: absolute;
+            top: calc(var(--connector-height) * -1);
+            left: 50%;
+            transform: translateX(-50%);
+            height: var(--line-width);
+            width: 76rem;
+            background-color: var(--line-color);
+        }
+
+        .level-3::after {
+            content: '';
+            position: absolute;
+            top: calc(var(--connector-height) * -1);
+            left: 50%;
+            transform: translateX(-50%);
+            width: var(--line-width);
+            height: calc(var(--connector-height) + 6rem + 12rem);
+            background-color: var(--line-color);
+        }
+
+        .level-3 .subitem::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: var(--line-width);
+            height: var(--connector-height);
+            background-color: var(--line-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <h1 class="slide-title">Diagram – Add your title here</h1>
+
+        <div class="diagram-area">
+            <div class="level level-1">
+                <div class="node root-node">Add your title</div>
+            </div>
+
+            <div class="level level-2">
+                <div class="node subitem">Subitem</div>
+                <div class="node subitem">Subitem</div>
+                <div class="node subitem">Subitem</div>
+            </div>
+
+            <div class="level level-3">
+                <div class="node subitem">Subitem</div>
+                <div class="node subitem">Subitem</div>
+                <div class="node subitem">Subitem</div>
+                <div class="node subitem">Subitem</div>
+                <div class="node subitem">Subitem</div>
+            </div>
+
+            <div class="level level-4">
+                <div class="node conclusions">
+                    <strong>Conclusions</strong>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="entrance-animations.js"></script>
+</body>
+</html>

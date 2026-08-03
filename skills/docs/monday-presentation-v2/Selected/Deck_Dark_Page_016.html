@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deck Dark Page 016</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            display: grid;
+            grid-template-columns: 0.8fr 1.2fr;
+            align-items: center;
+            gap: var(--space-7);
+        }
+
+        h1 {
+            font-size: var(--text-display);
+            font-weight: var(--weight-light);
+            margin: 0;
+            letter-spacing: -0.015em;
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        .cards-column {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+            height: 100%;
+            justify-content: center;
+        }
+
+        .chapter-card {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6) var(--space-8);
+            display: flex;
+            align-items: center;
+            gap: var(--space-6);
+            height: 15vmin;
+            box-sizing: border-box;
+        }
+
+        .number-circle {
+            width: 5.5vmin;
+            height: 5.5vmin;
+            background-color: var(--color-purple);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: var(--text-body);
+            font-weight: var(--weight-regular);
+            flex-shrink: 0;
+        }
+
+        .chapter-text {
+            font-size: var(--text-h4);
+            font-weight: var(--weight-regular);
+            color: var(--color-text);
+        }
+
+        .chapter-text span {
+            font-weight: var(--weight-light);
+            color: rgba(255,255,255,0.8);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        <h1>Agenda</h1>
+
+        <div class="cards-column">
+            <div class="chapter-card">
+                <div class="number-circle">1</div>
+                <div class="chapter-text">Chapter A - <span>Opening slides</span></div>
+            </div>
+            <div class="chapter-card">
+                <div class="number-circle">2</div>
+                <div class="chapter-text">Chapter B - <span>Speakers</span></div>
+            </div>
+            <div class="chapter-card">
+                <div class="number-circle">3</div>
+                <div class="chapter-text">Chapter C - <span>Text slides</span></div>
+            </div>
+            <div class="chapter-card">
+                <div class="number-circle">4</div>
+                <div class="chapter-text">Chapter D - <span>Images / boards</span></div>
+            </div>
+            <div class="chapter-card">
+                <div class="number-circle">5</div>
+                <div class="chapter-text">Chapter E - <span>Items</span></div>
+            </div>
+        </div>
+    </div>
+
+<script src="entrance-animations.js"></script>
+</body>
+</html>

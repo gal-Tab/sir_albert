@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentation Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--space-9);
+            box-sizing: border-box;
+        }
+
+        .text-column {
+            width: 42%;
+        }
+
+        .graphics-column {
+            width: 50%;
+            height: 78%;
+            background-color: var(--color-surface);
+            border-radius: var(--radius-md);
+            position: relative;
+        }
+
+        h1 {
+            font-size: var(--text-h3);
+            font-weight: var(--weight-semibold);
+            margin-top: 0;
+            margin-bottom: 3.5vmin;
+        }
+
+        p {
+            font-size: var(--text-body-sm);
+            font-weight: var(--weight-light);
+            line-height: 1.6;
+            margin-top: 0;
+            margin-bottom: var(--space-6);
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        li {
+            font-size: var(--text-body-sm);
+            font-weight: var(--weight-light);
+            line-height: 1.6;
+            padding-left: var(--space-5);
+            position: relative;
+            margin-bottom: var(--space-4);
+        }
+
+        li:last-child {
+            margin-bottom: 0;
+        }
+
+        li::before {
+            content: '•';
+            color: var(--color-text);
+            font-size: var(--text-body-sm);
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            line-height: 1;
+        }
+        
+        .green-circle {
+            position: absolute;
+            border-radius: 50%;
+            background-color: var(--color-green);
+            width: 38%;
+            padding-bottom: 38%;
+            top: 10%;
+            left: 22%;
+        }
+
+        .blue-circle {
+            position: absolute;
+            border-radius: 50%;
+            background-color: var(--color-purple);
+            width: 28%;
+            padding-bottom: 28%;
+            bottom: 12%;
+            right: 18%;
+        }
+
+        .line-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .line {
+            position: absolute;
+            transform-origin: center;
+            background-color: var(--color-bg);
+        }
+        
+        .long-line {
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 0.2vmin;
+            margin-top: -0.1vmin;
+        }
+        
+        .short-line-wrapper {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .short-line-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0.2vmin;
+            height: 12%;
+            background-color: var(--color-bg);
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 12%;
+            height: 12%;
+        }
+
+        .sparkle-1 {
+            top: 35%;
+            right: 8%;
+        }
+
+        .sparkle-2 {
+            top: 58%;
+            left: 25%;
+        }
+
+        .sparkle-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 0.2vmin;
+            margin-top: -0.1vmin;
+            background-color: var(--color-text);
+            transform-origin: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <main class="slide">
+            <div class="text-column">
+                <h1>Add your title here</h1>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                <ul>
+                    <li>Mi quis hendrerit dolor magna eget est.</li>
+                    <li>At urna condimentum mattis pellentesque id nibh tortor id, et egestas quis ipsum suspendisse ultrices.</li>
+                    <li>Et sollicitudin ac orci phasellus egestas tellus rutrum tellus.</li>
+                </ul>
+            </div>
+            <div class="graphics-column">
+                <div class="green-circle">
+                    <div class="line-container">
+                        <div class="line long-line" style="transform: rotate(0deg);"></div>
+                        <div class="line long-line" style="transform: rotate(45deg);"></div>
+                        <div class="line long-line" style="transform: rotate(90deg);"></div>
+                        <div class="line long-line" style="transform: rotate(135deg);"></div>
+                        <div class="short-line-wrapper" style="transform: rotate(22.5deg);"></div>
+                        <div class="short-line-wrapper" style="transform: rotate(67.5deg);"></div>
+                        <div class="short-line-wrapper" style="transform: rotate(112.5deg);"></div>
+                        <div class="short-line-wrapper" style="transform: rotate(157.5deg);"></div>
+                        <div class="short-line-wrapper" style="transform: rotate(202.5deg);"></div>
+                        <div class="short-line-wrapper" style="transform: rotate(247.5deg);"></div>
+                        <div class="short-line-wrapper" style="transform: rotate(292.5deg);"></div>
+                        <div class="short-line-wrapper" style="transform: rotate(337.5deg);"></div>
+                    </div>
+                </div>
+                <div class="blue-circle">
+                    <div class="line-container">
+                        <div class="line long-line" style="transform: rotate(0deg);"></div>
+                        <div class="line long-line" style="transform: rotate(45deg);"></div>
+                        <div class="line long-line" style="transform: rotate(90deg);"></div>
+                        <div class="line long-line" style="transform: rotate(135deg);"></div>
+                    </div>
+                </div>
+                <div class="sparkle sparkle-1">
+                    <div class="sparkle-line" style="transform: rotate(0deg);"></div>
+                    <div class="sparkle-line" style="transform: rotate(45deg);"></div>
+                    <div class="sparkle-line" style="transform: rotate(90deg);"></div>
+                    <div class="sparkle-line" style="transform: rotate(135deg);"></div>
+                </div>
+                <div class="sparkle sparkle-2">
+                    <div class="sparkle-line" style="transform: rotate(0deg);"></div>
+                    <div class="sparkle-line" style="transform: rotate(45deg);"></div>
+                    <div class="sparkle-line" style="transform: rotate(90deg);"></div>
+                    <div class="sparkle-line" style="transform: rotate(135deg);"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+<script src="entrance-animations.js"></script>
+</body>
+</html>

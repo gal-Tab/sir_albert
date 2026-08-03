@@ -8,3 +8,8 @@ raw/*.epub
 raw/*.docx
 raw/*.xlsx
 raw/*.pptx
+
+# OS / editor noise
+.DS_Store
+**/.DS_Store
+.idea/

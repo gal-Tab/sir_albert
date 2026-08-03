@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentation Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .content-wrapper {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            gap: var(--space-7);
+        }
+
+        .text-content {
+            flex-basis: 42%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: var(--text-h1);
+            font-weight: var(--weight-semibold);
+            margin: 0 0 var(--space-5) 0;
+            line-height: 1.2;
+        }
+
+        p {
+            font-size: var(--text-body);
+            font-weight: var(--weight-light);
+            line-height: 1.8;
+            margin: 0 0 var(--space-7) 0;
+        }
+
+        ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 3.5vmin;
+            padding-inline-start: var(--space-2);
+            margin: 0;
+        }
+
+        li {
+            font-size: var(--text-body);
+            font-weight: var(--weight-light);
+            line-height: 1.7;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        li::before {
+            content: '•';
+            font-size: var(--text-h4);
+            margin-right: var(--space-5);
+            display: inline-block;
+            line-height: 1.5;
+            min-width: 2.5vmin;
+        }
+
+        .graphic-content {
+            flex-basis: 58%;
+            height: 100%;
+            background-color: var(--color-surface);
+            border-radius: var(--radius-md);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform: translateY(-4vmin);
+        }
+
+        .orbit-system {
+            position: relative;
+            width: 58vmin;
+            height: 58vmin;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .central-circle {
+            width: 29vmin;
+            height: 29vmin;
+            background-color: var(--color-bg);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .logo-svg {
+            width: 45%;
+            height: 45%;
+        }
+
+        .orbit-path {
+            position: absolute;
+            width: 54vmin;
+            height: 52vmin;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            transform: rotate(10deg);
+        }
+
+        .shape {
+            position: absolute;
+        }
+
+        .shape-rect {
+            top: 3%;
+            left: 15%;
+            width: 6vmin;
+            height: 8vmin;
+            background-color: var(--color-yellow);
+            border-radius: var(--radius-md);
+            transform: rotate(-55deg);
+        }
+
+        .shape-circle-1 {
+            top: 22%;
+            right: 9%;
+            width: 6vmin;
+            height: 6vmin;
+            background-color: var(--color-purple);
+            border-radius: 50%;
+        }
+
+        .shape-circle-2 {
+            top: 38%;
+            right: 6%;
+            width: 6vmin;
+            height: 6vmin;
+            background-color: var(--color-purple);
+            border-radius: 50%;
+        }
+        
+        .shape-circle-3 {
+            bottom: 12%;
+            left: 13%;
+            width: 6vmin;
+            height: 6vmin;
+            background-color: var(--color-purple);
+            border-radius: 50%;
+        }
+
+        .shape-hexagon {
+            bottom: 5%;
+            right: 20%;
+            width: 8vmin;
+            height: 8vmin;
+        }
+
+        .shape-star {
+            top: 20%;
+            right: 27%;
+            width: 5.5vmin;
+            height: 5.5vmin;
+            z-index: 2;
+        }
+        
+        .shape-sparkle {
+            bottom: 25%;
+            left: 21%;
+            width: 5.5vmin;
+            height: 5.5vmin;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <div class="content-wrapper">
+            <div class="text-content">
+                <h1>Add your title here</h1>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                <ul>
+                    <li>Mi quis hendrerit dolor magna eget est.</li>
+                    <li>At urna condimentum mattis pellentesque id nibh tortor id, et egestas quis ipsum suspendisse ultrices.</li>
+                    <li>Et sollicitudin ac orci phasellus egestas tellus rutrum tellus.</li>
+                </ul>
+            </div>
+            <div class="graphic-content">
+                <div class="orbit-system">
+                    <div class="central-circle">
+                        <svg class="logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 68 C 22 45, 45 32, 55 42 L 47 52 C 40 45, 28 52, 26 65 Z" fill="#FB1F73"/>
+                            <path d="M47.7812 34.6133L77.062 21.6133L83.7441 38.6201L54.4633 51.6201L47.7812 34.6133Z" fill="#F8D02B"/>
+                            <circle cx="81.5" cy="58.5" r="10.5" fill="#00C875"/>
+                        </svg>
+                    </div>
+                    <div class="orbit-path"></div>
+                    <div class="shape shape-rect"></div>
+                    <div class="shape shape-circle-1"></div>
+                    <div class="shape shape-circle-2"></div>
+                    <div class="shape shape-circle-3"></div>
+
+                    <svg class="shape shape-hexagon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="50,5 93.3,27.5 93.3,72.5 50,95 6.7,72.5 6.7,27.5" fill="#F8D02B"/>
+                    </svg>
+
+                    <svg class="shape shape-star" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                       <path d="M50 0 L58.8 41.2 L100 50 L58.8 58.8 L50 100 L41.2 58.8 L0 50 L41.2 41.2 Z" fill="#F8D02B"/>
+                    </svg>
+                    
+                    <svg class="shape shape-sparkle" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <g stroke="var(--color-purple)" stroke-width="1" stroke-linecap="round">
+                            <line x1="50" y1="20" x2="50" y2="80" />
+                            <line x1="50" y1="20" x2="50" y2="80" transform="rotate(60 50 50)" />
+                            <line x1="50" y1="20" x2="50" y2="80" transform="rotate(120 50 50)" />
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="entrance-animations.js"></script>
+</body>
+</html>

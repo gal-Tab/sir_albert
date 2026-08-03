@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deck Dark Page 030</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-9);
+            align-items: center;
+        }
+
+        .left-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .main-title {
+            font-size: var(--text-h1);
+            font-weight: var(--weight-medium);
+            line-height: 1.1;
+            margin: 0;
+        }
+
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: var(--space-5);
+        }
+
+        .intro-text {
+            font-size: var(--text-h4);
+            font-weight: var(--weight-regular);
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .bullet-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+            font-size: var(--text-body);
+            font-weight: var(--weight-regular);
+            line-height: 1.6;
+        }
+
+        .bullet-list li {
+            padding-left: 3.5vmin;
+            position: relative;
+            margin-bottom: var(--space-4);
+        }
+
+        .bullet-list li::before {
+            content: '•';
+            color: var(--color-text);
+            font-size: var(--text-h4);
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        <div class="left-column">
+            <h1 class="main-title">Add your title here</h1>
+        </div>
+        <div class="right-column">
+            <p class="intro-text">
+                This is a key in your sentence, use it wisely & keep it short
+            </p>
+            <ul class="bullet-list">
+                <li>If you want to become a great speaker, you must become a great storyteller</li>
+                <li>This is a key in your sentence, use it wisely & keep it short</li>
+                <li>If you want to become a great speaker, you must become a great storyteller</li>
+            </ul>
+        </div>
+    </div>
+
+<script src="entrance-animations.js"></script>
+</body>
+</html>

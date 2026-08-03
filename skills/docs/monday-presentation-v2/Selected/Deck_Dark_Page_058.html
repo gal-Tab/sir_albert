@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Process Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        :root {
+            --slide-width: 1920;
+            --slide-height: 1080;
+        }
+
+        .slide-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            position: absolute;
+            top: 11.1vh;
+            left: 8.33vw;
+            font-size: var(--text-h3);
+            font-weight: var(--weight-regular);
+            margin: 0;
+        }
+
+        .process-diagram {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 78.125vw;
+            height: 23.15vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .steps-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .flow-path {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 82.5vw;
+            height: 23.15vw;
+            border: 1px solid var(--color-text);
+            border-radius: 11.575vw;
+            box-sizing: border-box;
+            z-index: 1;
+        }
+
+        .flow-path::before {
+            content: '';
+            position: absolute;
+            top: -0.8vw;
+            right: 12.5vw;
+            width: 1.4vw;
+            height: 1.4vw;
+            border-top: 1px solid var(--color-text);
+            border-right: 1px solid var(--color-text);
+            transform: rotate(45deg);
+        }
+
+        .flow-path::after {
+            content: '';
+            position: absolute;
+            bottom: -0.8vw;
+            left: 12.5vw;
+            width: 1.4vw;
+            height: 1.4vw;
+            border-bottom: 1px solid var(--color-text);
+            border-left: 1px solid var(--color-text);
+            transform: rotate(45deg);
+        }
+
+        .step-circle {
+            width: 13.02vw;
+            height: 13.02vw;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-sizing: border-box;
+            padding: 1.5vw;
+        }
+
+        .step-circle.outlined {
+            border: 1px solid var(--color-text);
+        }
+
+        .step-circle.active {
+            background-color: var(--color-text);
+            color: var(--color-bg);
+        }
+
+        .step-title {
+            font-size: var(--text-body);
+            font-weight: var(--weight-semibold);
+            margin-bottom: 0.52vw;
+        }
+
+        .step-description {
+            font-size: var(--text-body-sm);
+            font-weight: var(--weight-light);
+            line-height: 1.4;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <h1>Process &ndash; Add your title here</h1>
+
+        <div class="process-diagram">
+            <div class="flow-path"></div>
+            <div class="steps-container">
+                <div class="step-circle active">
+                    <strong class="step-title">Lorem ipsum</strong>
+                    <p class="step-description">Adipiscing elit duis tristique.</p>
+                </div>
+                <div class="step-circle outlined">
+                    <strong class="step-title">Lorem ipsum</strong>
+                    <p class="step-description">Adipiscing elit duis tristique.</p>
+                </div>
+                <div class="step-circle outlined">
+                    <strong class="step-title">Lorem ipsum</strong>
+                    <p class="step-description">Adipiscing elit duis tristique.</p>
+                </div>
+                <div class="step-circle outlined">
+                    <strong class="step-title">Lorem ipsum</strong>
+                    <p class="step-description">Adipiscing elit duis tristique.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="entrance-animations.js"></script>
+</body>
+</html>

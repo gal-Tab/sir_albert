@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3 Columns chart</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        :root {
+            --c-axis-text: #B1B1B9;
+            --c-grid-line: #4A455A;
+        }
+
+        .slide-container {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .title {
+            position: absolute;
+            top: 4.7vw;
+            left: 5vw;
+            font-size: var(--text-h3);
+            font-weight: var(--weight-regular);
+        }
+
+        .instructions {
+            position: absolute;
+            top: 3.4vw;
+            right: 5vw;
+            background-color: var(--color-red);
+            padding: 0.5vw;
+            border-radius: var(--radius-md);
+            z-index: 10;
+        }
+        .instructions::before {
+            content: '';
+            position: absolute;
+            bottom: -0.8vw;
+            left: 2.5vw;
+            width: 2vw;
+            height: 2vw;
+            background-color: var(--color-red);
+            transform: rotate(45deg);
+            z-index: -1;
+        }
+
+        .instructions-content {
+            background-color: white;
+            color: black;
+            padding: 1.5vw 2vw;
+            border-radius: var(--radius-sm);
+            font-size: var(--text-body-sm);
+            line-height: 1.5;
+            width: 25vw;
+        }
+        .instructions-content strong {
+            font-weight: var(--weight-semibold);
+        }
+
+        .chart-container {
+            position: absolute;
+            top: 9.4vw;
+            left: 5vw;
+            right: 5vw;
+            bottom: 5vw;
+            background-color: var(--color-surface);
+            border-radius: var(--radius-md);
+            display: flex;
+            flex-direction: column;
+            padding: 2.5vw;
+        }
+
+        .chart-body {
+            flex-grow: 1;
+            display: flex;
+            position: relative;
+        }
+
+        .y-axis {
+            display: flex;
+            flex-direction: column-reverse;
+            justify-content: space-between;
+            text-align: right;
+            padding-right: 1.5vw;
+            font-size: var(--text-body-sm);
+            color: var(--c-axis-text);
+            flex-shrink: 0;
+            width: 4.5vw;
+        }
+        
+        .chart-area-wrapper {
+            flex-grow: 1;
+            position: relative;
+        }
+        
+        .grid-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column-reverse;
+            justify-content: space-between;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .grid-line {
+            height: 1px;
+            background-color: var(--c-grid-line);
+            width: 100%;
+        }
+
+        .chart-bars {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            z-index: 2;
+        }
+
+        .bar-group {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 0.3vw;
+            flex-basis: 12.5%;
+            height: 100%;
+        }
+
+        .bar-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
+            width: 2.8vw;
+            flex-shrink: 0;
+        }
+
+        .bar-label {
+            position: absolute;
+            top: -1.5vw;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: var(--text-body-sm);
+            font-weight: var(--weight-semibold);
+            color: var(--color-text);
+        }
+
+        .bar {
+            width: 100%;
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            transform-origin: bottom;
+            animation: chartBarGrow 0.6s ease-out both;
+        }
+
+        .chart-bars > .bar-group:nth-child(1) .bar { animation-delay: 0.1s; }
+        .chart-bars > .bar-group:nth-child(2) .bar { animation-delay: 0.18s; }
+        .chart-bars > .bar-group:nth-child(3) .bar { animation-delay: 0.26s; }
+        .chart-bars > .bar-group:nth-child(4) .bar { animation-delay: 0.34s; }
+        .chart-bars > .bar-group:nth-child(5) .bar { animation-delay: 0.42s; }
+        .chart-bars > .bar-group:nth-child(6) .bar { animation-delay: 0.5s; }
+        .chart-bars > .bar-group:nth-child(7) .bar { animation-delay: 0.58s; }
+        .chart-bars > .bar-group:nth-child(8) .bar { animation-delay: 0.66s; }
+
+        .bar.cat1 { background-color: var(--color-purple); }
+        .bar.cat2 { background-color: var(--color-green); }
+        .bar.cat3 { background-color: var(--color-purple-light); }
+
+        .x-axis {
+            display: flex;
+            justify-content: space-around;
+            padding-left: 4.5vw;
+            padding-top: 0.5vw;
+            font-size: var(--text-body-sm);
+            color: var(--c-axis-text);
+        }
+        .x-axis-label {
+            flex-basis: 12.5%;
+            text-align: center;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 2vw;
+            padding-top: 2vw;
+            font-size: var(--text-body-sm);
+            color: var(--c-axis-text);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5vw;
+        }
+
+        .legend-color-box {
+            width: 0.9vw;
+            height: 0.9vw;
+            border-radius: 0.15vw;
+        }
+        .legend-color-box.cat1 { background-color: var(--color-purple); }
+        .legend-color-box.cat2 { background-color: var(--color-green); }
+        .legend-color-box.cat3 { background-color: var(--color-purple-light); }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <h1 class="title">3 Columns chart</h1>
+        
+
+        <div class="chart-container">
+            <div class="chart-body">
+                <div class="y-axis">
+                    <span>$0.0M</span>
+                    <span>$2.0M</span>
+                    <span>$4.0M</span>
+                    <span>$6.0M</span>
+                    <span>$8.0M</span>
+                </div>
+                <div class="chart-area-wrapper">
+                    <div class="grid-lines">
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                    </div>
+                    <div class="chart-bars">
+                        <!-- Data for 8 quarters. Max value is $8.0M -->
+                        <div class="bar-group">
+                            <div class="bar-wrapper"><div class="bar-label">$0.8M</div><div class="bar cat1" style="height: 10%;"></div></div>
+                            <div class="bar-wrapper"><div class="bar-label">$2.3M</div><div class="bar cat2" style="height: 28.75%;"></div></div>
+                            <div class="bar-wrapper"><div class="bar-label">$0.3M</div><div class="bar cat3" style="height: 3.75%;"></div></div>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar-wrapper"><div class="bar-label">$4.2M</div><div class="bar cat1" style="height: 52.5%;"></div></div>
+                            <div class="bar-wrapper"></div>
+                            <div class="bar-wrapper"><div class="bar-label">$4.2M</div><div class="bar cat3" style="height: 52.5%;"></div></div>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar-wrapper"><div class="bar-label">$2.4M</div><div class="bar cat1" style="height: 30%;"></div></div>
+                            <div class="bar-wrapper"><div class="bar-label">$7.2M</div><div class="bar cat2" style="height: 90%;"></div></div>
+                            <div class="bar-wrapper"><div class="bar-label">$2.4M</div><div class="bar cat3" style="height: 30%;"></div></div>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar-wrapper"><div class="bar-label">$3.7M</div><div class="bar cat1" style="height: 46.25%;"></div></div>
+                            <div class="bar-wrapper"></div>
+                            <div class="bar-wrapper"><div class="bar-label">$3.7M</div><div class="bar cat3" style="height: 46.25%;"></div></div>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar-wrapper"><div class="bar-label">$4.3M</div><div class="bar cat1" style="height: 53.75%;"></div></div>
+                            <div class="bar-wrapper"><div class="bar-label">$1.8M</div><div class="bar cat2" style="height: 22.5%;"></div></div>
+                            <div class="bar-wrapper"><div class="bar-label">$4.3M</div><div class="bar cat3" style="height: 53.75%;"></div></div>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar-wrapper"><div class="bar-label">$5.6M</div><div class="bar cat1" style="height: 70%;"></div></div>
+                            <div class="bar-wrapper"><div class="bar-label">$3.7M</div><div class="bar cat2" style="height: 46.25%;"></div></div>
+                            <div class="bar-wrapper"><div class="bar-label">$5.6M</div><div class="bar cat3" style="height: 70%;"></div></div>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar-wrapper"><div class="bar-label">$5.6M</div><div class="bar cat1" style="height: 70%;"></div></div>
+                            <div class="bar-wrapper"><div class="bar-label">$3.5M</div><div class="bar cat2" style="height: 43.75%;"></div></div>
+                            <div class="bar-wrapper"><div class="bar cat3" style="height: 90%;"></div></div>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar-wrapper"><div class="bar-label">$5.6M</div><div class="bar cat1" style="height: 70%;"></div></div>
+                            <div class="bar-wrapper"><div class="bar-label">$7.2M</div><div class="bar cat2" style="height: 90%;"></div></div>
+                            <div class="bar-wrapper"><div class="bar-label">$1.6M</div><div class="bar cat3" style="height: 20%;"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="x-axis">
+                <span class="x-axis-label">2024 Q1</span>
+                <span class="x-axis-label">2024 Q2</span>
+                <span class="x-axis-label">2024 Q3</span>
+                <span class="x-axis-label">2024 Q4</span>
+                <span class="x-axis-label">2025 Q1</span>
+                <span class="x-axis-label">2025 Q2</span>
+                <span class="x-axis-label">2025 Q3</span>
+                <span class="x-axis-label">2025 Q4</span>
+            </div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color-box cat1"></div>
+                    <span>category 1</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color-box cat2"></div>
+                    <span>category 2</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color-box cat3"></div>
+                    <span>category 3</span>
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="entrance-animations.js"></script>
+</body>
+</html>

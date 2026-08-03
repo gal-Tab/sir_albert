@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokémon Yellow: Which Starter?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --text-display: 10.5vmin;
+      --text-h1: 8vmin;
+      --text-h2: 6vmin;
+      --text-h3: 4vmin;
+      --text-h4: 3vmin;
+      --text-body: 2.2vmin;
+      --text-body-sm: 1.8vmin;
+      --text-caption: 1.4vmin;
+      --weight-light: 300;
+      --weight-regular: 400;
+      --weight-medium: 500;
+      --weight-semibold: 600;
+      --leading-tight: 1.1;
+      --leading-snug: 1.3;
+      --leading-normal: 1.5;
+      --leading-relaxed: 1.7;
+      --tracking-tight: -0.025em;
+      --tracking-normal: -0.01em;
+      --tracking-none: 0;
+      --color-bg: #000000;
+      --color-surface: #232427;
+      --color-surface-alt: #2D3035;
+      --color-text: #ffffff;
+      --color-text-secondary: #c3ced8;
+      --color-text-muted: #a0a0a0;
+      --color-purple: #6164ff;
+      --color-purple-light: #8A99FF;
+      --color-red: #ff3d57;
+      --color-yellow: #ffcb00;
+      --color-green: #00c875;
+      --color-border: rgba(255, 255, 255, 0.15);
+      --color-border-strong: rgba(255, 255, 255, 0.8);
+      --radius-xs: 0.5vmin;
+      --radius-sm: 1vmin;
+      --radius-md: 2vmin;
+      --radius-lg: 3vmin;
+      --radius-xl: 4vmin;
+      --radius-full: 999px;
+      --space-1: 0.5vmin;
+      --space-2: 1vmin;
+      --space-3: 1.5vmin;
+      --space-4: 2vmin;
+      --space-5: 3vmin;
+      --space-6: 4vmin;
+      --space-7: 5vmin;
+      --space-8: 6vmin;
+      --space-9: 8vmin;
+      --space-10: 10vmin;
+      --icon-xs: 3vmin;
+      --icon-sm: 5vmin;
+      --icon-md: 7vmin;
+      --icon-lg: 10vmin;
+      --icon-xl: 15vmin;
+      --slide-padding-y: 8vmin;
+      --slide-padding-x: 10vmin;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Slide base */
+    .slide-container {
+      width: 100vw;
+      height: 56.25vw;
+      max-height: 100vh;
+      max-width: 177.78vh;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      box-sizing: border-box;
+      overflow: hidden;
+      padding: var(--slide-padding-y) var(--slide-padding-x);
+      background-color: var(--color-bg);
+    }
+
+    .slide-container:not(.slide-active) {
+      display: none !important;
+    }
+
+    /* Template classes */
+    .tmpl-cover.slide-active {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      gap: var(--space-5);
+    }
+
+    .tmpl-center.slide-active {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      gap: var(--space-6);
+    }
+
+    .tmpl-features.slide-active {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr;
+      gap: var(--space-6);
+      align-content: center;
+    }
+
+    .tmpl-compare.slide-active {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto 1fr;
+      gap: var(--space-6);
+      align-content: center;
+    }
+
+    /* Logo */
+    .monday-logo { height: 4vmin; width: auto; max-width: 15vmin; }
+    .logo-container {
+      position: absolute;
+      bottom: var(--space-8);
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      left: 0;
+    }
+
+    /* Icon sizing */
+    .ds-icon { display: inline-block; flex-shrink: 0; object-fit: contain; }
+    .ds-icon-sm { width: var(--icon-sm); height: var(--icon-sm); }
+    .ds-icon-md { width: var(--icon-md); height: var(--icon-md); }
+
+    /* Slide 1: Cover */
+    .slide-1 .cover-subtitle {
+      font-size: var(--text-h3);
+      font-weight: var(--weight-light);
+      color: var(--color-text-secondary);
+      line-height: var(--leading-snug);
+    }
+    .slide-1 .cover-title {
+      font-size: var(--text-h1);
+      font-weight: var(--weight-medium);
+      line-height: var(--leading-tight);
+      letter-spacing: var(--tracking-tight);
+    }
+    .slide-1 .cover-title .em { color: var(--color-yellow); }
+
+    /* Slide 2: Starters grid */
+    .slide-2 .section-title {
+      font-size: var(--text-h2);
+      font-weight: var(--weight-medium);
+      line-height: var(--leading-tight);
+      text-align: center;
+    }
+    .slide-2 .starter-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-6);
+      width: 100%;
+    }
+    .starter-card {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-4);
+      text-align: center;
+    }
+    .starter-card .starter-emoji {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: var(--icon-lg);
+    }
+    .starter-card .starter-emoji svg {
+      filter: brightness(0) invert(1);
+    }
+    .starter-card h3 {
+      font-size: var(--text-h3);
+      font-weight: var(--weight-semibold);
+      margin: 0;
+    }
+    .starter-card .starter-type {
+      font-size: var(--text-body);
+      font-weight: var(--weight-medium);
+      padding: var(--space-2) var(--space-5);
+      border-radius: var(--radius-full);
+      display: inline-block;
+    }
+    .type-grass { background: rgba(0, 200, 117, 0.2); color: var(--color-green); }
+    .type-fire { background: rgba(255, 61, 87, 0.2); color: var(--color-red); }
+    .type-water { background: rgba(97, 100, 255, 0.2); color: var(--color-purple-light); }
+
+    .starter-card .starter-desc {
+      font-size: var(--text-body-sm);
+      color: var(--color-text-secondary);
+      line-height: var(--leading-normal);
+    }
+    .starter-card .starter-location {
+      font-size: var(--text-caption);
+      color: var(--color-text-muted);
+    }
+
+    /* Slide 3: Comparison */
+    .slide-3 .compare-header {
+      grid-column: 1 / -1;
+      text-align: center;
+      font-size: var(--text-h2);
+      font-weight: var(--weight-medium);
+      line-height: var(--leading-tight);
+    }
+    .compare-panel {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-7);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+    }
+    .compare-panel h3 {
+      font-size: var(--text-h3);
+      font-weight: var(--weight-semibold);
+      margin: 0;
+      display: flex;
+    }
+    .compare-panel h3 svg {
+      filter: brightness(0) invert(1);
+      align-items: center;
+      gap: var(--space-4);
+    }
+    .compare-panel .pros, .compare-panel .cons {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    .compare-panel .label {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      margin-bottom: var(--space-2);
+    }
+    .label-good { color: var(--color-green); }
+    .label-bad { color: var(--color-red); }
+    .compare-panel li {
+      font-size: var(--text-body-sm);
+      color: var(--color-text-secondary);
+      line-height: var(--leading-normal);
+      list-style: none;
+      padding-left: var(--space-5);
+      position: relative;
+    }
+    .compare-panel li::before {
+      position: absolute;
+      left: 0;
+    }
+    .pros li::before { content: "•"; color: var(--color-text-muted); }
+    .cons li::before { content: "•"; color: var(--color-text-muted); }
+
+    /* Slide 4: Verdict */
+    .slide-4 .verdict-icon { margin-bottom: var(--space-4); }
+    .slide-4 .verdict-title {
+      font-size: var(--text-h1);
+      font-weight: var(--weight-medium);
+      line-height: var(--leading-tight);
+    }
+    .slide-4 .verdict-title .em { color: var(--color-green); }
+    .slide-4 .verdict-reason {
+      font-size: var(--text-h4);
+      font-weight: var(--weight-light);
+      color: var(--color-text-secondary);
+      line-height: var(--leading-normal);
+      max-width: 70%;
+    }
+    .slide-4 .verdict-stats {
+      display: flex;
+      gap: var(--space-9);
+      margin-top: var(--space-4);
+    }
+    .stat-block {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+    .stat-block .stat-number {
+      font-size: var(--text-h2);
+      font-weight: var(--weight-semibold);
+      color: var(--color-green);
+    }
+    .stat-block .stat-label {
+      font-size: var(--text-body-sm);
+      color: var(--color-text-muted);
+    }
+
+    /* Slide 5: Closing */
+    .slide-5 .closing-title {
+      font-size: var(--text-h1);
+      font-weight: var(--weight-medium);
+      line-height: var(--leading-tight);
+    }
+    .slide-5 .closing-subtitle {
+      font-size: var(--text-h4);
+      font-weight: var(--weight-light);
+      color: var(--color-text-secondary);
+    }
+
+    /* Animations */
+    @keyframes revealUp {
+      from { opacity: 0; transform: translateY(1.5vmin); }
+    }
+    @keyframes revealFade {
+      from { opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Slide 1: Cover -->
+  <div class="slide-container tmpl-cover slide-1" data-slide-index="0">
+    <h1 class="cover-title">Pokémon Yellow:<br><span class="em">Which Starter?</span></h1>
+    <p class="cover-subtitle">A guide to Bulbasaur, Charmander & Squirtle</p>
+    <div class="logo-container">
+      <svg class="monday-logo" width="282" height="50" viewBox="0 0 282 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5.68474 35.762C3.70108 35.7602 1.87466 34.7272 0.914601 33.0642C-0.0454546 31.4011 0.0120846 29.3698 1.06488 27.7591L10.8879 12.7341C11.8969 11.0981 13.7529 10.1154 15.7356 10.1675C17.7182 10.2196 19.5153 11.2982 20.4292 12.9847C21.3431 14.6713 21.2298 16.7001 20.1335 18.2836L10.3163 33.3086C9.31775 34.8373 7.56703 35.7647 5.68474 35.762Z" fill="#FB275D"/>
+        <path d="M22.4209 35.7618C20.4405 35.7601 18.6171 34.7296 17.6586 33.0704C16.7001 31.4113 16.7576 29.3849 17.8086 27.778L27.6127 12.7887C28.6058 11.1288 30.4684 10.1226 32.4659 10.1668C34.4635 10.211 36.2755 11.2985 37.1875 13.0005C38.0995 14.7025 37.9651 16.7459 36.8373 18.325L27.0332 33.3143C26.0386 34.836 24.296 35.7607 22.4209 35.7618V35.7618Z" fill="#FFCC00"/>
+        <path d="M38.7383 35.7925C41.7384 35.7925 44.1705 33.3647 44.1705 30.3698C44.1705 27.3749 41.7384 24.947 38.7383 24.947C35.7382 24.947 33.3062 27.3749 33.3062 30.3698C33.3062 33.3647 35.7382 35.7925 38.7383 35.7925Z" fill="#00CA72"/>
+        <path d="M214.619 45.1879L219.096 34.827L209.273 11.9539H217.531L223.138 26.749L228.875 11.9539H236.786L222.617 45.1879H214.619Z" fill="white"/>
+        <path d="M191.966 11.6026C195.617 11.6026 198.181 13.2709 199.485 15.4221V11.9538H206.918V36.4513H199.485V32.983C198.138 35.1342 195.574 36.8025 191.966 36.8025C186.011 36.8025 181.317 31.8855 181.317 24.1587C181.317 16.4318 186.011 11.6026 191.966 11.6026ZM188.88 24.1587C188.88 28.066 191.357 30.2611 194.183 30.2611C197.008 30.2611 199.485 28.1099 199.485 24.2026C199.485 20.2952 197.008 18.144 194.183 18.144C191.357 18.144 188.88 20.2513 188.88 24.1587Z" fill="white"/>
+        <path d="M163.184 11.6027C166.4 11.6027 169.138 13.0954 170.616 15.3344V3.96375H178.092V36.4515H170.616V32.9393C169.312 35.1783 166.748 36.8027 163.14 36.8027C157.186 36.8027 152.491 31.8856 152.491 24.1588C152.491 16.432 157.186 11.6027 163.184 11.6027ZM160.054 24.1588C160.054 28.0661 162.532 30.2612 165.357 30.2612C168.182 30.2612 170.66 28.11 170.66 24.2027C170.66 20.2954 168.182 18.1442 165.357 18.1442C162.532 18.1442 160.054 20.2515 160.054 24.1588Z" fill="white"/>
+        <path d="M142.006 23.1489C142.006 19.8123 140.137 17.9684 137.356 17.9684C134.487 17.9684 132.661 19.8123 132.661 23.1489V36.4513H125.229V11.9538H132.661V15.2465C134.139 13.1392 136.747 11.6904 140.007 11.6904C145.657 11.6904 149.395 15.5538 149.395 22.1392V36.4513H142.006V23.1489Z" fill="white"/>
+        <path d="M109.31 37.022C102.182 37.022 96.8359 32.1927 96.8359 24.2025C96.8359 16.2123 102.312 11.383 109.441 11.383C116.569 11.383 122.045 16.2123 122.045 24.2025C122.045 32.1927 116.482 37.022 109.31 37.022ZM104.355 24.2025C104.355 28.3293 106.659 30.3049 109.31 30.3049C111.962 30.3049 114.483 28.3293 114.483 24.2025C114.483 20.0318 112.005 18.1001 109.397 18.1001C106.746 18.1001 104.355 20.0318 104.355 24.2025Z" fill="white"/>
+        <path d="M52.8496 11.9538H60.2821V15.0709C61.7164 13.0514 64.2374 11.6904 67.3668 11.6904C71.0613 11.6904 74.0169 13.3148 75.6686 16.2563C77.2768 13.666 80.2759 11.6904 83.84 11.6904C89.8381 11.6904 93.7065 15.5538 93.7065 22.1392V36.4513H86.3175V23.1489C86.3175 19.944 84.4485 18.188 81.6667 18.188C78.7981 18.188 77.016 19.944 77.016 23.1489V36.4513H69.627V23.1489C69.627 19.944 67.758 18.188 64.9763 18.188C62.1076 18.188 60.2821 19.944 60.2821 23.1489V36.4513H52.8496V11.9538Z" fill="white"/>
+        <path d="M236.725 31.4375C236.725 30.4075 236.936 29.5107 237.359 28.7473C237.782 27.9718 238.366 27.372 239.112 26.9479C239.871 26.5238 240.735 26.3117 241.705 26.3117C242.96 26.3117 243.992 26.6086 244.801 27.2023C245.621 27.7961 246.162 28.6201 246.423 29.6743H244.595C244.421 29.0685 244.079 28.5898 243.57 28.2384C243.072 27.887 242.451 27.7113 241.705 27.7113C240.735 27.7113 239.951 28.0385 239.355 28.6928C238.758 29.335 238.459 30.2499 238.459 31.4375C238.459 32.6371 238.758 33.5641 239.355 34.2184C239.951 34.8728 240.735 35.2 241.705 35.2C242.451 35.2 243.072 35.0303 243.57 34.691C244.067 34.3517 244.409 33.867 244.595 33.2369H246.423C246.15 34.2548 245.602 35.0727 244.782 35.6907C243.961 36.2966 242.935 36.5996 241.705 36.5996C240.735 36.5996 239.871 36.3875 239.112 35.9634C238.366 35.5393 237.782 34.9394 237.359 34.1639C236.936 33.3884 236.725 32.4796 236.725 31.4375Z" fill="white"/>
+        <path d="M272.121 26.2935C272.916 26.2935 273.625 26.4571 274.247 26.7843C274.868 27.0993 275.36 27.578 275.72 28.2202C276.081 28.8625 276.261 29.644 276.261 30.565V36.436H274.582V30.8013C274.582 29.8076 274.328 29.0503 273.818 28.5292C273.32 27.996 272.643 27.7295 271.785 27.7295C270.902 27.7295 270.2 28.0082 269.677 28.5656C269.155 29.1109 268.894 29.9046 268.894 30.9467V36.436H267.216V30.8013C267.216 29.8076 266.961 29.0503 266.451 28.5292C265.953 27.996 265.276 27.7295 264.418 27.7295C263.535 27.7295 262.833 28.0082 262.31 28.5656C261.788 29.1109 261.527 29.9046 261.527 30.9467V36.436H259.83V26.4753H261.527V27.9112C261.863 27.3902 262.31 26.9903 262.87 26.7116C263.442 26.4329 264.07 26.2935 264.754 26.2935C265.612 26.2935 266.37 26.4813 267.029 26.857C267.688 27.2326 268.179 27.784 268.502 28.511C268.788 27.8082 269.261 27.2629 269.92 26.8752C270.579 26.4874 271.312 26.2935 272.121 26.2935Z" fill="white"/>
+        <path d="M252.871 36.5996C251.913 36.5996 251.043 36.3875 250.26 35.9634C249.489 35.5393 248.88 34.9394 248.432 34.1639C247.997 33.3763 247.779 32.4675 247.779 31.4375C247.779 30.4196 248.003 29.5229 248.451 28.7473C248.911 27.9597 249.532 27.3599 250.316 26.9479C251.099 26.5238 251.976 26.3117 252.945 26.3117C253.915 26.3117 254.792 26.5238 255.575 26.9479C256.358 27.3599 256.974 27.9536 257.421 28.7292C257.882 29.5047 258.112 30.4075 258.112 31.4375C258.112 32.4675 257.875 33.3763 257.403 34.1639C256.943 34.9394 256.315 35.5393 255.519 35.9634C254.723 36.3875 253.841 36.5996 252.871 36.5996ZM252.871 35.1454C253.48 35.1454 254.052 35.0061 254.587 34.7274C255.121 34.4487 255.55 34.0306 255.873 33.4732C256.209 32.9158 256.377 32.2372 256.377 31.4375C256.377 30.6377 256.215 29.9591 255.892 29.4017C255.569 28.8443 255.215 28.4323 254.624 28.1657C254.102 27.887 253.536 27.7476 252.927 27.7476C252.305 27.7476 251.733 27.887 251.211 28.1657C250.701 28.4323 250.291 28.8443 249.98 29.4017C249.669 29.9591 249.514 30.6377 249.514 31.4375C249.514 32.2493 249.663 32.934 249.961 33.4914C250.272 34.0488 250.682 34.4669 251.192 34.7456C251.702 35.0122 252.262 35.1454 252.871 35.1454Z" fill="white"/>
+        <path d="M232.606 36.5996C232.111 36.5996 231.701 36.439 231.376 36.1178C231.063 35.7826 230.907 35.3707 230.907 34.8819C230.907 34.3931 231.063 33.9881 231.376 33.6669C231.701 33.3318 232.111 33.1642 232.606 33.1642C233.088 33.1642 233.485 33.3318 233.798 33.6669C234.11 33.9881 234.266 34.3931 234.266 34.8819C234.266 35.3707 234.11 35.7826 233.798 36.1178C233.485 36.439 233.088 36.5996 232.606 36.5996Z" fill="white"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Slide 2: Meet the Starters -->
+  <div class="slide-container tmpl-features slide-2" data-slide-index="1">
+    <h2 class="section-title">Meet the Starters</h2>
+    <div class="starter-grid">
+      <div class="starter-card">
+        <div class="starter-emoji"><svg class="ds-icon ds-icon-md" width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M28.7687 3.18506H28.7313C22.9207 9.00974 5.43262 13.7245 5.43262 13.7245C5.43262 32.2875 6.59849 48.6097 28.75 56.815C50.9015 48.6097 52.0674 32.2875 52.0674 13.7245C52.0674 13.7245 34.5793 9.00974 28.7687 3.18506Z" stroke="#6161FF" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M28.75 18.1758L32.0821 26.5024H40.4087L33.7469 32.439L36.2442 41.6471L28.75 35.8457L21.2558 41.689L23.7531 32.4297L17.0913 26.5024H25.4179L28.75 18.1758Z" stroke="#6161FF" stroke-width="4" stroke-miterlimit="10" stroke-linejoin="round"/></svg></div>
+        <h3>Bulbasaur</h3>
+        <span class="starter-type type-grass">Grass / Poison</span>
+        <p class="starter-desc">The balanced choice. Strong against the first two gyms (Brock & Misty) and learns status moves early.</p>
+        <p class="starter-location">Cerulean City — from Melanie</p>
+      </div>
+      <div class="starter-card">
+        <div class="starter-emoji"><svg class="ds-icon ds-icon-md" width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip_sun)"><path fill-rule="evenodd" clip-rule="evenodd" d="M30.0054 17.9784L32.5973 18.3024L34.8738 18.9504L36.8262 20.2549L38.7701 21.5508L40.3986 23.5032L41.3706 25.7711L42.3511 28.0476V30.648V32.9245L41.3706 35.5249L40.3986 37.4688L38.7701 39.4213L36.8262 41.0497L34.8738 42.0217L32.5973 42.6696L30.0054 42.9937L27.405 42.6696L25.1285 42.0217L22.8521 41.0497L21.2322 39.4213L19.6038 37.4688L18.3077 35.5249L17.6512 32.9245L17.3273 30.648L17.6512 28.0476L18.3077 25.7711L19.6038 23.5032L21.2322 21.5508L22.8521 20.2549L25.1285 18.9504L27.405 18.3024L30.0054 17.9784Z" stroke="#6161FF" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M30.005 2.38416V7.57648" stroke="#6161FF" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M30.005 52.7474V57.6158" stroke="#6161FF" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.505 11.1576L14.0774 14.406" stroke="#6161FF" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M45.9225 46.5746L49.4949 50.147" stroke="#6161FF" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.38 29.9999H7.25684" stroke="#6161FF" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M52.4191 29.9999H57.62" stroke="#6161FF" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.505 50.147L14.0774 46.5746" stroke="#6161FF" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M45.9225 14.406L49.4949 11.1576" stroke="#6161FF" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="clip_sun"><rect width="60" height="60" fill="white"/></clipPath></defs></svg></div>
+        <h3>Charmander</h3>
+        <span class="starter-type type-fire">Fire</span>
+        <p class="starter-desc">The hard-mode pick. Weak against the first two gyms but becomes the powerhouse Charizard at Lv. 36.</p>
+        <p class="starter-location">Route 24 — from Damian</p>
+      </div>
+      <div class="starter-card">
+        <div class="starter-emoji"><svg class="ds-icon ds-icon-md" width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip_rain)"><path d="M40.0729 32.6003V52.7473" stroke="#6161FF" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.925 32.6003V52.7473" stroke="#6161FF" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M30.0021 37.8015V57.6159" stroke="#6161FF" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M50.1426 41.6974L51.7711 40.7254L53.0671 39.7449L54.3715 38.449L55.3434 37.1445L56.3239 35.8485L56.972 34.2201L57.296 32.6001L57.6199 30.9717V29.3517L57.296 27.3993L56.648 25.7794L55.9915 24.1509L55.0195 22.5224L53.7236 20.9025L52.095 19.598L50.1426 18.3021L48.8467 17.6541H47.5507H41.702L41.0453 15.0536L39.7495 12.7772L38.445 10.5008L36.825 8.55685L34.8726 6.92841L32.5961 5.30847L30.3282 4.32797L28.0518 3.35602L25.4514 2.70804L22.851 2.38403L20.2505 2.70804L17.6501 3.03201L15.0582 4.004L12.4578 4.98447L9.85736 6.6044L7.58087 8.88086L5.95245 10.5008L4.98053 12.4532L4.00848 14.4057L2.70404 18.3021L2.38007 22.1984L2.70404 25.7794L3.68451 29.3517L4.98053 32.9241L7.2569 35.8485L9.85736 38.449" stroke="#6161FF" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="clip_rain"><rect width="60" height="60" fill="white"/></clipPath></defs></svg></div>
+        <h3>Squirtle</h3>
+        <span class="starter-type type-water">Water</span>
+        <p class="starter-desc">The fan favorite. Beats Brock easily, gets Surf (HM03), and Blastoise tanks late-game fights.</p>
+        <p class="starter-location">Vermilion City — from Officer Jenny</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 3: Head-to-Head -->
+  <div class="slide-container tmpl-compare slide-3" data-slide-index="2">
+    <h2 class="compare-header">Head-to-Head</h2>
+    <div class="compare-panel">
+      <h3>
+        <svg class="ds-icon ds-icon-sm" width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M28.7687 3.18506H28.7313C22.9207 9.00974 5.43262 13.7245 5.43262 13.7245C5.43262 32.2875 6.59849 48.6097 28.75 56.815C50.9015 48.6097 52.0674 32.2875 52.0674 13.7245C52.0674 13.7245 34.5793 9.00974 28.7687 3.18506Z" stroke="#6161FF" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M28.75 18.1758L32.0821 26.5024H40.4087L33.7469 32.439L36.2442 41.6471L28.75 35.8457L21.2558 41.689L23.7531 32.4297L17.0913 26.5024H25.4179L28.75 18.1758Z" stroke="#6161FF" stroke-width="4" stroke-miterlimit="10" stroke-linejoin="round"/></svg>
+        Bulbasaur
+      </h3>
+      <div class="pros">
+        <div class="label label-good">Strengths</div>
+        <ul style="margin:0;padding:0;">
+          <li>Super effective vs. Gym 1 (Brock) & Gym 2 (Misty)</li>
+          <li>Learns Leech Seed + Sleep Powder early</li>
+          <li>Resists Electric (Lt. Surge) & Grass types</li>
+          <li>Available earliest — Cerulean City</li>
+        </ul>
+      </div>
+      <div class="cons">
+        <div class="label label-bad">Weaknesses</div>
+        <ul style="margin:0;padding:0;">
+          <li>Weak to Psychic (Sabrina) & Fire (Blaine)</li>
+          <li>Venusaur's movepool is limited late-game</li>
+        </ul>
+      </div>
+    </div>
+    <div class="compare-panel">
+      <h3>
+        <svg class="ds-icon ds-icon-sm" width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip_cf)"><path d="M47.9021 41.6066L49.522 41.2826L51.1504 40.6346L52.7704 39.6626L54.0748 38.6821L55.3708 37.3862L56.3513 35.7577L56.9993 34.4618L57.6472 32.8333L57.9712 31.2134V29.2609V27.641L57.3232 25.6885L56.6753 24.0601L55.6948 22.1161L54.3988 20.4877L52.7704 18.8678L51.7985 17.8873L50.5024 17.2393L49.198 16.9153H47.578H42.3772L41.4053 14.3149L40.1008 12.0385L38.8048 9.76199L37.1764 7.81808L35.2239 6.18961L32.9561 4.56967L30.6796 3.5892L28.4031 2.61722L25.8027 1.96924H23.2023H20.6018L18.01 2.29324L15.4095 3.2652L12.8091 4.56967L10.2086 6.18961L7.60828 8.14206L6.63623 9.43802L5.65576 10.7425L4.68384 13.0189L3.71191 14.9629L3.38794 17.2393L2.73145 19.1917V21.4597V23.4121L3.06384 25.3646L3.38794 27.3085L4.03589 29.2609L5.00781 31.2134L6.96033 34.4618L9.88464 37.3862L11.5046 38.3582L13.1331 39.3301" stroke="#6161FF" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M32.9547 26.9844L22.877 41.9304H37.823L27.7538 57.209" stroke="#6161FF" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="clip_cf"><rect width="60" height="60" fill="white"/></clipPath></defs></svg>
+        Charmander
+      </h3>
+      <div class="pros">
+        <div class="label label-good">Strengths</div>
+        <ul style="margin:0;padding:0;">
+          <li>Charizard is a beast — high Sp. Atk & Speed</li>
+          <li>Learns Slash, Flamethrower, Fire Blast</li>
+          <li>Destroys Erika (Grass gym) & Lorelei's Ice types</li>
+        </ul>
+      </div>
+      <div class="cons">
+        <div class="label label-bad">Weaknesses</div>
+        <ul style="margin:0;padding:0;">
+          <li>Struggles badly vs. Brock & Misty early</li>
+          <li>Available latest — Route 24 (after Nugget Bridge)</li>
+          <li>Fire types are redundant with Pikachu's coverage</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 4: The Verdict -->
+  <div class="slide-container tmpl-center slide-4" data-slide-index="3">
+    <div class="verdict-icon">
+      <svg class="ds-icon ds-icon-md" width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip_trophy)"><path d="M44.9773 11.1304L44.5067 12.856L43.7745 16.3597L43.3038 19.8635L43.0947 23.4194L43.1471 25.1973L43.0947 26.5048L42.5717 29.0149L41.6306 31.3679L40.2187 33.4073L38.4928 35.1332L36.4534 36.5452L34.1004 37.5386L31.5903 38.0093L30.2827 38.0616L28.9754 38.0093L26.4654 37.5386L24.112 36.5452L22.0726 35.1332L20.3471 33.4073L18.9351 31.3679L17.9937 29.0149L17.471 26.5048L17.4187 25.1973L17.471 23.4194L17.2616 19.8635L16.7912 16.3597L16.059 12.856L15.5884 11.1304" stroke="#00c875" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M35.1969 37.1201V45.4349L35.2492 46.7946L35.7199 49.3567L36.5565 51.6577L37.707 53.7495L39.119 55.4753L40.6354 56.8349L42.1518 57.7759L43.6685 58.2466L44.4004 58.299H16.1619L16.894 58.2466L18.4105 57.7759L19.9272 56.8349L21.4436 55.4753L22.8556 53.7495L24.006 51.6577L24.8426 49.3567L25.3133 46.7946L25.3656 45.4349V37.1201" stroke="#00c875" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M22.9077 46.6377H37.6544" stroke="#00c875" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.3325 22.7393H46.2316" stroke="#00c875" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path fill-rule="evenodd" clip-rule="evenodd" d="M45.6038 11.1302L46.4928 11.0778L48.0095 10.398L49.16 9.24756L49.8398 7.73114L49.8918 6.84216L49.8398 5.95325L49.16 4.43652L48.0095 3.28607L46.4928 2.60626L45.6038 2.5542H14.9599L14.0707 2.60626L12.5543 3.28607L11.4038 4.43652L10.724 5.95325L10.6716 6.84216L10.724 7.73114L11.4038 9.24756L12.5543 10.398L14.0707 11.0778L14.9599 11.1302H45.6038Z" stroke="#00c875" stroke-width="4" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="clip_trophy"><rect width="60" height="60" fill="white"/></clipPath></defs></svg>
+    </div>
+    <h1 class="verdict-title">Pick <span class="em">Bulbasaur</span></h1>
+    <p class="verdict-reason">It covers the most gym weaknesses early, learns the best utility moves, and is available first. Squirtle is a close second — but Pikachu already handles Water's strengths.</p>
+    <div class="verdict-stats">
+      <div class="stat-block">
+        <span class="stat-number">5/8</span>
+        <span class="stat-label">Gyms with advantage</span>
+      </div>
+      <div class="stat-block">
+        <span class="stat-number">Lv. 32</span>
+        <span class="stat-label">Fully evolved</span>
+      </div>
+      <div class="stat-block">
+        <span class="stat-number">#1</span>
+        <span class="stat-label">Speedrun pick</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 5: Closing -->
+  <div class="slide-container tmpl-cover slide-5" data-slide-index="4">
+    <h1 class="closing-title">Now go catch 'em all.</h1>
+    <p class="closing-subtitle">Gotta pick the right one first.</p>
+    <div class="logo-container">
+      <svg class="monday-logo" width="282" height="50" viewBox="0 0 282 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5.68474 35.762C3.70108 35.7602 1.87466 34.7272 0.914601 33.0642C-0.0454546 31.4011 0.0120846 29.3698 1.06488 27.7591L10.8879 12.7341C11.8969 11.0981 13.7529 10.1154 15.7356 10.1675C17.7182 10.2196 19.5153 11.2982 20.4292 12.9847C21.3431 14.6713 21.2298 16.7001 20.1335 18.2836L10.3163 33.3086C9.31775 34.8373 7.56703 35.7647 5.68474 35.762Z" fill="#FB275D"/>
+        <path d="M22.4209 35.7618C20.4405 35.7601 18.6171 34.7296 17.6586 33.0704C16.7001 31.4113 16.7576 29.3849 17.8086 27.778L27.6127 12.7887C28.6058 11.1288 30.4684 10.1226 32.4659 10.1668C34.4635 10.211 36.2755 11.2985 37.1875 13.0005C38.0995 14.7025 37.9651 16.7459 36.8373 18.325L27.0332 33.3143C26.0386 34.836 24.296 35.7607 22.4209 35.7618V35.7618Z" fill="#FFCC00"/>
+        <path d="M38.7383 35.7925C41.7384 35.7925 44.1705 33.3647 44.1705 30.3698C44.1705 27.3749 41.7384 24.947 38.7383 24.947C35.7382 24.947 33.3062 27.3749 33.3062 30.3698C33.3062 33.3647 35.7382 35.7925 38.7383 35.7925Z" fill="#00CA72"/>
+        <path d="M214.619 45.1879L219.096 34.827L209.273 11.9539H217.531L223.138 26.749L228.875 11.9539H236.786L222.617 45.1879H214.619Z" fill="white"/>
+        <path d="M191.966 11.6026C195.617 11.6026 198.181 13.2709 199.485 15.4221V11.9538H206.918V36.4513H199.485V32.983C198.138 35.1342 195.574 36.8025 191.966 36.8025C186.011 36.8025 181.317 31.8855 181.317 24.1587C181.317 16.4318 186.011 11.6026 191.966 11.6026ZM188.88 24.1587C188.88 28.066 191.357 30.2611 194.183 30.2611C197.008 30.2611 199.485 28.1099 199.485 24.2026C199.485 20.2952 197.008 18.144 194.183 18.144C191.357 18.144 188.88 20.2513 188.88 24.1587Z" fill="white"/>
+        <path d="M163.184 11.6027C166.4 11.6027 169.138 13.0954 170.616 15.3344V3.96375H178.092V36.4515H170.616V32.9393C169.312 35.1783 166.748 36.8027 163.14 36.8027C157.186 36.8027 152.491 31.8856 152.491 24.1588C152.491 16.432 157.186 11.6027 163.184 11.6027ZM160.054 24.1588C160.054 28.0661 162.532 30.2612 165.357 30.2612C168.182 30.2612 170.66 28.11 170.66 24.2027C170.66 20.2954 168.182 18.1442 165.357 18.1442C162.532 18.1442 160.054 20.2515 160.054 24.1588Z" fill="white"/>
+        <path d="M142.006 23.1489C142.006 19.8123 140.137 17.9684 137.356 17.9684C134.487 17.9684 132.661 19.8123 132.661 23.1489V36.4513H125.229V11.9538H132.661V15.2465C134.139 13.1392 136.747 11.6904 140.007 11.6904C145.657 11.6904 149.395 15.5538 149.395 22.1392V36.4513H142.006V23.1489Z" fill="white"/>
+        <path d="M109.31 37.022C102.182 37.022 96.8359 32.1927 96.8359 24.2025C96.8359 16.2123 102.312 11.383 109.441 11.383C116.569 11.383 122.045 16.2123 122.045 24.2025C122.045 32.1927 116.482 37.022 109.31 37.022ZM104.355 24.2025C104.355 28.3293 106.659 30.3049 109.31 30.3049C111.962 30.3049 114.483 28.3293 114.483 24.2025C114.483 20.0318 112.005 18.1001 109.397 18.1001C106.746 18.1001 104.355 20.0318 104.355 24.2025Z" fill="white"/>
+        <path d="M52.8496 11.9538H60.2821V15.0709C61.7164 13.0514 64.2374 11.6904 67.3668 11.6904C71.0613 11.6904 74.0169 13.3148 75.6686 16.2563C77.2768 13.666 80.2759 11.6904 83.84 11.6904C89.8381 11.6904 93.7065 15.5538 93.7065 22.1392V36.4513H86.3175V23.1489C86.3175 19.944 84.4485 18.188 81.6667 18.188C78.7981 18.188 77.016 19.944 77.016 23.1489V36.4513H69.627V23.1489C69.627 19.944 67.758 18.188 64.9763 18.188C62.1076 18.188 60.2821 19.944 60.2821 23.1489V36.4513H52.8496V11.9538Z" fill="white"/>
+        <path d="M236.725 31.4375C236.725 30.4075 236.936 29.5107 237.359 28.7473C237.782 27.9718 238.366 27.372 239.112 26.9479C239.871 26.5238 240.735 26.3117 241.705 26.3117C242.96 26.3117 243.992 26.6086 244.801 27.2023C245.621 27.7961 246.162 28.6201 246.423 29.6743H244.595C244.421 29.0685 244.079 28.5898 243.57 28.2384C243.072 27.887 242.451 27.7113 241.705 27.7113C240.735 27.7113 239.951 28.0385 239.355 28.6928C238.758 29.335 238.459 30.2499 238.459 31.4375C238.459 32.6371 238.758 33.5641 239.355 34.2184C239.951 34.8728 240.735 35.2 241.705 35.2C242.451 35.2 243.072 35.0303 243.57 34.691C244.067 34.3517 244.409 33.867 244.595 33.2369H246.423C246.15 34.2548 245.602 35.0727 244.782 35.6907C243.961 36.2966 242.935 36.5996 241.705 36.5996C240.735 36.5996 239.871 36.3875 239.112 35.9634C238.366 35.5393 237.782 34.9394 237.359 34.1639C236.936 33.3884 236.725 32.4796 236.725 31.4375Z" fill="white"/>
+        <path d="M272.121 26.2935C272.916 26.2935 273.625 26.4571 274.247 26.7843C274.868 27.0993 275.36 27.578 275.72 28.2202C276.081 28.8625 276.261 29.644 276.261 30.565V36.436H274.582V30.8013C274.582 29.8076 274.328 29.0503 273.818 28.5292C273.32 27.996 272.643 27.7295 271.785 27.7295C270.902 27.7295 270.2 28.0082 269.677 28.5656C269.155 29.1109 268.894 29.9046 268.894 30.9467V36.436H267.216V30.8013C267.216 29.8076 266.961 29.0503 266.451 28.5292C265.953 27.996 265.276 27.7295 264.418 27.7295C263.535 27.7295 262.833 28.0082 262.31 28.5656C261.788 29.1109 261.527 29.9046 261.527 30.9467V36.436H259.83V26.4753H261.527V27.9112C261.863 27.3902 262.31 26.9903 262.87 26.7116C263.442 26.4329 264.07 26.2935 264.754 26.2935C265.612 26.2935 266.37 26.4813 267.029 26.857C267.688 27.2326 268.179 27.784 268.502 28.511C268.788 27.8082 269.261 27.2629 269.92 26.8752C270.579 26.4874 271.312 26.2935 272.121 26.2935Z" fill="white"/>
+        <path d="M252.871 36.5996C251.913 36.5996 251.043 36.3875 250.26 35.9634C249.489 35.5393 248.88 34.9394 248.432 34.1639C247.997 33.3763 247.779 32.4675 247.779 31.4375C247.779 30.4196 248.003 29.5229 248.451 28.7473C248.911 27.9597 249.532 27.3599 250.316 26.9479C251.099 26.5238 251.976 26.3117 252.945 26.3117C253.915 26.3117 254.792 26.5238 255.575 26.9479C256.358 27.3599 256.974 27.9536 257.421 28.7292C257.882 29.5047 258.112 30.4075 258.112 31.4375C258.112 32.4675 257.875 33.3763 257.403 34.1639C256.943 34.9394 256.315 35.5393 255.519 35.9634C254.723 36.3875 253.841 36.5996 252.871 36.5996ZM252.871 35.1454C253.48 35.1454 254.052 35.0061 254.587 34.7274C255.121 34.4487 255.55 34.0306 255.873 33.4732C256.209 32.9158 256.377 32.2372 256.377 31.4375C256.377 30.6377 256.215 29.9591 255.892 29.4017C255.569 28.8443 255.215 28.4323 254.624 28.1657C254.102 27.887 253.536 27.7476 252.927 27.7476C252.305 27.7476 251.733 27.887 251.211 28.1657C250.701 28.4323 250.291 28.8443 249.98 29.4017C249.669 29.9591 249.514 30.6377 249.514 31.4375C249.514 32.2493 249.663 32.934 249.961 33.4914C250.272 34.0488 250.682 34.4669 251.192 34.7456C251.702 35.0122 252.262 35.1454 252.871 35.1454Z" fill="white"/>
+        <path d="M232.606 36.5996C232.111 36.5996 231.701 36.439 231.376 36.1178C231.063 35.7826 230.907 35.3707 230.907 34.8819C230.907 34.3931 231.063 33.9881 231.376 33.6669C231.701 33.3318 232.111 33.1642 232.606 33.1642C233.088 33.1642 233.485 33.3318 233.798 33.6669C234.11 33.9881 234.266 34.3931 234.266 34.8819C234.266 35.3707 234.11 35.7826 233.798 36.1178C233.485 36.439 233.088 36.5996 232.606 36.5996Z" fill="white"/>
+      </svg>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+        let currentSlide = 0;
+        let slides = [];
+
+        function init() {
+            slides = document.querySelectorAll('[data-slide-index]');
+            if (slides.length === 0) return;
+            showSlide(0);
+            addNavigationUI();
+            document.addEventListener('keydown', handleKeyDown);
+            addTouchNavigation();
+        }
+
+        function showSlide(n) {
+            if (n >= slides.length) currentSlide = 0;
+            else if (n < 0) currentSlide = slides.length - 1;
+            else currentSlide = n;
+            slides.forEach(function(slide, index) {
+                slide.classList.toggle('slide-active', index === currentSlide);
+            });
+            updateCounter();
+        }
+
+        function handleKeyDown(e) {
+            switch (e.key) {
+                case 'ArrowRight': case ' ':
+                    e.preventDefault(); showSlide(currentSlide + 1); break;
+                case 'ArrowLeft':
+                    e.preventDefault(); showSlide(currentSlide - 1); break;
+            }
+        }
+
+        function addNavigationUI() {
+            var counter = document.createElement('div');
+            counter.id = 'slide-counter';
+            counter.style.cssText = 'position:fixed;bottom:3vmin;right:3vmin;font-family:Poppins,sans-serif;font-size:1.8vmin;color:#a0a0a0;cursor:pointer;user-select:none;padding:1vmin 2vmin;border-radius:999px;transition:all .2s ease;z-index:100;';
+            counter.addEventListener('click', jumpToSlide);
+            counter.addEventListener('mouseover', function(){ counter.style.backgroundColor='#232427'; counter.style.color='#fff'; });
+            counter.addEventListener('mouseout', function(){ counter.style.backgroundColor='transparent'; counter.style.color='#a0a0a0'; });
+            document.body.appendChild(counter);
+        }
+
+        function updateCounter() {
+            var counter = document.getElementById('slide-counter');
+            if (counter) counter.textContent = (currentSlide + 1) + ' / ' + slides.length;
+        }
+
+        function jumpToSlide() {
+            var input = prompt('Enter slide number (1-' + slides.length + '):', String(currentSlide + 1));
+            if (input !== null) {
+                var n = parseInt(input, 10);
+                if (!isNaN(n) && n >= 1 && n <= slides.length) showSlide(n - 1);
+            }
+        }
+
+        function addTouchNavigation() {
+            var startX = 0;
+            document.addEventListener('touchstart', function(e) { startX = e.changedTouches[0].screenX; });
+            document.addEventListener('touchend', function(e) {
+                var diff = startX - e.changedTouches[0].screenX;
+                if (Math.abs(diff) > 50) { diff > 0 ? showSlide(currentSlide + 1) : showSlide(currentSlide - 1); }
+            });
+        }
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+        else init();
+    })();
+  </script>
+</body>
+</html>

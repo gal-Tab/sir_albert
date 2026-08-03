@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monday.com Presentation</title>
+
+  <!-- Google Fonts: Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* Monday.com Brand Colors */
+      --monday-purple: #6161FF;
+      --monday-dark: #181B34;
+      --monday-light: #F0F3FF;
+      --monday-white: #FFFFFF;
+      --monday-green: #00CA72;
+      --monday-yellow: #FFCC00;
+      --monday-red: #FB275D;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--monday-dark);
+      color: var(--monday-dark);
+      overflow: hidden;
+    }
+
+    /* Slide Container */
+    .slide {
+      width: 100vw;
+      height: 100vh;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 80px;
+      position: relative;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    /* Slide Backgrounds */
+    .slide-white {
+      background: var(--monday-white);
+      color: var(--monday-dark);
+    }
+
+    .slide-light {
+      background: var(--monday-light);
+      color: var(--monday-dark);
+    }
+
+    .slide-purple {
+      background: var(--monday-purple);
+      color: var(--monday-white);
+    }
+
+    .slide-dark {
+      background: var(--monday-dark);
+      color: var(--monday-white);
+    }
+
+    /* Content Container */
+    .content {
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    .content-center {
+      text-align: center;
+    }
+
+    /* Typography */
+    h1 {
+      font-size: 72px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 32px;
+    }
+
+    h2 {
+      font-size: 56px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 32px;
+    }
+
+    h3 {
+      font-size: 32px;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 24px;
+    }
+
+    p {
+      font-size: 24px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .subtitle {
+      font-size: 28px;
+      font-weight: 400;
+      line-height: 1.5;
+      opacity: 0.9;
+    }
+
+    /* Accent Colors */
+    .text-purple {
+      color: var(--monday-purple);
+    }
+
+    .text-green {
+      color: var(--monday-green);
+    }
+
+    /* Lists */
+    ul {
+      list-style: none;
+      font-size: 24px;
+      line-height: 1.8;
+    }
+
+    ul li {
+      margin-bottom: 16px;
+      padding-left: 40px;
+      position: relative;
+    }
+
+    ul li:before {
+      content: "●";
+      color: var(--monday-purple);
+      position: absolute;
+      left: 0;
+      font-size: 28px;
+    }
+
+    .slide-purple ul li:before,
+    .slide-dark ul li:before {
+      color: var(--monday-white);
+    }
+
+    /* Two Column Layout */
+    .two-column {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    /* Navigation */
+    .nav {
+      position: fixed;
+      bottom: 40px;
+      right: 40px;
+      display: flex;
+      gap: 16px;
+      z-index: 1000;
+    }
+
+    .nav button {
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .nav button:hover {
+      background: var(--monday-purple);
+      color: var(--monday-white);
+      transform: scale(1.1);
+    }
+
+    /* Slide Counter */
+    .counter {
+      position: fixed;
+      bottom: 40px;
+      left: 40px;
+      color: var(--monday-dark);
+      font-size: 18px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 12px 24px;
+      border-radius: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+    }
+
+    /* Logo (top-left) */
+    .logo {
+      position: absolute;
+      top: 40px;
+      left: 40px;
+      font-size: 24px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-dots {
+      display: flex;
+      gap: 4px;
+    }
+
+    .logo-dots span {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .dot-red { background: var(--monday-red); }
+    .dot-yellow { background: var(--monday-yellow); }
+    .dot-green { background: var(--monday-green); }
+
+    /* Image placeholder */
+    .image-placeholder {
+      background: var(--monday-light);
+      border-radius: 12px;
+      height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: var(--monday-dark);
+      opacity: 0.6;
+    }
+
+    @media (max-width: 1024px) {
+      .slide {
+        padding: 40px;
+      }
+
+      h1 {
+        font-size: 48px;
+      }
+
+      h2 {
+        font-size: 36px;
+      }
+
+      p, ul {
+        font-size: 18px;
+      }
+
+      .two-column {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Slide 1: Title Slide -->
+  <div class="slide active slide-purple">
+    <div class="logo">
+      <div class="logo-dots">
+        <span class="dot-red"></span>
+        <span class="dot-yellow"></span>
+        <span class="dot-green"></span>
+      </div>
+      <span>monday.com</span>
+    </div>
+    <div class="content content-center">
+      <h1>Work without limits</h1>
+      <p class="subtitle">One platform for every team, project, and workflow</p>
+    </div>
+  </div>
+
+  <!-- Slide 2: Problem Statement -->
+  <div class="slide slide-white">
+    <div class="content">
+      <h2>Teams are drowning in tools</h2>
+      <ul>
+        <li>Projects scattered across multiple platforms</li>
+        <li>Hours wasted chasing status updates</li>
+        <li>No single source of truth for your work</li>
+        <li>Teams working in silos, not aligned</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Slide 3: Solution (Two Column) -->
+  <div class="slide slide-light">
+    <div class="content two-column">
+      <div>
+        <h2>One platform that scales with you</h2>
+        <p>Build workflows that match how your team works. Track everything in one place. Automate the repetitive stuff.</p>
+        <p>From 10 to 10,000 team members, monday.com grows with your needs.</p>
+      </div>
+      <div class="image-placeholder">
+        [Product Screenshot]
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 4: Features -->
+  <div class="slide slide-white">
+    <div class="content">
+      <h2>Everything you need in one place</h2>
+      <div class="two-column">
+        <div>
+          <h3><span class="text-purple">●</span> Customizable workflows</h3>
+          <p>Build boards that match your process. No coding required.</p>
+
+          <h3><span class="text-purple">●</span> Powerful automations</h3>
+          <p>Set it once, let monday.com handle the rest.</p>
+        </div>
+        <div>
+          <h3><span class="text-purple">●</span> Real-time dashboards</h3>
+          <p>See progress across every project at a glance.</p>
+
+          <h3><span class="text-purple">●</span> 200+ integrations</h3>
+          <p>Connect the tools you already use.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 5: Social Proof -->
+  <div class="slide slide-purple">
+    <div class="content content-center">
+      <h2>Trusted by 150,000+ teams worldwide</h2>
+      <p class="subtitle" style="margin-top: 48px;">
+        "monday.com helped us scale from 50 to 500 people without losing visibility into our projects."
+      </p>
+      <p style="font-size: 20px; margin-top: 24px; opacity: 0.9;">
+        — Operations Director, Canva
+      </p>
+    </div>
+  </div>
+
+  <!-- Slide 6: Call to Action -->
+  <div class="slide slide-dark">
+    <div class="content content-center">
+      <h2>Ready to transform how your team works?</h2>
+      <p class="subtitle" style="margin-top: 32px;">
+        Start free today. No credit card required.
+      </p>
+      <div style="margin-top: 64px; font-size: 28px; color: var(--monday-white);">
+        <strong>monday.com</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="nav">
+    <button onclick="prevSlide()" aria-label="Previous slide">←</button>
+    <button onclick="nextSlide()" aria-label="Next slide">→</button>
+  </div>
+
+  <!-- Slide Counter -->
+  <div class="counter">
+    <span id="current">1</span> / <span id="total">6</span>
+  </div>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+
+    document.getElementById('total').textContent = totalSlides;
+
+    function showSlide(n) {
+      slides[currentSlide].classList.remove('active');
+      currentSlide = (n + totalSlides) % totalSlides;
+      slides[currentSlide].classList.add('active');
+      document.getElementById('current').textContent = currentSlide + 1;
+    }
+
+    function nextSlide() {
+      showSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      showSlide(currentSlide - 1);
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        prevSlide();
+      }
+    });
+
+    // Prevent spacebar from scrolling
+    window.addEventListener('keydown', function(e) {
+      if (e.key === ' ' && e.target === document.body) {
+        e.preventDefault();
+      }
+    });
+  </script>
+
+  <!-- ===== MONDAY.COM PRESENTATION GUIDELINES ===== -->
+  <!--
+    SLIDE STRUCTURE:
+
+    Title Slide:
+    - Purple background (or product color)
+    - Large headline (Poppins Bold, 72px)
+    - Subtitle (Poppins Regular, 28px)
+    - Logo in top-left (three dots + wordmark)
+
+    Content Slides:
+    - White or light purple backgrounds
+    - Clear hierarchy (H2 56px, body 24px)
+    - Generous whitespace (80px padding)
+    - 2-3 bullet points max per slide
+
+    Closing Slide:
+    - Dark or purple background
+    - Clear call to action
+    - Contact info or logo
+
+    TYPOGRAPHY:
+    - Headlines: Poppins Bold (56-72px)
+    - Subheadings: Poppins Semi-bold (32px)
+    - Body: Poppins Regular (24px)
+    - All text sentence case, no periods on headlines
+
+    COLORS:
+    - Title slides: Purple or product color backgrounds
+    - Content slides: White or light purple
+    - Accents: Purple bullets, purple text highlights
+    - Closing: Dark or purple
+
+    NAVIGATION:
+    - Arrow keys: Left/Right to navigate
+    - Space bar: Next slide
+    - Click buttons: Previous/Next
+    - Slide counter: Bottom-left
+
+    ACCESSIBILITY:
+    - High contrast text (white on purple, dark on white)
+    - Clear focus states on buttons
+    - Keyboard navigation support
+    - Semantic HTML
+
+    CUSTOMIZATION:
+    - Work Management: Purple backgrounds, purple accents
+    - CRM: Turquoise backgrounds, mix purple
+    - dev: Green accents, dark backgrounds ok
+    - service: Red accents, energetic colors
+
+    BEST PRACTICES:
+    - One idea per slide
+    - Large, readable text (24px minimum)
+    - Minimal bullet points (3-5 max)
+    - Use images/screenshots where helpful
+    - Keep animations simple (none by default)
+    - Test on projector/large screen
+
+    TO CUSTOMIZE:
+    1. Replace content with your messaging
+    2. Update colors for product context
+    3. Add images in placeholders
+    4. Adjust slide count (update total in counter)
+    5. Review all copy for sentence case and tone
+  -->
+
+</body>
+</html>

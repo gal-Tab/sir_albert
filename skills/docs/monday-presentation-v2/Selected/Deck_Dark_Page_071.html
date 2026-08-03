@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4 Stats Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        .slide-container {
+            width: 70vw;
+            max-width: 1344px;
+        }
+
+        .title {
+            font-size: var(--text-h3);
+            font-weight: var(--weight-medium);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 1.5vw;
+            margin-top: 4vh;
+        }
+
+        .stat-box {
+            background-color: var(--color-surface);
+            border-radius: var(--radius-sm);
+            padding: 2.5vw 3vw;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 2vw;
+        }
+
+        .stat-number {
+            font-size: var(--text-display);
+            font-weight: 200;
+            line-height: 1;
+            flex: 0 0 35%;
+        }
+
+        .stat-description {
+            font-size: var(--text-body);
+            font-weight: var(--weight-regular);
+            line-height: 1.5;
+            color: #E0E0E0;
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .slide-container {
+                width: 90vw;
+            }
+            .title {
+                font-size: 4vw;
+            }
+            .stats-grid {
+                gap: 3vw;
+            }
+            .stat-box {
+                padding: 4vw 5vw;
+                gap: 4vw;
+                border-radius: 2vw;
+            }
+            .stat-number {
+                font-size: 10vw;
+            }
+            .stat-description {
+                font-size: 2.2vw;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <h1 class="title">4 stats – Add your title here</h1>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <span class="stat-number">75%</span>
+                <p class="stat-description">Lorem ipsum dolor sit amet consectetur adipiscing elit, et dolore magna aliqua.</p>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number">80%</span>
+                <p class="stat-description">Lorem ipsum dolor sit amet consectetur adipiscing elit, et dolore magna aliqua.</p>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number">97%</span>
+                <p class="stat-description">Lorem ipsum dolor sit amet consectetur adipiscing elit, et dolore magna aliqua.</p>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number">84%</span>
+                <p class="stat-description">Lorem ipsum dolor sit amet consectetur adipiscing elit, et dolore magna aliqua.</p>
+            </div>
+        </div>
+    </div>
+<script src="entrance-animations.js"></script>
+</body>
+</html>

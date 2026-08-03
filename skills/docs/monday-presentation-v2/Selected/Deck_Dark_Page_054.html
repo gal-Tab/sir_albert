@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentation Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        :root {
+            --base-unit: 1vmin;
+        }
+
+        .title {
+            position: absolute;
+            top: 12vmin;
+            left: 12vmin;
+            font-size: var(--text-h2);
+            font-weight: var(--weight-medium);
+            letter-spacing: 0.02em;
+        }
+
+        .chart-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 1px;
+            height: 1px;
+        }
+        
+        .chart {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            width: 48vmin;
+            height: 48vmin;
+        }
+
+        .ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+        }
+
+        .ring.outer {
+            width: 48vmin;
+            height: 48vmin;
+            background-color: var(--color-purple);
+        }
+
+        .ring.middle {
+            width: 34vmin;
+            height: 34vmin;
+            background-color: var(--color-purple-light);
+        }
+
+        .ring.inner {
+            width: 16vmin;
+            height: 16vmin;
+            background-color: var(--color-bg);
+        }
+
+        .annotation {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .annotation .value {
+            font-size: var(--text-h3);
+            font-weight: var(--weight-semibold);
+            margin-bottom: var(--space-1);
+        }
+
+        .annotation .description {
+            font-size: var(--text-body-sm);
+            font-weight: var(--weight-light);
+            line-height: 1.25;
+            max-width: 30ch;
+        }
+
+        .annotation-left {
+            top: 50%;
+            right: calc(50% + 17vmin);
+            transform: translateY(-50%);
+            flex-direction: row-reverse;
+        }
+
+        .annotation-left .text-content {
+            text-align: right;
+        }
+        
+        .annotation-top-right {
+            top: calc(50% - 15vmin);
+            left: calc(50% + 18vmin);
+            transform: translateY(-50%);
+        }
+
+        .annotation-bottom-right {
+            top: calc(50% + 15vmin);
+            left: calc(50% + 18vmin);
+            transform: translateY(-50%);
+        }
+
+        .line-svg {
+            stroke: var(--color-text);
+            stroke-width: 1;
+            fill: none;
+            overflow: visible;
+        }
+
+    </style>
+</head>
+<body>
+    <svg style="position: absolute; width: 0; height: 0; overflow: hidden;">
+        <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"></path>
+            </marker>
+            <marker id="dot" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="8" markerHeight="8">
+                <circle cx="5" cy="5" r="4.5" fill="currentColor"></circle>
+            </marker>
+        </defs>
+    </svg>
+
+    <div class="slide-container">
+        <h1 class="title">Add your title here</h1>
+
+        <div class="chart-container">
+            <div class="chart">
+                <div class="ring outer"></div>
+                <div class="ring middle"></div>
+                <div class="ring inner"></div>
+            </div>
+
+            <div class="annotation annotation-left">
+                <svg class="line-svg" width="12vmin" height="1vmin" viewBox="0 0 120 10">
+                    <path d="M 115 5 L 5 5" marker-start="url(#dot)" marker-end="url(#arrow)"></path>
+                </svg>
+                <div class="text-content">
+                    <p class="value">6.4M</p>
+                    <p class="description">Dapibus ultrices in iaculis nunc. Sit amet tellus cras adipiscing.</p>
+                </div>
+            </div>
+
+            <div class="annotation annotation-top-right">
+                <svg class="line-svg" width="14vmin" height="8vmin" viewBox="0 0 140 80">
+                    <path d="M 5 75 L 135 5" marker-start="url(#dot)" marker-end="url(#arrow)"></path>
+                </svg>
+                <div class="text-content">
+                    <p class="value">2.1M</p>
+                    <p class="description">Dapibus ultrices in iaculis nunc. Sit amet tellus cras adipiscing.</p>
+                </div>
+            </div>
+            
+            <div class="annotation annotation-bottom-right">
+                 <svg class="line-svg" width="14vmin" height="8vmin" viewBox="0 0 140 80">
+                    <path d="M 5 5 L 135 75" marker-start="url(#dot)" marker-end="url(#arrow)"></path>
+                </svg>
+                <div class="text-content">
+                    <p class="value">7.8M</p>
+                    <p class="description">Dapibus ultrices in iaculis nunc. Sit amet tellus cras adipiscing.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+<script src="entrance-animations.js"></script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentation Slide</title>
+    <link rel="stylesheet" href="design-system.css">
+    <style>
+        :root {
+            --circle-inner-color: #1A1A38;
+        }
+
+        body {
+            font-weight: var(--weight-light);
+        }
+
+        .slide-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-left {
+            width: 45%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-right: var(--space-9);
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: var(--text-h2);
+            font-weight: var(--weight-medium);
+            margin: 0 0 var(--space-4) 0;
+            line-height: 1.2;
+        }
+
+        .content-left p {
+            font-size: var(--text-h4);
+            line-height: 1.6;
+            margin: 0 0 var(--space-5) 0;
+        }
+
+        .content-left ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: var(--text-h4);
+            line-height: 1.6;
+        }
+
+        .content-left li {
+            position: relative;
+            padding-left: var(--space-5);
+            margin-bottom: var(--space-4);
+        }
+
+        .content-left li:last-child {
+            margin-bottom: 0;
+        }
+
+        .content-left li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            top: 0.1em;
+            font-size: 1.5em;
+            line-height: 1;
+        }
+
+        .content-right {
+            width: 55%;
+            height: 100%;
+            position: relative;
+        }
+
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            aspect-ratio: 1;
+        }
+
+        .circle-outer {
+            height: 75%;
+            background-color: var(--color-surface);
+            top: 50%;
+            left: 50%;
+        }
+
+        .circle-middle {
+            height: 57%;
+            background-color: var(--color-purple);
+            top: 42%;
+            left: 42%;
+        }
+
+        .circle-inner {
+            height: 40%;
+            background-color: var(--circle-inner-color);
+            top: 35%;
+            left: 42%;
+        }
+
+        .text-group {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            line-height: 1.4;
+            transform: translate(-50%, -50%);
+        }
+
+        .text-group strong {
+            font-size: var(--text-body);
+            font-weight: var(--weight-semibold);
+            margin-bottom: var(--space-1);
+            letter-spacing: 0.05em;
+        }
+
+        .text-group span {
+            font-size: var(--text-body);
+            font-weight: var(--weight-light);
+        }
+
+        .text-inner {
+            top: 35%;
+            left: 42%;
+        }
+
+        .text-middle {
+            top: 53%;
+            left: 42%;
+        }
+
+        .text-outer {
+            top: 78%;
+            left: 50%;
+        }
+    </style>
+</head>
+<body>
+    <main class="slide-container">
+        <div class="content-left">
+            <h1>Add your title here</h1>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            <ul>
+                <li>Mi quis hendrerit dolor magna eget est.</li>
+                <li>At urna condimentum mattis pellentesque id<br>nibh tortor id,</li>
+                <li>Et sollicitudin ac orci phasellus egestas tellus<br>rutrum tellus.</li>
+            </ul>
+        </div>
+        <div class="content-right">
+            <div class="circle circle-outer"></div>
+            <div class="circle circle-middle"></div>
+            <div class="circle circle-inner"></div>
+
+            <div class="text-group text-inner">
+                <strong>LOREM IPSUM</strong>
+                <span>Dolor sit amet consectetur.</span>
+            </div>
+            <div class="text-group text-middle">
+                <strong>LOREM IPSUM</strong>
+                <span>Dolor sit amet consectetur.</span>
+            </div>
+            <div class="text-group text-outer">
+                <strong>LOREM IPSUM</strong>
+                <span>Dolor sit amet consectetur.</span>
+            </div>
+        </div>
+    </main>
+<script src="entrance-animations.js"></script>
+</body>
+</html>

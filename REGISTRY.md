@@ -43,6 +43,8 @@ Skills that generate interactive HTML documents (plans, specs, PRDs).
 |---|---|---|
 | html-plans | `skills/docs/html-plans/` | "write a plan", "implementation steps", "plan this feature" |
 | to-prd | `skills/docs/to-prd/` | "write a PRD", "create a spec", "document this feature" |
+| monday-presentation-v2 | `skills/docs/monday-presentation-v2/` | "create a presentation", "build slides", "make a deck", "slide deck with monday branding" |
+| monday-brand-guidelines | `skills/docs/monday-brand-guidelines/` | "monday brand", "apply monday colors", "monday design identity", monday branding for HTML/charts/marketing/UI |
 
 Shared design system: `shared/references/design-tokens.md` and `shared/references/mermaid-patterns.md`
 
@@ -50,11 +52,13 @@ Shared design system: `shared/references/design-tokens.md` and `shared/reference
 
 ## knowledge — Knowledge Management
 
-Skills for querying the sir_albert wiki knowledge base.
+Knowledge is **inherited, not forked** — the canonical engine is the `llm-wiki-agent` plugin.
 
-| Skill | Path | Trigger phrases |
-|---|---|---|
-| kb-query | `skills/knowledge/kb-query/` | "what do I know about X", "check my wiki", domain questions |
+| Query (via llm-wiki-agent) | Pipeline commands |
+|---|---|
+| `wiki-query` · `learn-recall` · `learn-research` | `/wiki-init` · `/wiki-compile` · `/learn-capture` |
+
+> The legacy `kb-query` fork (was `skills/knowledge/kb-query/`) is **retired and deleted** — superseded by `wiki-query`. See `skills/knowledge/README.md`.
 
 ### Knowledge Pipeline
 
@@ -62,9 +66,9 @@ Skills for querying the sir_albert wiki knowledge base.
 
 ```
 raw/ (source drop zone)
-  ↓  /kb-compile
+  ↓  /wiki-compile          (llm-wiki-agent)
 wiki/ (structured pages: sources/, entities/, concepts/, comparisons/)
-  ↑  /kb-query reads        (skills/knowledge/)
+  ↑  wiki-query reads       (llm-wiki-agent)
   ↑  /kw-compound writes back to raw/   (skills/agentic/)
 ```
 
@@ -76,12 +80,49 @@ Skills for business reasoning, decision-making, and work-management integrations
 
 | Skill | Path | Trigger phrases |
 |---|---|---|
+| discovery-lens | `skills/biz/discovery-lens/` | "brainstorm this", "let's explore", "help me think through X", "sharpen this idea", "attack this idea", "what are we missing", "WDYT", "fresh perspective", "discovery phase", "AI-first perspective" |
 | board-of-advisors | `skills/biz/board-of-advisors/` | "board of advisors", "4 perspectives", "multiple viewpoints" |
 | devils-advocate | `skills/biz/devils-advocate/` | "play devil's advocate", "stress test this", "challenge my idea" |
 | zoom-out | `skills/biz/zoom-out/` | "zoom out", "bigger picture", "how does this fit" |
 | monday-mops-triage | `skills/biz/monday-mops-triage/` | "add a task to MOPs", "open a ticket", "put this in the iteration" |
 | slack-in-my-voice | `skills/biz/slack-in-my-voice/` | "send a Slack", "draft a slack message", "write this for slack" |
 | linkedin-in-my-voice | `skills/biz/linkedin-in-my-voice/` | "write a LinkedIn post", "draft a linkedin post", "כתוב פוסט ללינקדאין" |
+
+---
+
+## core — OS skills
+
+Domain-agnostic OS spine. Every core skill boots from `os/PREAMBLE.md`.
+
+| Skill | Path | Trigger phrases |
+|---|---|---|
+| handoff | `skills/core/handoff/` | "hand this off", "write a handoff", "wrap this session", "prep to /clear" |
+| resume | `skills/core/resume/` | "resume", "pick up where we left off", "load the handoff" |
+| sync | `skills/core/sync/` | "sync", "are we in sync", "merged are we in sync", "post-merge cleanup" |
+| decide | `skills/core/decide/` | "/decide", "we decided", "did we decide X before", "is this already decided" |
+| discover | `skills/core/discover/` | "help me think through X", "let's explore", "which lens", "office hours" |
+| learnings | `skills/core/learnings/` | "learnings", "load past corrections", "canonicalize compound", "before wiki-compile" |
+| freeze | `skills/core/freeze/` | "/freeze", "scope edits to", "/unfreeze" |
+| retro | `skills/core/retro/` | "/retro", "self-improve skills", "review my corrections" |
+
+Hooks (in `hooks/`, activated by adding to `~/.claude/settings.json` — see each skill): `freeze-guard.sh` (PreToolUse, for `/freeze`), `session-record.sh` (SessionEnd, for `/retro`).
+
+---
+
+## packs — Domain Packs
+
+Skills for specific technology domains and platforms.
+
+| Skill | Path | Trigger phrases |
+|---|---|---|
+| ga4-regex | `skills/packs/gtm/ga4-regex/` | "GA4 regex", "regex for page_path", "match these URLs", "exclude this campaign", "RE2", "why doesn't my regex match in GA4", GA4/GTM + regex/pattern/match/exclude/filter |
+| monday-data-viz-vibe | `skills/packs/data/monday-data-viz-vibe/` | monday charts/dashboards in Python (Plotly/Matplotlib), Streamlit, or Tableau with Vibe design system; typography (Figtree), monday color palettes |
+| param-audit | `skills/packs/gtm/param-audit/` | "/param-audit", "audit sGTM params", "check tag parameters", "is_desktop vs monday_is_desktop" |
+| gtm-gate | `skills/packs/gtm/gtm-gate/` | "gtm-gate", "pre-apply check", "validate before apply", "check naming and consent" |
+| build-discipline | `skills/packs/build/build-discipline/` | "build discipline", "how do I build X", "start a new dashboard/wiki/MCP/agent" |
+| data-review | `skills/packs/data/data-review/` | "data-review", "check this dashboard before I share", "data quality check" |
+| n8n-triage | `skills/packs/automation/n8n-triage/` | "/n8n-triage", "n8n execution failed", "debug this n8n run" |
+| hubspot-safety | `skills/packs/automation/hubspot-safety/` | "hubspot safety", "check hubspot api", "hubspot v1 migration" |
 
 ---
 
