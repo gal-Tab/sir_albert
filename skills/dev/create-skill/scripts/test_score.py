@@ -35,6 +35,11 @@ class TestConvergence(unittest.TestCase):
     def test_borderline(self):
         self.assertTrue(is_borderline(0.5))
         self.assertFalse(is_borderline(0.85))
+    def test_borderline_boundaries(self):
+        self.assertTrue(is_borderline(0.4))
+        self.assertTrue(is_borderline(0.6))
+        self.assertFalse(is_borderline(0.39))
+        self.assertFalse(is_borderline(0.61))
 
 class TestReport(unittest.TestCase):
     def _data(self):
@@ -60,6 +65,20 @@ class TestReport(unittest.TestCase):
         out = format_report(r)
         self.assertIsInstance(out, str)
         self.assertIn("baseline", out.lower())
+
+    def test_variance_guard_blocks_threshold(self):
+        # High-variance iteration: scenario 0 passes all, scenario 1 passes 1/3
+        # lift is large enough but scenario 1 is weak -> must NOT stop: threshold
+        data = {
+            "k": 3,
+            "baseline": {"pass_rates": [0.0, 0.0]},
+            "iterations": [
+                {"pass_rates": [1.0, 0.33], "judges": [[1,1,1],[1,0,0]]},
+            ],
+        }
+        r = build_report(data)
+        self.assertEqual(r["iterations"][0]["weak_scenarios"], [1])
+        self.assertNotEqual(r["stop_reason"], "threshold")
 
 if __name__ == "__main__":
     unittest.main()

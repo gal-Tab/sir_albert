@@ -35,6 +35,8 @@ def is_borderline(score, low=0.4, high=0.6):
     return low <= score <= high
 
 TARGET_LIFT = 0.4   # SHOULD default; override per skill
+LOW_AGREE_THRESHOLD = 0.67  # judge-panel majority floor
+MIN_SCENARIO_PASS = 0.67  # per-scenario reliability floor; encodes spec §5.3 "low cross-scenario variance"
 
 def build_report(data, target_lift=TARGET_LIFT):
     k = data["k"]
@@ -48,9 +50,11 @@ def build_report(data, target_lift=TARGET_LIFT):
         se = standard_error(score, n, k)
         history.append(score)
         borderline = [i for i, pr in enumerate(it["pass_rates"]) if is_borderline(pr)]
+        weak = [i for i, pr in enumerate(it["pass_rates"]) if pr < MIN_SCENARIO_PASS]
         low_agree = []
         for i, judges in enumerate(it.get("judges", [])):
-            if judge_agreement(judges) < 1.0 and judge_agreement(judges) <= 0.67:
+            agree = judge_agreement(judges)
+            if agree <= LOW_AGREE_THRESHOLD:
                 low_agree.append(i)
         iters.append({
             "score": score,
@@ -58,9 +62,10 @@ def build_report(data, target_lift=TARGET_LIFT):
             "se": se,
             "plateau": is_plateau(history, se),
             "borderline_scenarios": borderline,
+            "weak_scenarios": weak,
             "low_agreement_scenarios": low_agree,
         })
-        if lift(score, base) >= target_lift and all(not is_borderline(pr) for pr in it["pass_rates"]):
+        if lift(score, base) >= target_lift and not weak:
             stop_reason = "threshold"
             break
         if iters[-1]["plateau"]:
@@ -76,7 +81,7 @@ def format_report(report):
         lines.append(
             f"  iter {i}: score={it['score']:.2f} lift={it['lift']:+.2f} "
             f"se={it['se']:.3f} plateau={it['plateau']} "
-            f"borderline={it['borderline_scenarios']} low_agreement={it['low_agreement_scenarios']}"
+            f"borderline={it['borderline_scenarios']} weak={it['weak_scenarios']} low_agreement={it['low_agreement_scenarios']}"
         )
     lines.append(f"stop: {report['stop_reason']}")
     return "\n".join(lines)

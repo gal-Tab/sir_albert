@@ -112,11 +112,13 @@ skill **absent** (description-only). Record pass rates → baseline score.
    echo '<results-json>' | python3 skills/dev/create-skill/scripts/score.py
    ```
    Read the last line: `stop: <reason>`.
-4. **Surface borderline / low-agreement scenarios INLINE** (do not defer to an end report):
-   - `borderline_scenarios` list (score 0.4–0.6) → ask human: "Scenario N is borderline —
-     is this a real failure or an ambiguous rubric?"
+4. **Surface weak / low-agreement scenarios INLINE** (do not defer to an end report):
+   - `weak_scenarios` list (pass-rate < 0.67) → ask human: "Scenario N is unreliable —
+     fix the skill or tighten the rubric?"
    - `low_agreement_scenarios` list → ask human: "Judges split on scenario N — fix the
      rubric or accept uncertainty?"
+   - `borderline_scenarios` list (score 0.4–0.6, diagnostic at higher k) → ask human:
+     "Scenario N is borderline — is this a real failure or an ambiguous rubric?"
 5. Edit the skill to address failing scenarios. Point edits at the failing scenarios only —
    no blind rewrites.
 6. Repeat until `score.py` reports `stop: threshold` or `stop: plateau`.
