@@ -9,6 +9,10 @@ raw/*.docx
 raw/*.xlsx
 raw/*.pptx
 
+# Python cache
+__pycache__/
+*.pyc
+
 # OS / editor noise
 .DS_Store
 **/.DS_Store
