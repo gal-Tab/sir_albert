@@ -17,3 +17,19 @@ def standard_error(p, n, k):
 
 def lift(candidate, baseline):
     return candidate - baseline
+
+def is_plateau(history, se, patience=2, factor=1.0):
+    if len(history) < patience + 1:
+        return False
+    recent = history[-(patience + 1):]
+    deltas = [abs(recent[i + 1] - recent[i]) for i in range(len(recent) - 1)]
+    return all(d < factor * se for d in deltas)
+
+def judge_agreement(judge_scores):
+    if not judge_scores:
+        raise ValueError("no judges")
+    frac_pass = sum(1 for s in judge_scores if s >= 0.5) / len(judge_scores)
+    return max(frac_pass, 1 - frac_pass)
+
+def is_borderline(score, low=0.4, high=0.6):
+    return low <= score <= high
