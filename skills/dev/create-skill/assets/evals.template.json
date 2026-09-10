@@ -1,0 +1,14 @@
+{
+  "skill": "{{name}}",
+  "type": "discipline|technique|reference",
+  "k": 3,
+  "scenarios": [
+    {
+      "id": "s1",
+      "angle": "{{angle}}",
+      "prompt": "{{scenario prompt}}",
+      "deterministic_check": null,
+      "rubric": "{{pass criteria for judges}}"
+    }
+  ]
+}
