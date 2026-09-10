@@ -1,5 +1,8 @@
 # Convergence — create-skill
 
+<!-- verified 2026-09-10: T1 smoke passed — baseline 0.17 → lift +0.83 → stop: threshold; toy skill (echo-fact) validates exit=0 -->
+
+
 ## Scoring math (§5.2–5.3)
 
 Run each scenario k times against a **fresh** agent with the candidate skill in context.
