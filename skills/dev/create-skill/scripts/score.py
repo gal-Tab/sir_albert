@@ -1,4 +1,4 @@
-import math
+import json, sys, math
 
 def scenario_pass_rate(passes, k):
     if k <= 0:
@@ -33,3 +33,57 @@ def judge_agreement(judge_scores):
 
 def is_borderline(score, low=0.4, high=0.6):
     return low <= score <= high
+
+TARGET_LIFT = 0.4   # SHOULD default; override per skill
+
+def build_report(data, target_lift=TARGET_LIFT):
+    k = data["k"]
+    base = skill_score(data["baseline"]["pass_rates"])
+    history = [base]
+    iters = []
+    stop_reason = "in_progress"
+    for it in data["iterations"]:
+        n = len(it["pass_rates"])
+        score = skill_score(it["pass_rates"])
+        se = standard_error(score, n, k)
+        history.append(score)
+        borderline = [i for i, pr in enumerate(it["pass_rates"]) if is_borderline(pr)]
+        low_agree = []
+        for i, judges in enumerate(it.get("judges", [])):
+            if judge_agreement(judges) < 1.0 and judge_agreement(judges) <= 0.67:
+                low_agree.append(i)
+        iters.append({
+            "score": score,
+            "lift": lift(score, base),
+            "se": se,
+            "plateau": is_plateau(history, se),
+            "borderline_scenarios": borderline,
+            "low_agreement_scenarios": low_agree,
+        })
+        if lift(score, base) >= target_lift and all(not is_borderline(pr) for pr in it["pass_rates"]):
+            stop_reason = "threshold"
+            break
+        if iters[-1]["plateau"]:
+            stop_reason = "plateau"
+            break
+    else:
+        stop_reason = "budget"
+    return {"baseline_score": base, "iterations": iters, "stop_reason": stop_reason}
+
+def format_report(report):
+    lines = [f"baseline score: {report['baseline_score']:.2f}"]
+    for i, it in enumerate(report["iterations"]):
+        lines.append(
+            f"  iter {i}: score={it['score']:.2f} lift={it['lift']:+.2f} "
+            f"se={it['se']:.3f} plateau={it['plateau']} "
+            f"borderline={it['borderline_scenarios']} low_agreement={it['low_agreement_scenarios']}"
+        )
+    lines.append(f"stop: {report['stop_reason']}")
+    return "\n".join(lines)
+
+def main():
+    data = json.load(sys.stdin)
+    print(format_report(build_report(data)))
+
+if __name__ == "__main__":
+    main()

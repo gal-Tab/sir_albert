@@ -1,5 +1,5 @@
 import unittest, math
-from score import scenario_pass_rate, skill_score, standard_error, lift, is_plateau, judge_agreement, is_borderline
+from score import scenario_pass_rate, skill_score, standard_error, lift, is_plateau, judge_agreement, is_borderline, build_report, format_report
 
 class TestMetrics(unittest.TestCase):
     def test_pass_rate(self):
@@ -35,6 +35,31 @@ class TestConvergence(unittest.TestCase):
     def test_borderline(self):
         self.assertTrue(is_borderline(0.5))
         self.assertFalse(is_borderline(0.85))
+
+class TestReport(unittest.TestCase):
+    def _data(self):
+        return {
+            "k": 3,
+            "baseline": {"pass_rates": [0.33, 0.33]},
+            "iterations": [
+                {"pass_rates": [0.33, 0.67], "judges": [[1,0,0],[1,1,0]]},
+                {"pass_rates": [1.0, 1.0],  "judges": [[1,1,1],[1,1,1]]},
+            ],
+        }
+    def test_baseline_score(self):
+        r = build_report(self._data())
+        self.assertAlmostEqual(r["baseline_score"], 0.33)
+    def test_lift_computed_vs_baseline(self):
+        r = build_report(self._data())
+        self.assertAlmostEqual(r["iterations"][-1]["lift"], 1.0 - 0.33, places=2)
+    def test_stop_reason_present(self):
+        r = build_report(self._data())
+        self.assertIn(r["stop_reason"], {"threshold", "plateau", "budget", "in_progress"})
+    def test_format_report_is_text(self):
+        r = build_report(self._data())
+        out = format_report(r)
+        self.assertIsInstance(out, str)
+        self.assertIn("baseline", out.lower())
 
 if __name__ == "__main__":
     unittest.main()
