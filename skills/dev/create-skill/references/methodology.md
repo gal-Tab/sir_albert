@@ -40,3 +40,30 @@ The benchmark loop is expensive. Tiers gate how much of it to run:
 The loop is central to all tiers; the tier only decides how much of it to run.
 
 **T2 commitment:** evals are committed for T2/discipline skills; throwaway for T1. k = 3 reps per scenario.
+
+---
+
+## Council / multi-voice skills
+
+Skills that run several named personas against the same input (councils, boards, critic
+panels) get their own scaffolding shape, distinct from the discipline/technique/reference
+rigor tiers above:
+
+- **One file per persona** in `agents/<persona>.md` — character profile only (background,
+  core belief, signature moves), ending in a `{{placeholder}}` dispatch block. This mirrors
+  how `create-skill` already dispatches its own `agents/judge.md` and
+  `agents/author-{discipline,technique,reference}.md`: each is a self-contained prompt filled
+  in at call time, not a shared include.
+- **The orchestrator SKILL.md does everything cross-cutting**: persona selection, building
+  each dispatch prompt, sending all selected personas as parallel, independent Agent-tool
+  calls (fresh subagent per persona, blind to the others), and labeling the returned
+  responses. This keeps personas swappable and addable without touching orchestration logic.
+- **Cross-persona behavior (tone, mode, output shape) is a placeholder, not a copy-paste.**
+  If every persona needs the same instruction (e.g. "respond in 2–4 sentences," or a mode
+  switch like explore/sharpen/attack), define it once in the orchestrator and fill it into
+  each persona file's placeholder at dispatch time — don't restate it in all N persona files.
+- Independent parallel dispatch (personas blind to each other) is the default — it avoids one
+  persona anchoring on another's framing. Only make personas visible to each other
+  (sequential dispatch) if the skill's value is explicitly the cross-talk.
+
+Worked example: `skills/biz/discovery-lens/` (8 personas, mode-driven dispatch).
