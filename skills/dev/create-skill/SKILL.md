@@ -51,6 +51,15 @@ spec + superpowers):
 > Lead with triggering conditions ("Use when …"); add at most one short *what* clause.
 > Never narrate the workflow. Enforced empirically by the discoverability agent.
 
+**Council / multi-voice skills:** if the skill's job is to run several named personas against
+the same input (a "council," "board," panel of critics, etc.), scaffold one persona per file
+under `agents/<persona>.md` — character/profile only, ending in a `{{placeholder}}` dispatch
+block, exactly like this skill's own `agents/judge.md` and `agents/author-discipline.md`.
+The orchestrator SKILL.md owns selection, parallel Agent-tool dispatch (fresh, blind
+subagents), and response labeling. Any behavior that applies across all personas (tone,
+mode, output constraints) is filled in via a placeholder at dispatch time — never copy-pasted
+into every persona file. See `skills/biz/discovery-lens/` for a worked example.
+
 ### Step 4 — Validate (BLOCKING)
 
 Run before proceeding:

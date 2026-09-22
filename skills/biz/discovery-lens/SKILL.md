@@ -1,15 +1,13 @@
 ---
 name: discovery-lens
 description: >
-  AUTO-LOAD during any brainstorm, discovery, or ideation moment. Convene a council of sharp,
-  opinionated thinkers to explore, sharpen, or attack an idea from multiple angles — challenging
-  assumptions, surfacing blind spots, and finding unexplored directions. Fire immediately (without
-  waiting for an explicit slash command) whenever the user: says "brainstorm this", "let's explore",
-  "help me think through X", "sharpen this idea", "attack this idea", "what are we missing",
-  "WDYT", "fresh perspective", "AI-first perspective", "discovery phase", "explore this with me",
-  "challenge this idea", or is clearly entering a discovery / early-thinking phase on a product,
-  technical, GTM, or strategic idea. Also use when the user wants multiple viewpoints, stress-tests
-  a concept, or asks what sharp thinkers would say about an idea.
+  Use when the user says "brainstorm this", "let's explore", "help me think through X",
+  "sharpen this idea", "attack this idea", "what are we missing", "WDYT", "fresh perspective",
+  "AI-first perspective", "discovery phase", "explore this with me", "challenge this idea",
+  wants multiple viewpoints or a stress test on a concept, or is entering a discovery /
+  early-thinking phase on a product, technical, GTM, or strategic idea — fires immediately,
+  without waiting for an explicit slash command. Convenes 2–3 sharp, opinionated voices to
+  explore, sharpen, or attack the idea from multiple angles.
 ---
 
 # Discovery Lens
@@ -26,9 +24,10 @@ Choose the mode that fits the user's intent, or ask if unclear:
 
 Default to `explore` if not specified.
 
-## The Council — 5 Voices
+## The Council — 8 Voices
 
-Read `references/voices.md` for full character profiles and the voice selection guide.
+Each voice is a standalone agent prompt in `agents/`. Read `references/voices.md` for the
+full selection index and idea-type guide.
 
 | Voice | Core lens |
 |-------|-----------|
@@ -37,16 +36,25 @@ Read `references/voices.md` for full character profiles and the voice selection 
 | **Andrej Karpathy** | Where does this land in 3 years? First principles + actual trajectory of software |
 | **Shreyas Doshi** | Are you solving the right problem for the right user? Output vs. outcome |
 | **Patrick Collison** | Is this thinking big enough? Ambitious + rigorous, what does global scale look like |
+| **Elena Verna** | Does this loop or compound, or die when you stop pushing it? Growth systems over campaigns |
+| **Ron Kohavi** | Is that a real effect? Counterfactuals, causal rigor, metric-gaming skepticism |
+| **Michael Seibel** | What's stopping you from testing this today? Execution bias, anti-overthinking |
 
-**Voice selection:** See `references/voices.md` for the selection guide by idea type. Default: include at least one "market" voice (YC or Shreyas) and one "craft" voice (Boris or Karpathy).
+**Voice selection:** See `references/voices.md` for the selection guide by idea type. Default: include at least one "market" voice (YC, Verna, or Shreyas) and one "craft" voice (Boris or Karpathy).
 
 ## Workflow
 
-1. **Read the idea.** Identify type: product, technical, GTM, or strategy.
+1. **Read the idea.** Identify type: product, technical, GTM, growth/metrics, or strategy.
 2. **Select 2–3 voices** most relevant to the idea type. State which voices are present and why.
-3. **Run each voice** in character — sharp, direct, 2–4 sentences. Label clearly: `**[Voice Name]:**`
-4. **Close with a drill-down prompt** — one question pointing to the most interesting unresolved tension.
-5. **Offer** to add a voice, switch mode, or go deeper on any thread.
+3. **Dispatch each selected voice in parallel via the Agent tool** — one fresh, tool-less
+   subagent per voice, all sent in a single message, each blind to the others' responses.
+   For each voice, take the full contents of `agents/<voice>.md` and fill in:
+   - `{{idea}}` — the user's idea, verbatim
+   - `{{mode_instruction}}` — the sentence from the active mode's row in **Modes** above
+   Use the filled template as that subagent's prompt.
+4. **Collect each subagent's raw statement** and label it: `**[Voice Name]:**`
+5. **Close with a drill-down prompt** — one question pointing to the most interesting unresolved tension between the voices' responses.
+6. **Offer** to add a voice, switch mode, or go deeper on any thread.
 
 ## Output Format
 
