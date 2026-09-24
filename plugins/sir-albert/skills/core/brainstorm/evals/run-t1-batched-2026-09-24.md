@@ -1,4 +1,6 @@
-# T2 Full Panel — brainstorm — 2026-09-24
+> **Relabelled 2026-09-24 (coordinator audit): NOT a valid T2.** Baseline and skill-present reps were role-played in batched single-context Haiku agents (several skills per agent), judges were batched, and this report was written by a subagent. Treat the scores as T1-smoke signal only. Real evaluation is the W4 replay of past-session prompts, plus T2 for the 5 discipline skills.
+
+# T1 (batched, role-played) — — brainstorm — 2026-09-24
 
 ## Method
 - **Angles:** Discoverability (mode routing precision), Red-team (explicit-arg override, grill one-question constraint), Structural validator

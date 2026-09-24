@@ -1,4 +1,6 @@
-# T2 Full Panel — freeze — 2026-09-24
+> **Relabelled 2026-09-24 (coordinator audit): NOT a valid T2.** Baseline and skill-present reps were role-played in batched single-context Haiku agents (several skills per agent), judges were batched, and this report was written by a subagent. Treat the scores as T1-smoke signal only. Real evaluation is the W4 replay of past-session prompts, plus T2 for the 5 discipline skills.
+
+# T1 (batched, role-played) — — freeze — 2026-09-24
 
 ## Method
 - **Angles:** Activation flow (technique), Outside-path block (discipline), Trigger recognition
