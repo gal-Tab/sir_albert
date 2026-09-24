@@ -8,6 +8,9 @@ The following skills in this `dev/` category were ported from
 - `grilling`
 - `domain-modeling`
 - `claude-handoff` (adapted: added execution vs. plan/discovery mode selection, a model prompt before launch, and switched the launch command to the `claude` CLI's `--permission-mode` flag)
+- `core/execute` — ported from `mattpocock/skills` `skills/in-progress/implement-spec/SKILL.md`; adapted: optional worktrees, hard CHECKPOINT gates before push/PR/merge/deploy, Sonnet subagents, coordinator stays in main context.
+- `core/debug` — ported from `mattpocock/skills` `skills/engineering/diagnosing-bugs/SKILL.md`; adapted: redaction rule, non-deterministic bug handling (≥50% repro rate), condensed phase structure (feedback-loop → hypothesis → fix → verify → close).
+- `core/build` (§TDD section) — ported from `mattpocock/skills` `skills/engineering/tdd/SKILL.md`; adapted: seam-confirmation step, vertical-slice emphasis, inline absorption into the build-discipline loop.
 
 ## MIT License
 
