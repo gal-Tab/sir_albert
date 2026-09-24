@@ -28,7 +28,7 @@ Cross-cutting angles are mandatory for every run regardless of skill type. They 
 Pick angles at classification time based on:
 
 1. **Skill type** — determines the type-specific menu above.
-2. **Failure mode** — "match the form to the failure" (per `superpowers:writing-skills`). Pressure angle matters most for discipline skills prone to rationalization; Gap angle matters most for reference skills with known coverage holes.
+2. **Failure mode** — "match the form to the failure" (see `SKILL.md §SDO rules`). Pressure angle matters most for discipline skills prone to rationalization; Gap angle matters most for reference skills with known coverage holes.
 3. **Budget** — T1 smoke runs use one type-specific angle + Structural validator. T2 full panel runs the full dynamic selection up to cap.
 4. **Novel domains** — when the skill covers unfamiliar territory, favor Transfer (technique) or Gap (reference) to surface blind spots.
 

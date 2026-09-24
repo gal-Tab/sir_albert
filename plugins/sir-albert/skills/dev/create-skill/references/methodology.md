@@ -13,7 +13,7 @@
 | 5 | **No ROI gate on the expensive loop** — "5+ reps" with no when-worth-it | **Tier gate** decides whether to invest in a scored benchmark at all |
 | 6 | **Violates its own token/naming guidance** (~500+ lines, Claude-centric) | Lean SKILL.md; heavy content in `references/`; portable spec output |
 
-For discipline-skill psychology (SDO, rationalization tables, red-flags, "match the form to the failure," anti-narrative): read **`superpowers:writing-skills`** directly. This skill does not duplicate it.
+For discipline-skill psychology (SDO, rationalization tables, red-flags, "match the form to the failure," anti-narrative): the key rules are **inlined in `SKILL.md §SDO rules`**. This is the authoritative copy; no external skill load required.
 
 ---
 

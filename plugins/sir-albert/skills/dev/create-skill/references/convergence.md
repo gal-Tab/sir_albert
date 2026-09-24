@@ -29,7 +29,7 @@ Stop iterating when **any** of these is true:
 | **Plateau** | Δ < noise band (1–2 SE) for 2 straight iterations → change tactics, do not add reps |
 | **Budget cap** | Token/time budget exhausted |
 
-Plateau is the core fix over `superpowers:writing-skills`'s unbounded "5+ reps." Hitting a plateau means the current approach is stuck — the next action is to change the angle or rewrite a failing scenario, not repeat.
+Plateau is the core fix over unbounded "5+ reps" iteration. Hitting a plateau means the current approach is stuck — the next action is to change the angle or rewrite a failing scenario, not repeat.
 
 **Per-scenario diagnostics** point the next edit at failing scenarios. No blind rewrites.
 

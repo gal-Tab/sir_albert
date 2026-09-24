@@ -5,9 +5,18 @@ description: Use when authoring a new skill, editing a skill, or when a skill mu
 
 # create-skill
 
-**REQUIRED BACKGROUND:** Load `superpowers:writing-skills` before proceeding with any
-discipline skill (SDO thinking, rationalization tables, anti-narrative patterns). This skill
-keeps that psychology and replaces its unmeasured loop with the scored one below.
+**SDO rules (inlined — no external load required):**
+
+- **Match the form to the failure.** Discipline skills exist because humans rationalize rules
+  away under pressure. The check must be automatic (validator), not advisory (checklist).
+- **Rationalization table.** For each enforced rule, identify the 3 most common rationalizations
+  ("it's obvious," "just this once," "special case") and name why they fail. If you hear one,
+  apply the rule *harder*.
+- **Anti-narrative description.** The `description:` field states *when* to use the skill and
+  at most one *what* clause. It never narrates the workflow step by step. Enforced empirically
+  by the discoverability agent, not by fiat.
+- **Red flags:** "it's obvious" · "everyone knows" · "just once" · "special case this time"
+  → treat each as a signal to apply the discipline rule harder, not to relax it.
 
 ---
 
@@ -46,7 +55,7 @@ any bundled files needed (scripts, references, assets).
 ### Step 3 — Scaffold
 
 Build the skill directory from `assets/SKILL.template.md`. Description rule (reconciled from
-spec + superpowers):
+spec; see §SDO rules above):
 
 > Lead with triggering conditions ("Use when …"); add at most one short *what* clause.
 > Never narrate the workflow. Enforced empirically by the discoverability agent.
@@ -163,8 +172,8 @@ orchestration overhead not warranted for most skills.
 
 ## Cross-references
 
-- [`references/methodology.md`](references/methodology.md) — corrected method, the
-  superpowers:writing-skills challenge rationale, and why each fix was made.
+- [`references/methodology.md`](references/methodology.md) — corrected method, prior
+  challenge rationale, and why each fix was made.
 - [`references/angles.md`](references/angles.md) — full angle catalog by skill type with
   dispatch instructions.
 - [`references/convergence.md`](references/convergence.md) — scoring math, noise band,

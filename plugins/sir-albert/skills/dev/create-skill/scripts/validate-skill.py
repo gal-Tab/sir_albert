@@ -3,7 +3,7 @@
 
 Validates a SKILL.md at ANY path (not restricted to the sir_albert plugin root).
 - Structural rules (agentskills.io spec): BLOCK on violation (PreToolUse/Write, exit 2).
-- Quality rules (superpowers:writing-skills SDO): WARN only (never block).
+- Quality rules (see references/methodology.md §SDO): WARN only (never block).
 
 Fail-open by design: any unexpected error -> exit 0, so a bug here never
 bricks all edits (same philosophy as freeze-guard.sh).
