@@ -12,14 +12,12 @@
     "skills-library"
   ],
   "skills": [
-    "./skills/agentic",
     "./skills/dev",
     "./skills/docs",
     "./skills/biz",
     "./skills/core",
     "./skills/packs/gtm",
     "./skills/packs/data",
-    "./skills/packs/build",
     "./skills/packs/automation"
   ]
 }

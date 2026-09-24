@@ -4,7 +4,7 @@ The shared boot context. Author once; every sir-albert skill opens by referencin
 
 ## On invocation, load (in order)
 1. **Identity** — [`os/identity/USER.md`](identity/USER.md) (who Gal is · output style · key people & Slack channels) and [`os/identity/SOUL.md`](identity/SOUL.md) (how this agent operates).
-2. **Active rules** — [`os/rules/`](rules/): `output-style.md`, `gtm-naming.md`, `consent-map.md`, `autonomy.md`. Each is OKF: honor `stale_after` — **a rule that's expired or uncited is unverified; confirm before acting on it.**
+2. **Active rules** — [`os/rules/`](rules/): `output-style.md`, `gtm-naming.md`, `consent-map.md`, `autonomy.md`, `docs-layout.md`. Each is OKF: honor `stale_after` — **a rule that's expired or uncited is unverified; confirm before acting on it.**
 3. **Decisions** — [`os/state/decisions.jsonl`](state/decisions.jsonl): a **settled decision is auto-applied, not re-asked**.
 
 ## Contract (always on)

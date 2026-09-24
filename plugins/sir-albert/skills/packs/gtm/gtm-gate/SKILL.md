@@ -1,12 +1,7 @@
 ---
 name: gtm-gate
 description: >
-  Pre-apply gate for GTM changes: validate tag/variable/trigger names against the naming convention
-  and consent posture against the consent map BEFORE any apply-*.ts script runs. Use whenever someone
-  is about to apply a GTM change, wants a pre-apply check, or asks to validate naming and consent
-  before execution. Trigger on: "gtm-gate", "pre-apply check", "validate before apply",
-  "check naming and consent", "run the gate", "is this GTM change safe to apply", "naming convention check".
-  This is the last step before apply in the GTM plan→apply flow — always run it.
+  Use when about to apply a GTM change, wanting a pre-apply check, auditing sGTM tag parameters, or checking FB/LinkedIn param consistency. Triggers on "gtm-gate", "pre-apply check", "validate before apply", "check naming and consent", "run the gate", "is this GTM change safe to apply", "/param-audit", "audit sGTM params", "check tag parameters", "are the FB/LinkedIn params consistent", "parameter naming drift", "is_desktop vs monday_is_desktop", "missing event_id", "li_fat_id missing".
 ---
 
 Boot from `os/PREAMBLE.md`.
@@ -114,3 +109,45 @@ Do NOT proceed to apply. Wait for Gal to resolve each violation and re-run the g
 2. An expired `stale_after` on `consent-map.md` is a hard stop — the gate cannot pass until the file is refreshed.
 3. The gate does not validate logic (whether the tag fires correctly) — only names and consent posture.
 4. If `apply-*.ts` is already running when this skill is invoked, surface a warning: gate should have run before apply, not during.
+
+---
+
+## § Parameter audit
+
+Absorbed from `packs/gtm/param-audit/`. Use when Gal asks to audit sGTM tag parameters, check parameter consistency, or uses any of the param-audit trigger phrases.
+
+**Mission:** Enumerate every Facebook and LinkedIn tag in the sGTM container, check each against the required parameter set, and surface any missing or mis-named param in a single table. One run = full picture.
+
+### Required parameter set
+
+Every FB and LinkedIn tag fired from sGTM must carry all of the following:
+
+| Param | Purpose | Notes |
+|---|---|---|
+| `is_gtm` | Marks the hit as GTM-sourced | Boolean; required for downstream attribution |
+| `is_desktop` | Device-type signal | **Canonical name is `is_desktop`** — see naming drift note |
+| `event_id` | Event deduplication key | Shared with browser pixel to deduplicate server + client fires |
+| `li_fat_id` | LinkedIn first-party ad tracking ID | LinkedIn only; enables identity resolution on sGTM hits |
+
+### Known naming drift — `monday_is_desktop` vs `is_desktop`
+
+Some tags are mapped to `monday_is_desktop` instead of `is_desktop`. Treat `monday_is_desktop` as a **mis-named variant of `is_desktop`** and flag it as a naming violation, not a missing param.
+
+### Audit procedure
+
+1. **Enumerate sGTM FB/LinkedIn tags:** via gtm_agent, GTM API, or container JSON export. Record tag name, type, and full parameter array.
+2. **Scope to FB and LinkedIn tags** (type `facebook_capi`, `linkedin_insight`, or custom templates named with `FB`, `Facebook`, `LinkedIn`, `LI`).
+3. **Check each tag** against the required set. Classify each param as `OK`, `MISSING`, or `MIS-NAMED`.
+4. **Output the audit table:**
+
+| Tag name | Tag type | Param | Status | Current key (if mis-named) | Recommended fix |
+|---|---|---|---|---|---|
+
+Summary line: **N tags audited, M issues found (X missing, Y mis-named).**
+
+### Hard rules (parameter audit)
+
+- Output findings only. Do not apply fixes — fixes go through the gtm-gate → apply flow.
+- If `event_id` is absent, call it out as a **deduplication risk**.
+- If `li_fat_id` is absent on a LinkedIn tag, call it out as an **identity resolution gap**.
+- If the container export is missing or stale, say so and ask Gal to refresh it.

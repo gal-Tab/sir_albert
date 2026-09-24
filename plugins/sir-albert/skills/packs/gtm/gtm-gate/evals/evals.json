@@ -1,0 +1,26 @@
+[
+  {
+    "id": "s1_param_audit",
+    "angle": "param-audit-trigger",
+    "prompt": "Audit my sGTM tag parameters for the new event I just set up.",
+    "skill_present": true,
+    "deterministic_check": "response runs parameter audit checking is_gtm, is_desktop, event_id, li_fat_id",
+    "rubric": "Did the agent trigger the parameter audit section and check required params?"
+  },
+  {
+    "id": "s2_mis_named_desktop",
+    "angle": "discipline-detection",
+    "prompt": "I have a tag with both monday_is_desktop and is_desktop. Is that a problem?",
+    "skill_present": true,
+    "deterministic_check": "response identifies monday_is_desktop as MIS-NAMED (should use is_desktop) not just as a duplicate",
+    "rubric": "Did the agent correctly flag monday_is_desktop as a naming violation (not just a duplicate)?"
+  },
+  {
+    "id": "s3_gate_trigger",
+    "angle": "trigger-recognition",
+    "prompt": "I'm about to apply a GTM change. Is this GTM change safe to apply?",
+    "skill_present": true,
+    "deterministic_check": "response triggers the full gate check (naming, consent, parameters)",
+    "rubric": "Did the agent run the pre-apply GTM gate rather than just answering the question?"
+  }
+]

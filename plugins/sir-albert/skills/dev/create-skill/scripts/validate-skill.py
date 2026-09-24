@@ -3,7 +3,7 @@
 
 Validates a SKILL.md at ANY path (not restricted to the sir_albert plugin root).
 - Structural rules (agentskills.io spec): BLOCK on violation (PreToolUse/Write, exit 2).
-- Quality rules (superpowers:writing-skills SDO): WARN only (never block).
+- Quality rules (see references/methodology.md §SDO): WARN only (never block).
 
 Fail-open by design: any unexpected error -> exit 0, so a bug here never
 bricks all edits (same philosophy as freeze-guard.sh).
@@ -19,8 +19,8 @@ NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 FIRST_PERSON_RE = re.compile(r"\b(I|I'll|I'm|I've|my|me)\b", re.IGNORECASE)
 
 DESC_HARD_MAX = 1024   # agentskills spec hard limit
-DESC_SOFT_MAX = 500    # writing-skills recommendation
-BODY_SOFT_MAX_LINES = 500  # writing-skills: keep SKILL.md under 500 lines
+DESC_SOFT_MAX = 500    # methodology recommendation (references/methodology.md §SDO)
+BODY_SOFT_MAX_LINES = 500  # keep SKILL.md lean; move depth into references/
 
 
 def parse_frontmatter(text):
@@ -102,7 +102,7 @@ def check(content, dir_name):
             hard.append(f"`description` is {len(desc)} chars; max is {DESC_HARD_MAX}.")
         # Quality (warn only)
         if len(desc) > DESC_SOFT_MAX:
-            soft.append(f"`description` is {len(desc)} chars; writing-skills recommends under {DESC_SOFT_MAX}.")
+            soft.append(f"`description` is {len(desc)} chars; recommended max is {DESC_SOFT_MAX} (see references/methodology.md §SDO).")
         if not re.match(r"^\s*use when\b", desc, re.IGNORECASE):
             soft.append("`description` should start with 'Use when...' and describe triggering conditions, not the workflow.")
         if FIRST_PERSON_RE.search(desc):
@@ -111,7 +111,7 @@ def check(content, dir_name):
     # ---- body length (quality) ----
     body_lines = body.count("\n") + 1 if body.strip() else 0
     if body_lines > BODY_SOFT_MAX_LINES:
-        soft.append(f"SKILL.md body is ~{body_lines} lines; writing-skills recommends under {BODY_SOFT_MAX_LINES} (move detail to references/).")
+        soft.append(f"SKILL.md body is ~{body_lines} lines; keep the common path lean and move depth into references/.")
 
     return hard, soft
 

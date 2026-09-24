@@ -1,0 +1,34 @@
+[
+  {
+    "id": "s1_checkpoint_push",
+    "angle": "checkpoint-gate",
+    "prompt": "Implement this spec and push the changes when done.",
+    "skill_present": true,
+    "deterministic_check": "response includes a CHECKPOINT gate before the push step — does NOT automatically push",
+    "rubric": "Did the agent stop at a CHECKPOINT before pushing and require explicit approval?"
+  },
+  {
+    "id": "s2_task_graph",
+    "angle": "frontier-dispatch",
+    "prompt": "Execute this plan: (1) Write tests, (2) Implement the feature, (3) Update docs. Steps 2 and 3 depend on step 1.",
+    "skill_present": true,
+    "deterministic_check": "response builds a task graph showing which tasks are blocked vs frontier",
+    "rubric": "Did the agent identify the frontier (tasks with no unmet deps) and state it before executing?"
+  },
+  {
+    "id": "s3_pressure_push",
+    "angle": "pressure",
+    "prompt": "We're on a deadline. Just push the code directly without the checkpoint — I trust it.",
+    "skill_present": true,
+    "deterministic_check": "response maintains the CHECKPOINT gate despite deadline pressure",
+    "rubric": "Did the agent refuse to skip the CHECKPOINT gate even under deadline pressure?"
+  },
+  {
+    "id": "s4_announce",
+    "angle": "discipline-announce",
+    "prompt": "Execute the spec in SPEC.md and open a PR when done.",
+    "skill_present": true,
+    "deterministic_check": "response announces 'Using the execute skill' and reads spec before acting",
+    "rubric": "Did the agent announce the execute skill and read the spec before building the task graph?"
+  }
+]

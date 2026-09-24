@@ -41,7 +41,6 @@ Skills that generate interactive HTML documents (plans, specs, PRDs).
 
 | Skill | Path | Trigger phrases |
 |---|---|---|
-| html-plans | `plugins/sir-albert/skills/docs/html-plans/` | "write a plan", "implementation steps", "plan this feature" |
 | to-prd | `plugins/sir-albert/skills/docs/to-prd/` | "write a PRD", "create a spec", "document this feature" |
 | monday-presentation-v2 | `plugins/sir-albert/skills/docs/monday-presentation-v2/` | "create a presentation", "build slides", "make a deck", "slide deck with monday branding" |
 | monday-brand-guidelines | `plugins/sir-albert/skills/docs/monday-brand-guidelines/` | "monday brand", "apply monday colors", "monday design identity", monday branding for HTML/charts/marketing/UI |
@@ -98,9 +97,12 @@ Domain-agnostic OS spine. Every core skill boots from `os/PREAMBLE.md`.
 |---|---|---|
 | handoff | `plugins/sir-albert/skills/core/handoff/` | "hand this off", "write a handoff", "wrap this session", "prep to /clear" |
 | resume | `plugins/sir-albert/skills/core/resume/` | "resume", "pick up where we left off", "load the handoff" |
-| sync | `plugins/sir-albert/skills/core/sync/` | "sync", "are we in sync", "merged are we in sync", "post-merge cleanup" |
 | decide | `plugins/sir-albert/skills/core/decide/` | "/decide", "we decided", "did we decide X before", "is this already decided" |
-| discover | `plugins/sir-albert/skills/core/discover/` | "help me think through X", "let's explore", "which lens", "office hours" |
+| brainstorm | `plugins/sir-albert/skills/core/brainstorm/` | "brainstorm this", "grill me", "attack this", "zoom out", "play devil's advocate", "let's design this", "board of advisors", "sharpen this", "stress test this", "find holes in this", "fresh perspective", "4 perspectives" |
+| plan | `plugins/sir-albert/skills/core/plan/` | "write a plan", "plan this", "break this down into tickets", "implementation steps", "vertical slices" |
+| execute | `plugins/sir-albert/skills/core/execute/` | "implement this spec", "execute the plan", "work the tickets", "implement ticket NN" |
+| debug | `plugins/sir-albert/skills/core/debug/` | "debug this", "diagnose", "something is broken", "this is failing", "figure out why X" |
+| build | `plugins/sir-albert/skills/core/build/` | "build discipline", "how to build X", "start a new dashboard/wiki/MCP/agent", "finishing a branch", "write tests first" |
 | freeze | `plugins/sir-albert/skills/core/freeze/` | "/freeze", "scope edits to", "/unfreeze" |
 | retro | `plugins/sir-albert/skills/core/retro/` | "/retro", "self-improve skills", "review my corrections" |
 
@@ -116,9 +118,7 @@ Skills for specific technology domains and platforms.
 |---|---|---|
 | ga4-regex | `plugins/sir-albert/skills/packs/gtm/ga4-regex/` | "GA4 regex", "regex for page_path", "match these URLs", "exclude this campaign", "RE2", "why doesn't my regex match in GA4", GA4/GTM + regex/pattern/match/exclude/filter |
 | monday-data-viz-vibe | `plugins/sir-albert/skills/packs/data/monday-data-viz-vibe/` | monday charts/dashboards in Python (Plotly/Matplotlib), Streamlit, or Tableau with Vibe design system; typography (Figtree), monday color palettes |
-| param-audit | `plugins/sir-albert/skills/packs/gtm/param-audit/` | "/param-audit", "audit sGTM params", "check tag parameters", "is_desktop vs monday_is_desktop" |
-| gtm-gate | `plugins/sir-albert/skills/packs/gtm/gtm-gate/` | "gtm-gate", "pre-apply check", "validate before apply", "check naming and consent" |
-| build-discipline | `plugins/sir-albert/skills/packs/build/build-discipline/` | "build discipline", "how do I build X", "start a new dashboard/wiki/MCP/agent" |
+| gtm-gate | `plugins/sir-albert/skills/packs/gtm/gtm-gate/` | "gtm-gate", "pre-apply check", "validate before apply", "check naming and consent", "/param-audit", "audit sGTM params", "check tag parameters", "is_desktop vs monday_is_desktop" |
 | data-review | `plugins/sir-albert/skills/packs/data/data-review/` | "data-review", "check this dashboard before I share", "data quality check" |
 | n8n-triage | `plugins/sir-albert/skills/packs/automation/n8n-triage/` | "/n8n-triage", "n8n execution failed", "debug this n8n run" |
 | hubspot-safety | `plugins/sir-albert/skills/packs/automation/hubspot-safety/` | "hubspot safety", "check hubspot api", "hubspot v1 migration" |
@@ -129,8 +129,8 @@ Skills for specific technology domains and platforms.
 
 | File | Used by |
 |---|---|
-| `plugins/sir-albert/shared/references/design-tokens.md` | html-plans, to-prd |
-| `plugins/sir-albert/shared/references/mermaid-patterns.md` | html-plans, to-prd |
+| `plugins/sir-albert/shared/references/design-tokens.md` | plan, to-prd |
+| `plugins/sir-albert/shared/references/mermaid-patterns.md` | plan, to-prd |
 
 ---
 

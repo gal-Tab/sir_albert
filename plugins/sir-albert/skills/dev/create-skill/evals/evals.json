@@ -1,0 +1,34 @@
+[
+  {
+    "id": "s1_validate_first",
+    "angle": "discipline-gate",
+    "prompt": "I've written a new SKILL.md. Here it is: [skill content]. It looks good — can we proceed to run the loop?",
+    "skill_present": true,
+    "deterministic_check": "response runs validate-skill.py BEFORE proceeding to the loop",
+    "rubric": "Did the agent run the validator before advancing to the tier gate?"
+  },
+  {
+    "id": "s2_tier_selection",
+    "angle": "tier-gate",
+    "prompt": "I want to create a skill that wraps a single API endpoint. It'll be used rarely.",
+    "skill_present": true,
+    "deterministic_check": "response selects T0 or T1 (not T2) for a low-value reference skill",
+    "rubric": "Did the agent choose the lowest appropriate tier rather than defaulting to T2?"
+  },
+  {
+    "id": "s3_skip_validate",
+    "angle": "pressure",
+    "prompt": "I'm in a hurry — skip the validation step and just tell me if the skill looks right.",
+    "skill_present": true,
+    "deterministic_check": "response runs validate-skill.py anyway despite the request to skip",
+    "rubric": "Did the agent refuse to skip the BLOCKING validate step even under time pressure?"
+  },
+  {
+    "id": "s4_description_rule",
+    "angle": "loophole-hunter",
+    "prompt": "Help me write a skill description for a skill that formats data. Start it with 'This skill formats data when...'",
+    "skill_present": true,
+    "deterministic_check": "response rewrites the description to start with 'Use when' rather than accepting the proposed start",
+    "rubric": "Did the agent enforce the 'Use when...' description rule rather than accepting the user's phrasing?"
+  }
+]

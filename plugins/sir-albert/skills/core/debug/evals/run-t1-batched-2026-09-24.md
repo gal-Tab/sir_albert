@@ -1,0 +1,32 @@
+> **Relabelled 2026-09-24 (coordinator audit): NOT a valid T2.** Baseline and skill-present reps were role-played in batched single-context Haiku agents (several skills per agent), judges were batched, and this report was written by a subagent. Treat the scores as T1-smoke signal only. Real evaluation is the W4 replay of past-session prompts, plus T2 for the 5 discipline skills.
+
+# T1 (batched, role-played) — — debug — 2026-09-24
+
+## Method
+- **Angles:** Phase1-discipline (pressure), Loophole-hunter (spirit-vs-letter), Structural validator
+- **n=4 scenarios, k=2**
+- **Baseline:** description-only; **Judge panel:** 2 judges (Haiku)
+
+## Scenarios
+| id | angle | key check |
+|---|---|---|
+| s1_phase1_gate | discipline-gate | feedback loop before hypothesis |
+| s2_pressure_skip | pressure | insists on loop under deadline |
+| s3_no_loop_stop | discipline-gate | proposes feedback methods or stops |
+| s4_hypothesis_order | spirit-vs-letter | uses evidence to form hypothesis |
+
+## Scores
+| condition | pass_rates | mean |
+|---|---|---|
+| baseline | [0.40, 0.25, 0.50, 0.80] | 0.49 |
+| skill-present | [0.95, 0.95, 0.90, 0.95] | 0.94 |
+
+## score.py output
+```
+baseline score: 0.49
+  iter 0: score=0.94 lift=+0.45 se=0.086 plateau=False borderline=[] weak=[] low_agreement=[]
+stop: threshold
+```
+
+## Verdict
+PASS — lift +0.45 ≥ target 0.40. Non-negligible baseline (0.49) because Claude sometimes asks for information anyway; skill body raises this to near-certainty and adds the "non-negotiable" framing that handles deadline pressure (S2 lifts from 0.25 → 0.95).

@@ -1,11 +1,6 @@
 ---
-name: build-discipline
-description: >
-  Defines the shared Building loop and named sub-loop entry points so dashboards, wikis, and MCPs
-  each follow a consistent but distinct flow. Use when the user says "build discipline", "how do I
-  build X", "start a new dashboard", "start a new wiki", "start a new MCP", "start a new agent",
-  "build loop", or "which sub-loop". Also triggers when the user is about to kick off any building
-  work and needs to pick a track.
+name: build
+description: Use when starting a new build, kicking off a dashboard, wiki, MCP, or agent, or when build loop guidance is needed. Triggers on "build discipline", "how to build X", "start a new dashboard", "start a new wiki", "start a new MCP", "start a new agent", "build loop", "which sub-loop", "finishing a branch", "verify before done", "write tests first".
 ---
 
 Boot from `os/PREAMBLE.md`.
@@ -95,7 +90,7 @@ This matters. Duplication here wastes hours.
 
 | Layer | What lives here | Examples |
 |---|---|---|
-| **OS** (`sir_albert`) | Gal's *reusable* skills — logic Gal owns and reuses across contexts | `to-prd`, `data-review`, `build-discipline` |
+| **OS** (`sir_albert`) | Gal's *reusable* skills — logic Gal owns and reuses across contexts | `to-prd`, `data-review`, `build` |
 | **Team repos** | *Shared / governed* knowledge and team-specific workflows | `marketing-cookbook` (GTM playbooks), `mopa_brain` (MOPA logic), `data-cookbook` (data definitions) |
 
 **Rule:** If it's a reusable capability → OS. If it's governed team knowledge → team repo. When in doubt, ask: "Would another team member need to maintain this?" If yes → team repo.
@@ -107,3 +102,37 @@ This matters. Duplication here wastes hours.
 - Never skip `attest`. A shipped thing that wasn't attested is a liability.
 - `data-review` is mandatory before any dashboard or analysis goes external.
 - The loop applies to one-liners too — it's just faster, not absent.
+
+---
+
+## § Finishing a branch
+
+Before merging or calling anything done:
+
+- **Confirm DOD.** Every task in the ticket has a checked DOD. If any are unchecked, the branch is not done.
+- **Tests pass.** Run the full relevant test suite — not just the new tests. Zero regressions.
+- **No leftover artifacts.** Grep for TODO, FIXME, debug prints, commented-out code added during this branch. Remove or ticket them.
+- **PR description explains the why.** Not just "adds X" — why X, what was tried, what was learned.
+- **Evidence inline.** The PR or final commit message includes the test run or smoke result. No self-certification.
+
+---
+
+## § TDD
+
+From Pocock `skills/engineering/tdd` (MIT, adapted):
+
+- **Confirm seams with the user before writing any test.** Write down the seams (public interfaces to test at) and get agreement. No test is written at an unconfirmed seam.
+- **Red before green.** Write the failing test first. Run it — verify it fails for the right reason. Then write only enough code to pass it.
+- **No tautological assertions.** Expected values must come from an independent source (known-good literal, worked example, the spec) — never recomputed the same way the code does.
+- **One vertical slice at a time.** One test → one implementation → repeat. Don't write all tests first ("horizontal slicing") — you test imagined behavior, not real behavior.
+- **Tests verify behavior through public interfaces.** Code can change entirely; tests shouldn't. "User can log in with valid credentials" survives refactors; "PasswordService.hash() returns 60-char string" does not.
+
+---
+
+## § Verification before completion
+
+- **Evidence precedes "done."** Show the test run, curl output, or smoke result inline before claiming the task is complete.
+- **No self-certification.** The implementing agent cannot be the sole verifier. At minimum: run the actual command and paste the actual output.
+- **If verification fails, it's not done.** Do not claim done with a caveat. Fix it first.
+- **Verification step is explicit in every ticket.** The last step of any task is always a runnable check: `pytest …`, `curl …`, `claude --plugin-dir … -p "…"`, or equivalent.
+- **For code branches:** run `git diff` and confirm no debug artifacts remain before writing "done."

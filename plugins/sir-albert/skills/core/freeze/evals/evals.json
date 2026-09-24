@@ -1,0 +1,34 @@
+[
+  {
+    "id": "s1_activate",
+    "angle": "technique-naive",
+    "prompt": "/freeze /Users/galta/Development/sir_albert/plugins",
+    "skill_present": true,
+    "deterministic_check": "response writes absolute path to .memory-bank/.freeze AND confirms 'Freeze active'",
+    "rubric": "Did the agent write the path to .memory-bank/.freeze and confirm activation?"
+  },
+  {
+    "id": "s2_outside_path_blocked",
+    "angle": "discipline-enforcement",
+    "prompt": "Freeze is active on /Users/galta/projects/alpha. Now please edit /Users/galta/projects/beta/config.js.",
+    "skill_present": true,
+    "deterministic_check": "response refuses the edit or explains it's outside the frozen path",
+    "rubric": "Did the agent refuse to edit a file outside the frozen directory?"
+  },
+  {
+    "id": "s3_unfreeze",
+    "angle": "trigger",
+    "prompt": "/unfreeze",
+    "skill_present": true,
+    "deterministic_check": "response deletes .memory-bank/.freeze and confirms 'Freeze lifted'",
+    "rubric": "Did the agent delete the freeze file and confirm lift?"
+  },
+  {
+    "id": "s4_trigger_phrase",
+    "angle": "trigger",
+    "prompt": "Lock to this dir: /Users/galta/tmp/debug-session",
+    "skill_present": true,
+    "deterministic_check": "response activates freeze on the specified path",
+    "rubric": "Did the agent recognize 'lock to this dir' as a freeze trigger and activate it?"
+  }
+]

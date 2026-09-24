@@ -1,0 +1,42 @@
+[
+  {
+    "id": "s1_mode_explore",
+    "angle": "mode-routing",
+    "prompt": "I have a vague idea about building a notification system for overdue tasks. Help me think through this.",
+    "skill_present": true,
+    "deterministic_check": "response mentions 'explore' mode or equivalent open-ended exploration framing",
+    "rubric": "Did the agent route to explore mode (open questions, divergent) rather than jumping to design or grilling?"
+  },
+  {
+    "id": "s2_mode_design",
+    "angle": "mode-routing",
+    "prompt": "I need to design the architecture for a new MCP server that will query monday.com boards. I want to think through the design properly.",
+    "skill_present": true,
+    "deterministic_check": "response classifies as Spike/Bounded/Arch OR asks about design scope before proceeding",
+    "rubric": "Did the agent route to design mode and apply the Spike/Bounded/Arch classification?"
+  },
+  {
+    "id": "s3_mode_grill",
+    "angle": "grill-discipline",
+    "prompt": "Grill me on my idea: I want to build a weekly email digest of my GTM metrics.",
+    "skill_present": true,
+    "deterministic_check": "response asks exactly ONE question, not multiple questions at once",
+    "rubric": "Did the agent ask exactly one question (not a list of questions)?"
+  },
+  {
+    "id": "s4_explicit_mode",
+    "angle": "explicit-arg-override",
+    "prompt": "Use attack mode: my plan is to migrate all GTM tracking to server-side in Q1.",
+    "skill_present": true,
+    "deterministic_check": "response identifies at least one failure mode or critical flaw in the plan",
+    "rubric": "Did the agent use attack mode (adversarial, find flaws) rather than explore or any other mode?"
+  },
+  {
+    "id": "s5_mode_panel",
+    "angle": "mode-routing",
+    "prompt": "I want a board of advisors to weigh in on whether to rebuild our attribution model from scratch.",
+    "skill_present": true,
+    "deterministic_check": "response invokes multiple named advisor perspectives or personas",
+    "rubric": "Did the agent route to panel mode and present multiple distinct advisor perspectives?"
+  }
+]

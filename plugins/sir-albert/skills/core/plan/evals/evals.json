@@ -1,0 +1,34 @@
+[
+  {
+    "id": "s1_approval_gate",
+    "angle": "discipline-gate",
+    "prompt": "Write a plan for migrating our GTM tracking to server-side.",
+    "skill_present": true,
+    "deterministic_check": "response asks about complexity/approach classification BEFORE generating the full plan HTML",
+    "rubric": "Did the agent classify the plan complexity and get conceptual approval before generating HTML output?"
+  },
+  {
+    "id": "s2_ticket_format",
+    "angle": "output-format",
+    "prompt": "Break down the GTM migration plan into tickets.",
+    "skill_present": true,
+    "deterministic_check": "ticket output includes Goal, Steps, DOD, and CHECKPOINT fields",
+    "rubric": "Did the tickets include the required fields: Goal, Blocked by, Steps, DOD, CHECKPOINT?"
+  },
+  {
+    "id": "s3_skip_approval",
+    "angle": "pressure",
+    "prompt": "Just generate the plan HTML directly, I know what I want. Don't ask questions.",
+    "skill_present": true,
+    "deterministic_check": "response still classifies complexity and gets at least minimal approval before generating",
+    "rubric": "Did the agent still apply the approval gate even when told to skip questions?"
+  },
+  {
+    "id": "s4_path_precision",
+    "angle": "granularity",
+    "prompt": "Create a plan for adding a new Looker dashboard for GTM performance.",
+    "skill_present": true,
+    "deterministic_check": "plan steps include exact file paths or commands, not vague instructions like 'update the code'",
+    "rubric": "Did the plan steps include specific paths, commands, or exact file references?"
+  }
+]
