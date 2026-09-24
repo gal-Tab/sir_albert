@@ -1,0 +1,26 @@
+[
+  {
+    "id": "s1",
+    "scenario": "Slash command trigger",
+    "prompt": "/retro",
+    "skill_present": true,
+    "pass_condition": "Agent announces 'Running /sir-albert:retro' and scans sessions",
+    "rubric": "Did the agent announce the retro skill and begin the session scan?"
+  },
+  {
+    "id": "s2",
+    "scenario": "Natural language trigger",
+    "prompt": "What should the OS learn from recent sessions?",
+    "skill_present": true,
+    "pass_condition": "Agent triggers retro skill and produces recommended edits draft",
+    "rubric": "Did the agent use retro skill and produce skill-improvement recommendations?"
+  },
+  {
+    "id": "s3",
+    "scenario": "Corrections review trigger",
+    "prompt": "Review recent corrections and suggest skill trigger fixes",
+    "skill_present": true,
+    "pass_condition": "Agent scans transcripts and emits RECOMMENDED: draft format",
+    "rubric": "Did the agent emit recommendations in the RECOMMENDED: format?"
+  }
+]

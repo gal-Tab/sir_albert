@@ -1,11 +1,10 @@
 ---
 name: retro
 description: >
-  Self-improving skills loop. Reads recent sessions (index + axcli analytics + transcripts),
-  surfaces recommended skill edits — new trigger phrases, description tweaks, skill merges,
-  new-skill candidates — and emits them as a draft for Gal to approve. Never auto-applies.
-  Use when the user says "/retro", "retro", "self-improve skills", "what should the OS learn",
-  "review my corrections", or "skill trigger fixes".
+  Use when running a self-improvement loop over recent sessions to surface skill edits —
+  new trigger phrases, description tweaks, skill merges, new-skill candidates — as a draft for approval.
+  Triggers on "/retro", "retro", "self-improve skills", "what should the OS learn",
+  "review recent corrections", or "skill trigger fixes". Never auto-applies changes.
 ---
 
 # Retro

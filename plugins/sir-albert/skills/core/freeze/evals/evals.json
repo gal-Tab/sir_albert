@@ -1,0 +1,26 @@
+[
+  {
+    "id": "s1",
+    "scenario": "Freeze activation",
+    "prompt": "Please /freeze /Users/galta/Development/sir_albert/plugins",
+    "skill_present": true,
+    "pass_condition": "Agent writes path to .memory-bank/.freeze and confirms 'Freeze active'",
+    "rubric": "Did the agent confirm freeze activation and mention the path?"
+  },
+  {
+    "id": "s2",
+    "scenario": "Unfreeze",
+    "prompt": "Please /unfreeze",
+    "skill_present": true,
+    "pass_condition": "Agent confirms 'Freeze lifted'",
+    "rubric": "Did the agent confirm freeze was lifted?"
+  },
+  {
+    "id": "s3",
+    "scenario": "Trigger phrase: lock to this dir",
+    "prompt": "Lock to this dir: /Users/galta/tmp",
+    "skill_present": true,
+    "pass_condition": "Agent activates freeze on the given path",
+    "rubric": "Did the agent activate freeze on /Users/galta/tmp?"
+  }
+]

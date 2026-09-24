@@ -1,12 +1,11 @@
 ---
 name: kw-compound
 description: >
-  Capture knowledge from the current session and file it back into the knowledge base.
-  Use when the user says "save this to the wiki", "file this knowledge", "add this to my KB",
-  "remember this for future sessions", "compound this insight", "compound this session", or
-  "save what we just learned". Also trigger when kb:wiki-query synthesizes a cross-reference not yet
-  in the wiki and the user wants to preserve it. Writes structured markdown to raw/ for
-  kb:wiki-compile to process into wiki/.
+  Use when capturing session knowledge and filing it back into the knowledge base.
+  Triggers on "save this to the wiki", "file this knowledge", "add this to the KB",
+  "remember this for future sessions", "compound this insight", "compound this session",
+  "save what we just learned", or when kb:wiki-query synthesizes a cross-reference worth preserving.
+  Writes structured markdown to raw/ for kb:wiki-compile to process into wiki/.
 allowed-tools: Read, Write, Bash(git add *), Bash(git commit *)
 ---
 

@@ -1,9 +1,9 @@
 ---
 name: freeze
 description: >
-  Scope Edit/Write to a directory during debugging or investigation so
-  unrelated files are not accidentally modified.
-  Use when the user says "/freeze", "/freeze <path>", "freeze this path",
+  Use when scoping edits to a specific directory during debugging or investigation,
+  or when lifting that scope restriction.
+  Triggers on "/freeze", "/freeze <path>", "freeze this path",
   "scope edits to", "lock to this dir", "/unfreeze", "freeze off".
 argument-hint: "absolute path to freeze, or 'off' / empty to unfreeze"
 ---
