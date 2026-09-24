@@ -1,32 +1,42 @@
-# 04 — prompt-router.sh (UserPromptSubmit)
+# 04 — prompt_router.py (UserPromptSubmit)
 
-**Blocked by:** 01
+**Blocked by:** 01, 04a (Hebrew patterns approved), 04b (precision gate passed)
 **Spec:** `docs/specs/2026-09-24-w3-router-design.md` §Component 2
 
 ## Goal
 
-Write `plugins/sir-albert/hooks/prompt-router.sh` — the `UserPromptSubmit` hook that reads the prompt from stdin JSON, matches against `router-data.json` patterns, and emits a one-line nudge or nothing.
+Write `plugins/sir-albert/hooks/prompt_router.py` — the `UserPromptSubmit` hook in Python. Phrase-level patterns only; silent on no match.
 
 ## Steps
 
-1. Create `plugins/sir-albert/hooks/prompt-router.sh`:
-   - `set -euo pipefail`
-   - Read stdin JSON, extract prompt text via `jq -r '.prompt // ""'`
-   - Read `keyword_patterns` from `router-data.json` (sorted by `order`)
-   - For each pattern: `echo "$prompt" | grep -iP "$pattern" > /dev/null 2>&1` — first match wins
-   - On match: emit `{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": "→ <nudge>"}}`
-   - On no match: emit nothing (exit 0 with no output)
-   - Budget: must complete in <50 ms on a 200-char prompt (benchmark with `time` on a no-match path)
-2. `chmod +x plugins/sir-albert/hooks/prompt-router.sh`
+1. Create `plugins/sir-albert/hooks/prompt_router.py`:
+   - Read stdin JSON: `data = json.load(sys.stdin)`, extract `prompt = data.get("prompt", "")`
+   - Load `router_data.json` from `SCRIPT_DIR`
+   - Sort patterns by `order` field
+   - For each pattern: `if re.search(pattern, prompt, re.IGNORECASE | re.UNICODE)` → first match wins
+   - On match: output `{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": "→ <nudge>"}}`
+   - On no match: output nothing (`sys.exit(0)` with no print)
+   - Target: <50 ms on a 200-char prompt (no I/O on no-match path except reading router_data.json once)
+2. Add shebang `#!/usr/bin/env python3`, `chmod +x`, `export PYTHONIOENCODING=utf-8` in shebang env or set in script.
 3. Smoke tests:
-   - `echo '{"prompt":"let'\''s brainstorm this idea"}' | bash plugins/sir-albert/hooks/prompt-router.sh` → should include `brainstorm (explore mode)`
-   - `echo '{"prompt":"what time is it"}' | bash plugins/sir-albert/hooks/prompt-router.sh` → empty output
-   - `echo '{"prompt":"חקור אותי"}' | bash plugins/sir-albert/hooks/prompt-router.sh` → should include `brainstorm grill`
+   ```bash
+   echo '{"prompt":"let'\''s brainstorm this"}' | python3 prompt_router.py
+   # → {"hookSpecificOutput": ...} with "brainstorm (explore mode)"
+
+   echo '{"prompt":"execute this SQL"}' | python3 prompt_router.py
+   # → (no output)
+
+   echo '{"prompt":"what time is it"}' | python3 prompt_router.py
+   # → (no output)
+   ```
+4. Time the no-match path: `time echo '{"prompt":"what time is it"}' | python3 prompt_router.py` → <50 ms.
 
 ## Definition of Done
 
-- [ ] Script exists and is executable
-- [ ] Match returns JSON with nudge string
-- [ ] No-match returns empty output (not `null`, not `{}`)
-- [ ] Hebrew prompt matches correctly (UTF-8 locale set in script)
-- [ ] `time` on no-match path shows < 50 ms
+- [ ] Script exists, executable, Python 3
+- [ ] Match → JSON with nudge; no-match → empty stdout
+- [ ] `"execute this SQL"` → empty stdout
+- [ ] `"publish the GTM container"` → empty stdout
+- [ ] `"challenge accepted"` → empty stdout
+- [ ] Hebrew approved prompts match (after ticket 04a)
+- [ ] `time` on no-match path < 50 ms

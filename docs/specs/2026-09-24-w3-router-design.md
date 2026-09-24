@@ -1,6 +1,6 @@
 # W3 — Router + CLAUDE.md + Init
 
-**Status:** draft for review · **Date:** 2026-09-24 · **Owner:** Gal
+**Status:** revised · **Date:** 2026-09-24 · **Owner:** Gal
 
 ## Context
 
@@ -11,42 +11,66 @@
 
 ## Goal
 
-Every new Claude Code session surfaces the right sir-albert skills automatically: ~150 tokens on `SessionStart`, deterministic keyword nudges on matching prompts, and a CLAUDE.md that points here instead of duplicating content.
+Every new Claude Code session surfaces the right sir-albert skills automatically: ≤800 chars on `SessionStart`, deterministic phrase-level keyword nudges on matching prompts, and a CLAUDE.md that points here instead of duplicating content.
 
 ## Non-goals
 
 - W4: superpowers eval / uninstall.
 - Moving repo to dapulse org.
 - Changing KB engine behavior.
-- Replacing `axcli`, `commit-commands`, `code-review`, `cf-external`, or `slack` (these are protected externals).
-- Desktop / IDE environment parity (tracked as a risk below — not solved in W3).
+- Replacing `axcli`, `commit-commands`, `code-review`, `cf-external`, or `slack` (protected externals).
+- Desktop/IDE `--plugin-dir` parity: these surfaces don't load the plugin at all (it's an accepted trade-off). Only `CLAUDE.md` (bootstrap-written) and `guard.sh` (symlinked to `~/.claude/hooks`) apply there.
 
 ---
 
-## Component 1 — SessionStart router hook
+## Component 0 — bootstrap.sh (machine setup)
+
+### Split: machine vs project
+
+- `bootstrap.sh` — **machine-level**, run once per machine. Idempotent. Every write to `~/.claude` or `.zshrc` is a CHECKPOINT.
+- `/sir-albert:init` — **project-level**, run per repo. Idempotent. Never touches machine config.
+
+### What bootstrap.sh does
+
+```
+bootstrap.sh
+  ├─ CHECKPOINT: add alias in ~/.zshrc if missing
+  │    alias claude='claude --plugin-dir /Users/galta/Development/sir_albert/plugins'
+  ├─ CHECKPOINT: write ~/.claude/CLAUDE.md as one-line @import (if not already)
+  │    @/Users/galta/Development/sir_albert/plugins/sir-albert/os/CLAUDE.global.md
+  └─ CHECKPOINT: create ~/.claude/hooks/guard.sh → symlink to
+       /Users/galta/Development/sir_albert/plugins/sir-albert/hooks/guard.sh
+       (backs up any existing file first)
+```
+
+Each CHECKPOINT is a separate guarded step with a backup/dry-run check before writing.
+
+---
+
+## Component 1 — SessionStart router hook (Python)
 
 ### What it does
-On every `SessionStart`, emit ~150 tokens of structured context into the session. This replaces the role superpowers plays today (650 tokens of `using-superpowers`).
+On every `SessionStart`, emit ≤800 chars of structured context. Hooks are Python (Unicode/Hebrew safety, easy pytest — matches kb hooks style).
 
 ### Data flow
 
 ```
 SessionStart fires
-  └─ hooks/session-start.sh executes
-       ├─ reads HOOK_CONTEXT.md (the static injection text, versioned in repo)
-       ├─ probes filesystem for pack signals (no network, no LLM)
-       │    n8n workflow JSON         → automation pack
-       │    GTM apply-*.ts            → gtm pack
-       │    HubSpot references        → automation pack (hubspot mode)
-       │    raw/ + wiki/              → kb pack
-       │    z2h app marker            → z2h pack
-       │    .git + test files         → code pack
-       ├─ optionally: checks .memory-bank/ for latest HANDOFF-* (resume hint)
-       └─ emits hookSpecificOutput.additionalContext JSON
-            (≤150 tokens static + ≤30 tokens pack list + ≤10 tokens resume hint)
+  └─ hooks/session_start.py executes
+       ├─ reads HOOK_CONTEXT.md (static template, versioned in repo)
+       ├─ probes $PWD for pack signals defined in router_data.json
+       │    GTM: apply-*.ts exists        → gtm pack
+       │    n8n: *.workflow.json exists   → automation pack
+       │    HubSpot: .hubspot/ or hs*.js  → automation pack
+       │    raw/ + wiki/ both exist       → kb pack
+       │    z2h app marker               → z2h pack
+       │    .git/ + tests/ exist         → code pack
+       ├─ checks .memory-bank/HANDOFF-*.md → resume hint (≤15 tokens, opt-out via DISABLE_RESUME_HINT=1)
+       └─ char-count guard: if len(output) > 800, log warning to stderr, exit 0 (no injection)
+            emits hookSpecificOutput.additionalContext JSON
 ```
 
-### Injection text (draft — ~150 tokens)
+### Injection text (draft — target ≤800 chars total)
 
 ```markdown
 ## sir_albert — session start
@@ -65,100 +89,110 @@ SessionStart fires
 | Scope-lock edits during investigation | `/sir-albert:freeze` |
 | Create or edit a skill | `/sir-albert:create-skill` |
 
-Map + rules: `os/RESOLVER.md` · Output layout: `os/rules/docs-layout.md`
-
-**Active packs for this project:** {PACK_LIST}
-
+Map: `os/RESOLVER.md` · Output layout: `os/rules/docs-layout.md`
+Active packs: {PACK_LIST}
 {RESUME_HINT}
 ```
 
-`{PACK_LIST}` example: `gtm, automation` — or `(none detected)`.
-`{RESUME_HINT}` example: `Resume hint: .memory-bank/HANDOFF-2026-09-20.md exists — run /sir-albert:resume` — or omitted when no handoff file is present.
+`{RESUME_HINT}` example: `Resume: .memory-bank/HANDOFF-2026-09-20.md found — run /sir-albert:resume`
+Omitted (empty string) when `DISABLE_RESUME_HINT=1` or no handoff file found.
 
-### Token budget
+### Token budget / char cap
 
-- Static table: ~110 tokens.
-- Pack list line: ≤30 tokens.
-- Resume hint: ≤15 tokens (omitted when absent).
-- **Hard cap: 200 tokens total.** Enforced by a `wc -w` check in the hook; if exceeded the hook exits non-zero and logs a warning (session continues, no injection).
+- Static table: ~620 chars.
+- Pack list: ≤80 chars.
+- Resume hint: ≤80 chars (omitted when absent).
+- **Hard cap: 800 chars total.** Enforced in `session_start.py` via `len()`. If exceeded: stderr warning, no injection, session continues.
 
 ### File layout
 
 ```
 plugins/sir-albert/hooks/
-  session-start.sh          ← new hook script
-  HOOK_CONTEXT.md           ← static injection text (the template above)
-  router-data.json          ← pack detection signals (the data file W4 can tune)
-  hooks.json                ← updated: adds SessionStart + UserPromptSubmit entries
+  session_start.py          ← new hook script (Python)
+  prompt_router.py          ← new hook script (Python)
+  HOOK_CONTEXT.md           ← static injection template
+  router_data.json          ← pack signals + keyword patterns (single data file)
+  guard.sh                  ← guard script (versioned here; ~/.claude/hooks/ symlinks to it)
+  freeze-guard.sh           ← existing (already here)
+  session-record.sh         ← existing (already here)
+  hooks.json                ← updated: adds all new + migrated entries
 ```
-
-### Precedence note
-The injection explicitly states: "sir-albert takes precedence over any superpowers equivalent." Until W4 removes superpowers, both `SessionStart` hooks fire. Claude Code fires plugin hooks in load order; our hook fires after superpowers if load order follows alphabetical plugin dir scanning. The injection text must override by naming our skills explicitly.
 
 ---
 
-## Component 2 — UserPromptSubmit keyword router
+## Component 2 — UserPromptSubmit keyword router (Python)
 
 ### What it does
-Deterministic regex match on the user's prompt. If a pattern matches, append a one-line nudge to the session context. If nothing matches, stay silent. No LLM, no network, <50 ms.
+Python script (`prompt_router.py`). Reads stdin JSON, extracts prompt, matches phrase-level patterns, emits a one-line nudge or exits silently. <50 ms, no network, no LLM.
 
-### Data flow
+### Pattern discipline
 
-```
-UserPromptSubmit fires (prompt text in stdin JSON)
-  └─ hooks/prompt-router.sh executes
-       ├─ reads router-data.json (patterns + nudge strings)
-       ├─ jq + grep: first match wins, OR no match
-       └─ emits nudge line (≤15 tokens) OR empty output (silent)
-```
+Patterns must target **intent to invoke the skill**, not topic words. The examples below must NOT match:
+- "execute this SQL" → no match (execute is a topic word, not skill intent)
+- "publish the GTM container" → no match (publish is a domain word here)
+- "I'm feeling broken today" → no match
+- "challenge accepted" → no match
+- "architect of the building" → no match
 
-### Keyword table (draft — stored in `router-data.json`)
+Patterns use `\b` word boundaries and require multiple intent signals or a phrase structure. They are maintained in `router_data.json` — **never hardcoded** in the script.
 
-| Pattern (case-insensitive regex) | Nudge |
-|---|---|
-| `brainstorm\|let.s explore\|fresh perspective\|wdyt\|think through` | `→ /sir-albert:brainstorm (explore mode)` |
-| `attack\|devil.s advocate\|stress.?test\|find holes\|challenge` | `→ /sir-albert:brainstorm attack` |
-| `grill me\|interview me\|חקור אותי\|שאל אותי` | `→ /sir-albert:brainstorm grill` |
-| `zoom out\|bigger picture\|how does this fit\|תראה לי את התמונה` | `→ /sir-albert:brainstorm zoom-out` |
-| `let.s design\|design this\|architect\|i want to build` | `→ /sir-albert:brainstorm design` |
-| `make a plan\|turn.*spec.*plan\|תכנן את` | `→ /sir-albert:plan` |
-| `execute\|implement.*step\|run the plan` | `→ /sir-albert:execute` |
-| `debug\|not working\|failing\|broken\|why is.*broken` | `→ /sir-albert:debug` |
-| `ship\|finish.*branch\|פרסם` | `→ /sir-albert:build` |
-| `handoff\|end of session\|סכם לסיום` | `→ /sir-albert:handoff` |
-| `resume\|reload.*context\|where were we` | `→ /sir-albert:resume` |
+### Hebrew patterns
 
-Hebrew patterns (Gal writes in Hebrew): `חקור אותי`, `שאל אותי`, `תראה לי את התמונה`, `תכנן את`, `פרסם`, `סכם לסיום`. Extend in `router-data.json` without touching the script.
+Mine Gal's real Hebrew prompts from `~/.claude/projects/**/*.jsonl` (user messages, skip `/subagents/`). Propose patterns based on real usage. Gal approves before they enter `router_data.json`. This is a CHECKPOINT (ticket 04a).
 
-### Behavioral rules
-- First match wins (patterns ordered most-specific first in `router-data.json`).
-- Nudge is one line, prefixed `→`, ≤15 tokens. Not a command, not a warning — a pointer.
-- Silent on no match (no output = no noise).
-- The hook only fires on `UserPromptSubmit` — does not fire on tool calls or assistant turns.
+### Draft keyword table (tightened — Gal to confirm after mining)
+
+| Intent | Phrase pattern (Python regex, case-insensitive) | Nudge |
+|---|---|---|
+| brainstorm/explore | `\blet['']s (brainstorm\|explore\|think through)\b\|fresh perspective on\|help me think through\b` | `→ /sir-albert:brainstorm (explore mode)` |
+| attack mode | `\b(devil['']s advocate\|stress.?test (my\|this)\|find (the\s)?holes in\|attack (my\|this))\b` | `→ /sir-albert:brainstorm attack` |
+| grill | `\b(grill me\|interview me (about\|on))\b` | `→ /sir-albert:brainstorm grill` |
+| zoom-out | `\b(zoom out\|bigger picture\|how does this fit into)\b` | `→ /sir-albert:brainstorm zoom-out` |
+| design | `\b(let['']s design\|design (a\|the\|this)\|i want to build)\b` | `→ /sir-albert:brainstorm design` |
+| plan | `\b(make a plan\|write a plan\|turn (this\|the) spec into a plan)\b` | `→ /sir-albert:plan` |
+| execute | `\b(run the plan\|execute the plan\|implement (the\|this) plan)\b` | `→ /sir-albert:execute` |
+| debug | `\b(help me debug\|let['']s debug\|why is (this\|it) (broken\|failing\|not working))\b` | `→ /sir-albert:debug` |
+| build/ship | `\b(finish (the\s)?branch\|ship (this\s)?(feature\|change\|branch)\|let['']s (ship\|build and ship))\b` | `→ /sir-albert:build` |
+| handoff | `\b(end of session\|write (a\s)?handoff\|create (a\s)?handoff)\b` | `→ /sir-albert:handoff` |
+| resume | `\b(reload (my\s)?context\|where were we\|continue (the\s)?session)\b` | `→ /sir-albert:resume` |
+
+Hebrew patterns: TBD pending mining (ticket 04a).
+
+### Precision gate
+
+Before wiring the router hook, run the router over every past user prompt in `~/.claude/projects/**/*.jsonl` (skip `/subagents/`). Report:
+- Overall fire rate (target: <15% of prompts)
+- Fire rate per route
+- Random sample of 10 matches per route for Gal to eyeball
+
+This is ticket 04b and **blocks** ticket 06 (wire hooks.json).
 
 ---
 
-## Component 3 — Hook tests
+## Component 3 — Hook tests (pytest)
 
-### Structure (mirrors `plugins/kb/tests/`)
+Mirrors `plugins/kb/tests/`. Tests invoke hook scripts as subprocesses (Python `subprocess.run`).
 
 ```
 plugins/sir-albert/tests/
-  conftest.py                ← fixtures: sample prompts, project roots
-  test_session_start.py      ← project fixtures → expected pack list + token count
-  test_prompt_router.py      ← prompt → expected nudge, including no-match cases
+  __init__.py
+  conftest.py
   fixtures/
-    project_gtm/             ← has apply-deploy.ts
-    project_n8n/             ← has workflow.json
-    project_kb/              ← has raw/ + wiki/
-    project_plain/           ← no signals → no packs
+    project_gtm/            (touch apply-deploy.ts)
+    project_n8n/            (touch workflow.json)
+    project_kb/             (mkdir raw wiki)
+    project_plain/          (empty)
+  test_session_start.py     ← fixtures → pack list + char count ≤800
+  test_prompt_router.py     ← phrase → nudge; no-match → empty; false-positive phrases → empty
 ```
 
-### Test matrix
-
-`test_session_start.py`: for each fixture, assert (a) correct pack list, (b) token count ≤200, (c) valid JSON output shape.
-
-`test_prompt_router.py`: for each row in the keyword table, assert correct nudge. For 5 no-match phrases (e.g. "what time is it", "show me the diff", "מה שלומך"), assert empty output.
+False-positive test cases are required:
+- `"execute this SQL"` → empty
+- `"publish the GTM container"` → empty
+- `"challenge accepted"` → empty
+- `"I'm feeling broken today"` → empty
+- `"architect of the building"` → empty
+- `"what time is it"` → empty
 
 ---
 
@@ -166,126 +200,83 @@ plugins/sir-albert/tests/
 
 ### Current state (from `~/.claude/settings.json`)
 
-- `PreToolUse` / `Edit|Write`: calls `freeze-guard.sh` via absolute path `/Users/galta/Development/sir_albert/plugins/sir-albert/hooks/freeze-guard.sh`.
-- `SessionEnd`: calls `session-record.sh` via absolute path `/Users/galta/Development/sir_albert/plugins/sir-albert/hooks/session-record.sh`.
-
-Both scripts already live in the plugin — the problem is they're wired in `~/.claude/settings.json` with absolute paths rather than declared in `hooks/hooks.json`.
+- `PreToolUse` / `Edit|Write`: `bash .../freeze-guard.sh` — absolute path in settings.json.
+- `SessionEnd`: `bash .../session-record.sh` — absolute path in settings.json.
 
 ### Target state
 
-Both hooks declared in `plugins/sir-albert/hooks/hooks.json` using `${CLAUDE_PLUGIN_ROOT}`. The `settings.json` entries removed. Hooks fire once, portably.
-
-### Data flow
+Declared in `plugins/sir-albert/hooks/hooks.json` via `${CLAUDE_PLUGIN_ROOT}`. The `settings.json` entries removed.
 
 ```
 Before:
-  settings.json  ──PreToolUse──▶  /absolute/path/freeze-guard.sh
+  settings.json  ──PreToolUse (Edit|Write)──▶  /absolute/path/freeze-guard.sh
   settings.json  ──SessionEnd──▶  /absolute/path/session-record.sh
 
 After:
-  hooks.json  ──PreToolUse──▶  ${CLAUDE_PLUGIN_ROOT}/hooks/freeze-guard.sh
+  hooks.json  ──PreToolUse (Edit|Write)──▶  ${CLAUDE_PLUGIN_ROOT}/hooks/freeze-guard.sh
   hooks.json  ──SessionEnd──▶  ${CLAUDE_PLUGIN_ROOT}/hooks/session-record.sh
 ```
 
-**CHECKPOINT**: editing `~/.claude/settings.json` is a live-config change. Verify hooks fire exactly once before committing the settings change.
+**CHECKPOINT**: editing `~/.claude/settings.json` is live-config. Verify hooks fire exactly once before committing.
 
 ---
 
 ## Component 5 — Thin, versioned CLAUDE.md
 
-### Target state
+- Canonical: `plugins/sir-albert/os/CLAUDE.global.md` (~20 lines). Uses **relative** `@identity/USER.md` / `@identity/SOUL.md` imports (relative to the file's location in `os/`).
+- `~/.claude/CLAUDE.md`: written by `bootstrap.sh` as one absolute `@import`. Only this file holds the absolute path.
 
-- Canonical text: `plugins/sir-albert/os/CLAUDE.global.md` (~20 lines, versioned in repo).
-- `~/.claude/CLAUDE.md`: one-line `@import` pointing to the canonical file.
-
-### Draft `CLAUDE.global.md` (~20 lines)
+### Draft `CLAUDE.global.md`
 
 ```markdown
 # Global — sir_albert_os
 
-@/Users/galta/Development/sir_albert/plugins/sir-albert/os/identity/USER.md
-@/Users/galta/Development/sir_albert/plugins/sir-albert/os/identity/SOUL.md
+@identity/USER.md
+@identity/SOUL.md
 
 ## Non-negotiables (always on)
 
-- **Plan first.** Non-trivial task (3+ steps): `/sir-albert:brainstorm` (not superpowers). Trivial / read-only: act directly.
+- **Plan first.** Non-trivial task (3+ steps): `/sir-albert:brainstorm` (not superpowers). Read-only / trivial: act directly.
+- **Use the skill.** When Gal names a skill, read it before acting — never from memory.
 - **Ask before live.** AUTO on drafts / analysis / dry-runs. ASK before live-GTM publish, prod deploy, external sends, deletes. Full rule: `os/rules/autonomy.md`.
-- **Evidence before done.** Anti-slop: TLDR first, bullets, tables. No filler. Full rule: `os/rules/output-style.md`.
-- **Route subagents by model.** Opus for planning/synthesis/code. Haiku for reading/search/summarizing. Pass `model` on Agent tool.
-- **Skill edits via create-skill.** Every SKILL.md create or edit goes through `/sir-albert:create-skill`. Never edit directly.
+- **Evidence before done.** TLDR first, bullets, tables for comparisons. No filler. Full rule: `os/rules/output-style.md`.
+- **Route subagents by model.** Opus for planning/synthesis/code. Haiku for reading/search/summarizing.
+- **Skill edits via create-skill.** Every SKILL.md create or edit goes through `/sir-albert:create-skill`.
 - **Minimal impact.** Smallest diff that solves it. No drive-by refactors.
-- **Capture corrections.** After a correction, append to MEMORY.md (one line: pattern + why) before moving on.
+- **Capture corrections.** After a correction, append to MEMORY.md (one line: pattern + why).
 
 ## guard.sh
 
-`~/.claude/hooks/guard.sh` blocks destructive commands (rm on root/home, force push, reset --hard, DROP TABLE, etc.). Block is final — do not retry. Full list in the file.
+`~/.claude/hooks/guard.sh` (symlinked from plugin) blocks destructive commands. Block is final — do not retry.
 
 ## Skill map
 
 `plugins/sir-albert/os/RESOLVER.md` — one screen, complete routing.
 ```
 
-### CLAUDE.md after (single line + blank line)
-
-```markdown
-@/Users/galta/Development/sir_albert/plugins/sir-albert/os/CLAUDE.global.md
-```
-
-**CHECKPOINT**: the `~/.claude/CLAUDE.md` change affects every Claude Code session on this machine. Verify behavior in a fresh `-p` session before treating this as done.
-
 ---
 
-## Component 6 — `/sir-albert:init` skill
+## Component 6 — `/sir-albert:init` (project-level only)
 
-### What it does
-Idempotent project scaffolding. Detects which structures already exist and only creates what's missing. Never overwrites.
+Does NOT touch machine config (that's `bootstrap.sh`). Creates project structure only.
 
 ```
 /sir-albert:init [--kb]
 ```
 
-Creates (only if absent):
-- `docs/specs/` — spec output directory
-- `docs/plans/` — plan + ticket output directory
-- `.memory-bank/` — handoff storage
-- `CLAUDE.md` (project-level stub) — ≤5 lines pointing to os/RESOLVER.md
-- If `--kb` flag or `raw/` directory detected: runs `kb:wiki-init`
-- Emits a report: which directories were created, which already existed, which packs the router will surface for this project
-
-### Tier
-T1 (not a discipline skill — no build gate required). Created via `/sir-albert:create-skill` full loop.
+Creates (idempotent — never overwrites):
+- `docs/specs/`, `docs/plans/`, `.memory-bank/`
+- Project-root `CLAUDE.md` stub (5 lines: pointer to RESOLVER.md, project context placeholder)
+- If `--kb` or `raw/` exists: calls `kb:wiki-init`
+- Emits report: created/already-existed for each path + detected packs
 
 ---
 
-## Open questions — Gal decides
+## Open questions — resolved
 
-### OQ-1: guard.sh location
-
-Three options:
-
-| Option | Portability | Fires without plugin | Maintenance |
-|---|---|---|---|
-| A: Stay in `~/.claude/hooks` (current) | Machine-specific | Yes — always fires | Edit requires SSH to machine |
-| B: Move into plugin | Repo-portable | No — only when plugin loads | Single source, version-controlled |
-| C: Version in repo, symlink from `~/.claude/hooks` | Repo-portable | Yes — symlink always fires | One source; requires `init` to create the symlink |
-
-**Recommendation: C.** Version the script at `plugins/sir-albert/hooks/guard.sh`, have `/sir-albert:init` (or a one-time setup step) create the symlink at `~/.claude/hooks/guard.sh`. Portable, always fires, single source. The only cost is the initial symlink step on each new machine — which `init` can automate.
-
-### OQ-2: Resume hint in SessionStart
-
-Should the `SessionStart` injection include a one-line resume hint when `.memory-bank/HANDOFF-*.md` exists?
-
-**Recommendation: Yes, but optional.** Include a `RESUME_HINT` placeholder in `HOOK_CONTEXT.md` that the script fills when a handoff file is found. Budget: ≤15 tokens. This is the highest-value passive nudge we can add — a session that starts knowing "last handoff was 4 days ago" is immediately more useful. Make it opt-out via a `DISABLE_RESUME_HINT=1` env var rather than opt-in.
-
-### OQ-3: Token size measurement and hard cap
-
-How to measure injected token size:
-
-- `wc -w` is fast but counts words, not tokens. At ~0.75 words/token, a 200-word cap ≈ 150 tokens.
-- A tiktoken call would be accurate but adds a Python dependency to a bash hook.
-- The Anthropic rule of thumb (1 token ≈ 4 chars) means a char count check is portable.
-
-**Recommendation:** Use `wc -c` (character count). Cap at 800 chars (~200 tokens). Enforce in the hook before emitting; log a warning and skip injection if exceeded. No external dependency. Add a `make measure-injection` target that prints current byte count for easy monitoring.
+- **OQ-1 guard.sh**: Option C. Version at `plugins/sir-albert/hooks/guard.sh`; `bootstrap.sh` symlinks `~/.claude/hooks/guard.sh` → it. ✓
+- **OQ-2 resume hint**: Yes. One line ≤15 tokens when `.memory-bank/HANDOFF-*.md` exists. Opt-out: `DISABLE_RESUME_HINT=1`. ✓
+- **OQ-3 char cap**: 800-char `len()` guard in `session_start.py`. ✓
 
 ---
 
@@ -293,19 +284,20 @@ How to measure injected token size:
 
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
-| Double-firing hooks (freeze-guard, session-record) during migration window | High | Medium — confusing errors | Test before settings.json edit; migrate in one commit |
-| Noisy nudges (every prompt matches) | Medium | High — degrades trust | No-match test cases in pytest; tight regex patterns; first-match-wins |
-| Token creep (injection grows over time) | Medium | Low-medium | Hard char-count cap in hook; `make measure-injection` |
-| Hooks not firing in desktop / IDE (no `CLAUDE_PLUGIN_ROOT`) | High | Medium — silent failure | Add fallback absolute path in hook scripts; test in desktop Claude manually |
-| superpowers `SessionStart` fires after ours and its 650-token injection dominates | Medium | Medium | Our injection explicitly names sir-albert skills; superpowers text is generic; order tested in verification ticket |
-| `~/.claude/CLAUDE.md` `@import` path breaks on new machine | Low | High | init skill validates the path exists; CLAUDE.global.md uses absolute path (known limitation until W5) |
+| Noisy nudges (false positives) | Medium | High — degrades trust | Phrase-level patterns; precision report required before wiring (ticket 04b); false-positive pytest cases |
+| Double-firing hooks during migration | High | Medium | Test before settings.json edit; migrate in one commit |
+| Char creep (injection grows) | Medium | Low-medium | 800-char guard; `python3 -c "print(len(open('HOOK_CONTEXT.md').read()))"` in CI |
+| Desktop/IDE: plugin doesn't load at all | High (accepted) | Low — accepted trade-off | CLAUDE.md and guard.sh apply via bootstrap; skill routing doesn't fire; documented non-goal |
+| superpowers SessionStart still injects 650 tokens | Medium | Low | Our injection names sir-albert explicitly; superpowers text is generic; coexistence tested in verification |
+| bootstrap.sh CHECKPOINT failure (bad .zshrc / CLAUDE.md write) | Low | High | Backups before every write; dry-run step; each CHECKPOINT is a separate guarded step |
+| `@identity/...` relative imports fail if CLAUDE.global.md moves | Low | High | Stable path in os/; bootstrap path is absolute and validated at write time |
 
 ---
 
 ## Rollback
 
-- **Session-start hook**: remove the `SessionStart` entry from `hooks.json`. No state changed.
-- **Prompt router**: remove the `UserPromptSubmit` entry from `hooks.json`. No state changed.
-- **CLAUDE.md**: restore from git (`git show HEAD~1:~/.claude/CLAUDE.md` — NOTE: CLAUDE.md is not in this repo; keep a local backup before the CHECKPOINT step).
-- **settings.json hooks**: restore the two absolute-path entries. Keep a backup before the CHECKPOINT step.
-- **`/sir-albert:init`**: skill can be disabled in `hooks.json`; directories it created are empty and safe to remove.
+- **SessionStart/UserPromptSubmit hooks**: remove entries from `hooks.json`. No state changed.
+- **settings.json migration**: restore from `~/.claude/settings.json.backup-w3`.
+- **CLAUDE.md**: restore from `~/.claude/CLAUDE.md.backup-w3`.
+- **bootstrap changes**: restore `.zshrc` from `.zshrc.backup-w3`, guard.sh symlink from backup.
+- **`/sir-albert:init`**: skill disabled in hooks.json; created dirs are empty and safe to remove.

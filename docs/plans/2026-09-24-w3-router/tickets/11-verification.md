@@ -1,43 +1,55 @@
 # 11 — verification
 
-**Blocked by:** 07, 09, 10
+**Blocked by:** 06, 07, 09-bootstrap-sh, 10
 **Spec:** `docs/specs/2026-09-24-w3-router-design.md` (all components)
 
 ## Goal
 
-End-to-end verification in a fresh session. Confirm the full W3 setup works as designed: injection fires, nudges route correctly, hooks fire exactly once, pytest passes.
+End-to-end verification in a fresh session. Confirm injection fires, nudges route correctly, hooks fire exactly once, char count is within budget, no-match cases are silent, and pytest passes.
 
 ## Steps
 
 1. **pytest**: `cd plugins/sir-albert && python3 -m pytest tests/ -v` — 0 failures.
 
-2. **Fresh session injection check**:
-   Run `claude --plugin-dir /Users/galta/Development/sir_albert/plugins -p "list your active sir-albert core skills"` in a project dir with GTM signals (has `apply-*.ts`).
-   Paste the full session-start injection text below (from the `additionalContext` field — inspect with `CLAUDE_PLUGIN_ROOT=... bash hooks/session-start.sh | jq`).
-   Record token count: `wc -c` on the injection string; must be ≤ 800 chars.
+2. **Injection check**:
+   ```bash
+   CLAUDE_PLUGIN_ROOT=$(pwd)/plugins/sir-albert \
+     python3 plugins/sir-albert/hooks/session_start.py | python3 -m json.tool
+   ```
+   Extract `additionalContext`. Measure: `python3 -c "import json,sys; d=json.load(sys.stdin); print(len(d['hookSpecificOutput']['additionalContext']))" < <(python3 plugins/sir-albert/hooks/session_start.py)`
+   **Must be ≤800.**
+   Paste the full injection text in the "Paste injection text here" section below.
 
 3. **Nudge routing — 1 sample per route**:
    | Prompt | Expected nudge |
    |---|---|
-   | "let's brainstorm this idea" | `→ /sir-albert:brainstorm (explore mode)` |
-   | "attack my plan" | `→ /sir-albert:brainstorm attack` |
-   | "grill me on this" | `→ /sir-albert:brainstorm grill` |
-   | "zoom out from this" | `→ /sir-albert:brainstorm zoom-out` |
-   | "make a plan for the spec" | `→ /sir-albert:plan` |
-   | "debug why this is broken" | `→ /sir-albert:debug` |
-   | "ship this branch" | `→ /sir-albert:build` |
-   | "חקור אותי" | `→ /sir-albert:brainstorm grill` |
-   Run each via `echo '{"prompt":"<text>"}' | bash hooks/prompt-router.sh`.
+   | `let's brainstorm this` | `→ /sir-albert:brainstorm (explore mode)` |
+   | `attack my plan` | `→ /sir-albert:brainstorm attack` |
+   | `grill me on this` | `→ /sir-albert:brainstorm grill` |
+   | `zoom out from this` | `→ /sir-albert:brainstorm zoom-out` |
+   | `let's design this` | `→ /sir-albert:brainstorm design` |
+   | `make a plan` | `→ /sir-albert:plan` |
+   | `implement the plan` | `→ /sir-albert:execute` |
+   | `help me debug why this is broken` | `→ /sir-albert:debug` |
+   | `ship this branch` | `→ /sir-albert:build` |
+   | `write a handoff` | `→ /sir-albert:handoff` |
+   | `where were we` | `→ /sir-albert:resume` |
+   Run each: `echo '{"prompt":"<text>"}' | python3 plugins/sir-albert/hooks/prompt_router.py`
 
-4. **No-match check**:
-   `echo '{"prompt":"what time is it"}' | bash hooks/prompt-router.sh` → empty stdout (pipe to `wc -c`, expect 0).
+4. **No-match / false-positive check** (must all produce empty stdout):
+   - `"execute this SQL"` → empty
+   - `"publish the GTM container"` → empty
+   - `"what time is it"` → empty
+   - `"challenge accepted"` → empty
+   - Verify: `echo '{"prompt":"execute this SQL"}' | python3 ... | wc -c` → 0
 
-5. **Hook fire count**:
-   Start a session, edit a file — confirm `freeze-guard.sh` fires once (not twice). Check stderr for any double-fire warnings.
-   End the session — `tail -1 ~/.claude/sir-albert-sessions.jsonl` shows exactly one new entry.
+5. **Precision report**: confirm `docs/plans/2026-09-24-w3-router/precision-report-*.txt` exists and shows overall fire rate < 15%.
 
-6. **superpowers coexistence**:
-   Confirm `using-superpowers` injection is still present (superpowers not uninstalled). Confirm sir-albert injection also present. Confirm no conflicts visible in session behavior.
+6. **Hook fire count**:
+   - Start a session; edit a file — freeze-guard fires once (not twice). No double-fire warnings in stderr.
+   - End session — `tail -1 ~/.claude/sir-albert-sessions.jsonl` shows exactly one new entry.
+
+7. **superpowers coexistence**: confirm superpowers still active; sir-albert injection also present; no observed conflicts.
 
 ## Paste injection text here
 
@@ -49,9 +61,10 @@ char count: XXX / 800 max
 ## Definition of Done
 
 - [ ] `pytest` 0 failures
-- [ ] Injection char count ≤ 800
-- [ ] All 8 nudge routes produce correct output
-- [ ] No-match produces empty stdout
-- [ ] freeze-guard fires once (not twice) during an edit
-- [ ] session-record fires once (not twice) at session end
-- [ ] superpowers still active (W4 gate: uninstall only after eval)
+- [ ] Injection char count ≤ 800 (measured, not estimated)
+- [ ] All 11 nudge routes produce correct output
+- [ ] All 4 false-positive prompts produce empty stdout
+- [ ] Precision report exists, fire rate < 15%
+- [ ] freeze-guard fires exactly once per edit
+- [ ] session-record fires exactly once per session end
+- [ ] superpowers still active (W4 gate)
