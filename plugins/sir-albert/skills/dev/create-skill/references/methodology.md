@@ -1,10 +1,10 @@
 # Methodology — create-skill
 
-## The superpowers challenge (§2)
+## Prior challenge rationale (§2)
 
-`superpowers:writing-skills` is strong on discipline-skill psychology (SDO thinking, rationalization tables, anti-narrative). `create-skill` keeps that — cited, not duplicated — and fixes six load-bearing weaknesses:
+The prior writing-skills methodology was strong on discipline-skill psychology (SDO thinking, rationalization tables, anti-narrative). `create-skill` keeps that — inlined in `SKILL.md §SDO rules` — and fixes six load-bearing weaknesses of the prior approach:
 
-| # | superpowers weakness | create-skill fix |
+| # | Prior weakness | create-skill fix |
 |---|---|---|
 | 1 | **Iron Law overclaims + self-contradicts** — mandates failing-test-first for *every* skill/edit, then admits reference skills need retrieval tests and mechanical rules should be automated | Loop is **tiered** and reserved for skills that earn it; structural rules are **automated** (validator), not documented |
 | 2 | **Contradicts the spec it cites** — "description = when, NOT what; never summarize" vs spec's "describes what it does **and** when" | Reconciled rule: **triggers-first + one 'what' clause, never step-by-step narration** — tested empirically by the discoverability agent, not asserted |
@@ -19,7 +19,7 @@ For discipline-skill psychology (SDO, rationalization tables, red-flags, "match 
 
 ## Description rule (reconciled)
 
-The agentskills.io spec says a description "describes what it does **and** when." `superpowers:writing-skills` says "when, NOT what; never summarize." These conflict; `create-skill` reconciles them:
+The agentskills.io spec says a description "describes what it does **and** when." The prior methodology said "when, NOT what; never summarize." These conflict; `create-skill` reconciles them:
 
 **Rule:** lead with triggering conditions ("Use when …"), plus at most one short clause of *what* it does. Never narrate the workflow step-by-step.
 
