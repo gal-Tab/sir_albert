@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dark Mode Toggle — Implementation Plan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --color-bg: #000000;
+      --color-surface: #232427;
+      --color-surface-alt: #2D3035;
+      --color-text: #ffffff;
+      --color-text-secondary: #c3ced8;
+      --color-text-muted: #a0a0a0;
+      --color-border: rgba(255, 255, 255, 0.15);
+
+      --color-purple: #6164ff;
+      --color-purple-light: #8A99FF;
+      --color-green: #00c875;
+      --color-yellow: #ffcb00;
+      --color-red: #ff3d57;
+
+      --font-main: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'SF Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+      --weight-regular: 400;
+      --weight-semibold: 600;
+
+      --text-display: 4vmin;
+      --text-h1: 3.2vmin;
+      --text-h2: 2.6vmin;
+      --text-h3: 2.2vmin;
+      --text-body: 1.8vmin;
+      --text-body-sm: 1.5vmin;
+      --text-caption: 1.2vmin;
+
+      --space-1: 0.5vmin;
+      --space-2: 1vmin;
+      --space-3: 1.5vmin;
+      --space-4: 2vmin;
+      --space-5: 3vmin;
+      --space-6: 4vmin;
+      --space-7: 5vmin;
+      --space-8: 6vmin;
+
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-full: 999px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-main);
+      font-weight: var(--weight-regular);
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      padding: var(--space-8) var(--space-6);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    h1, h2, h3, h4 { font-weight: var(--weight-semibold); line-height: 1.3; }
+
+    /* Header */
+    .plan-header {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-7);
+      margin-bottom: var(--space-7);
+    }
+    .plan-title {
+      font-size: var(--text-display);
+      margin-bottom: var(--space-4);
+    }
+    .plan-goal {
+      font-size: var(--text-h3);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-5);
+    }
+    .plan-meta-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+    .plan-meta-row p { font-size: var(--text-body-sm); color: var(--color-text-secondary); }
+    .plan-meta-row strong { color: var(--color-text); font-weight: var(--weight-semibold); }
+    .meta-badges { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+    .badge {
+      background: var(--color-surface-alt);
+      color: var(--color-text-secondary);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+    }
+    .badge-purple { border: 1px solid var(--color-purple); color: var(--color-purple); }
+    .badge-green { border: 1px solid var(--color-green); color: var(--color-green); }
+    .badge-yellow { border: 1px solid var(--color-yellow); color: var(--color-yellow); }
+
+    /* Progress */
+    .progress-bar {
+      height: 6px;
+      background: var(--color-surface-alt);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin-top: var(--space-4);
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--color-purple);
+      transition: width 0.3s ease;
+    }
+    .progress-label {
+      font-size: var(--text-caption);
+      color: var(--color-text-muted);
+      margin-top: var(--space-2);
+    }
+
+    /* DOD */
+    .dod-section {
+      background: var(--color-surface);
+      border-left: 3px solid var(--color-purple);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      margin-bottom: var(--space-7);
+    }
+    .dod-section h2 {
+      font-size: var(--text-h2);
+      margin-bottom: var(--space-3);
+    }
+    .dod-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-2);
+      padding: var(--space-2) 0;
+      color: var(--color-text-secondary);
+      font-size: var(--text-body);
+    }
+    .dod-item input[type="checkbox"] {
+      accent-color: var(--color-purple);
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    /* Diagram */
+    .diagram-container {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      margin: var(--space-5) 0 var(--space-7);
+      overflow-x: auto;
+    }
+    .diagram-title {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-4);
+    }
+    .mermaid { display: flex; justify-content: center; }
+
+    /* Section heading */
+    .section-heading {
+      font-size: var(--text-h1);
+      margin-bottom: var(--space-5);
+      margin-top: var(--space-7);
+    }
+
+    /* Milestones */
+    .milestone {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      margin-bottom: var(--space-5);
+    }
+    .milestone-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-4);
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+    .milestone-title { font-size: var(--text-h2); }
+    .milestone-meta { font-size: var(--text-caption); color: var(--color-text-muted); }
+    .milestone-summary {
+      font-size: var(--text-body-sm);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-4);
+      padding-bottom: var(--space-4);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    /* Task */
+    .task {
+      background: var(--color-surface-alt);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-3);
+      overflow: hidden;
+    }
+    .task-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4);
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s ease;
+    }
+    .task-header:hover { background: rgba(255, 255, 255, 0.05); }
+    .task-chevron {
+      transition: transform 0.2s ease;
+      color: var(--color-text-muted);
+      flex-shrink: 0;
+      font-size: var(--text-body);
+    }
+    .task.open .task-chevron { transform: rotate(90deg); }
+    .task-number {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      color: var(--color-purple);
+      min-width: 3ch;
+    }
+    .task-name {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      flex: 1;
+    }
+    .task-files {
+      font-size: var(--text-caption);
+      color: var(--color-text-muted);
+    }
+    .task-body {
+      padding: 0 var(--space-4) var(--space-4);
+      display: none;
+    }
+    .task.open .task-body { display: block; }
+
+    .files-list {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: var(--radius-sm);
+      padding: var(--space-3);
+      margin-bottom: var(--space-4);
+      font-family: var(--font-mono);
+      font-size: var(--text-body-sm);
+      color: var(--color-text-secondary);
+    }
+    .files-list .file-action {
+      color: var(--color-purple-light);
+      font-weight: var(--weight-semibold);
+    }
+
+    /* Steps */
+    .step {
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .step:last-child { border-bottom: none; }
+    .step-label {
+      font-size: var(--text-body-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--color-purple-light);
+      margin-bottom: var(--space-2);
+    }
+    .step-command {
+      font-family: var(--font-mono);
+      font-size: var(--text-body-sm);
+      background: var(--color-bg);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-sm);
+      color: var(--color-text-secondary);
+      margin: var(--space-2) 0;
+    }
+    .step-expected {
+      font-size: var(--text-caption);
+      color: var(--color-text-muted);
+      font-style: italic;
+    }
+
+    /* Code block */
+    .code-block {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin: var(--space-3) 0;
+      overflow-x: auto;
+    }
+    .code-block pre {
+      font-family: var(--font-mono);
+      font-size: var(--text-body-sm);
+      line-height: 1.5;
+      color: var(--color-text-secondary);
+      white-space: pre;
+      margin: 0;
+    }
+    .code-keyword { color: var(--color-purple); }
+    .code-string { color: var(--color-green); }
+    .code-comment { color: var(--color-text-muted); }
+    .code-key { color: var(--color-purple-light); }
+
+    /* Risk */
+    .risk-callout {
+      border-left: 3px solid var(--color-yellow);
+      background: rgba(255, 203, 0, 0.06);
+      padding: var(--space-3) var(--space-4);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin: var(--space-3) 0;
+      font-size: var(--text-body-sm);
+    }
+    .risk-label {
+      font-weight: var(--weight-semibold);
+      color: var(--color-yellow);
+      font-size: var(--text-caption);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-1);
+    }
+
+    /* Task DOD */
+    .task-dod {
+      margin-top: var(--space-4);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border);
+    }
+    .task-dod-title {
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-2);
+    }
+    .task-dod-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-2);
+      padding: var(--space-1) 0;
+      color: var(--color-text-secondary);
+      font-size: var(--text-body-sm);
+    }
+    .task-dod-item input[type="checkbox"] { accent-color: var(--color-purple); margin-top: 4px; }
+  </style>
+</head>
+<body>
+
+  <header class="plan-header">
+    <h1 class="plan-title">Dark Mode Toggle — Settings Page</h1>
+    <p class="plan-goal">User can flip a toggle in Settings → Appearance and the app instantly switches between light and dark themes; the choice persists across sessions.</p>
+
+    <div class="plan-meta-row">
+      <p><strong>Architecture:</strong> Theme stored in <code>localStorage</code> under <code>app:theme</code>. A <code>ThemeProvider</code> reads it on mount and applies a <code>data-theme</code> attribute to <code>&lt;html&gt;</code>. CSS variables in <code>:root[data-theme="dark"]</code> override the light defaults — no JS recompute on toggle.</p>
+      <p><strong>Tech stack:</strong> Next.js 14 (App Router), React 18, TypeScript 5.4, Vitest 1.5 + React Testing Library</p>
+    </div>
+
+    <div class="meta-badges">
+      <span class="badge badge-purple">Effort: S (~3h)</span>
+      <span class="badge badge-yellow">Flag: theme_toggle_v1</span>
+      <span class="badge badge-green">No backend changes</span>
+    </div>
+
+    <p style="margin-top: var(--space-5); font-size: var(--text-body-sm); color: var(--color-text-muted);">
+      <strong style="color: var(--color-text-secondary);">Out of scope:</strong> System-preference auto-detect (will follow in v2), per-page theme overrides, theme-aware images.
+    </p>
+
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <p class="progress-label" id="progressLabel">0 of 5 tasks complete</p>
+  </header>
+
+  <section class="dod-section">
+    <h2>Definition of Done</h2>
+    <label class="dod-item"><input type="checkbox" class="dod-track"> Toggle in Settings → Appearance switches theme instantly with no page reload</label>
+    <label class="dod-item"><input type="checkbox" class="dod-track"> Selected theme persists across reloads and new tabs</label>
+    <label class="dod-item"><input type="checkbox" class="dod-track"> No flash of wrong theme on initial page load (FOUC)</label>
+    <label class="dod-item"><input type="checkbox" class="dod-track"> Existing test suite passes with zero regressions</label>
+    <label class="dod-item"><input type="checkbox" class="dod-track"> Feature gated behind <code>theme_toggle_v1</code> flag and verified in staging</label>
+  </section>
+
+  <div class="diagram-container">
+    <p class="diagram-title">Theme application flow</p>
+    <pre class="mermaid">
+flowchart LR
+  A[User clicks toggle] --> B[ThemeProvider.setTheme]
+  B --> C[localStorage 'app:theme']
+  B --> D["html[data-theme]"]
+  D --> E[CSS variables<br/>swap instantly]
+  F[Page load] --> G[Inline script reads<br/>localStorage]
+  G --> D
+    </pre>
+  </div>
+
+  <h2 class="section-heading">Milestones</h2>
+
+  <div class="milestone">
+    <div class="milestone-header">
+      <h3 class="milestone-title">M1 · Foundation (~1h)</h3>
+      <span class="milestone-meta">Tasks 1–2 · ThemeProvider + persistence</span>
+    </div>
+    <p class="milestone-summary">Theme can be set programmatically and survives reload. No UI yet.</p>
+
+    <div class="task">
+      <div class="task-header">
+        <span class="task-chevron">▶</span>
+        <span class="task-number">01</span>
+        <span class="task-name">Create ThemeProvider with localStorage persistence</span>
+        <span class="task-files">app/providers/theme-provider.tsx · tests/theme-provider.test.tsx</span>
+      </div>
+      <div class="task-body">
+        <div class="files-list">
+          <div><span class="file-action">Create:</span> app/providers/theme-provider.tsx</div>
+          <div><span class="file-action">Create:</span> tests/theme-provider.test.tsx</div>
+        </div>
+
+        <div class="step">
+          <div class="step-label">Step 1 · Write the failing test</div>
+          <div class="code-block"><pre><span class="code-comment">// tests/theme-provider.test.tsx</span>
+<span class="code-keyword">import</span> { render, screen, act } <span class="code-keyword">from</span> <span class="code-string">'@testing-library/react'</span>;
+<span class="code-keyword">import</span> { ThemeProvider, useTheme } <span class="code-keyword">from</span> <span class="code-string">'@/app/providers/theme-provider'</span>;
+
+<span class="code-keyword">function</span> Probe() {
+  <span class="code-keyword">const</span> { theme, setTheme } = useTheme();
+  <span class="code-keyword">return</span> &lt;button onClick={() =&gt; setTheme(<span class="code-string">'dark'</span>)}&gt;{theme}&lt;/button&gt;;
+}
+
+test(<span class="code-string">'persists theme to localStorage'</span>, () =&gt; {
+  render(&lt;ThemeProvider&gt;&lt;Probe/&gt;&lt;/ThemeProvider&gt;);
+  act(() =&gt; screen.getByRole(<span class="code-string">'button'</span>).click());
+  expect(localStorage.getItem(<span class="code-string">'app:theme'</span>)).toBe(<span class="code-string">'dark'</span>);
+  expect(document.documentElement.dataset.theme).toBe(<span class="code-string">'dark'</span>);
+});</pre></div>
+        </div>
+
+        <div class="step">
+          <div class="step-label">Step 2 · Run test, confirm fail</div>
+          <div class="step-command">pnpm vitest tests/theme-provider.test.tsx</div>
+          <p class="step-expected">Expected: FAIL — module not found</p>
+        </div>
+
+        <div class="step">
+          <div class="step-label">Step 3 · Implement ThemeProvider</div>
+          <div class="code-block"><pre><span class="code-comment">// app/providers/theme-provider.tsx</span>
+<span class="code-string">'use client'</span>;
+<span class="code-keyword">import</span> { createContext, useContext, useEffect, useState } <span class="code-keyword">from</span> <span class="code-string">'react'</span>;
+
+<span class="code-keyword">type</span> Theme = <span class="code-string">'light'</span> | <span class="code-string">'dark'</span>;
+<span class="code-keyword">const</span> Ctx = createContext&lt;{ theme: Theme; setTheme: (t: Theme) =&gt; <span class="code-keyword">void</span> }&gt;(<span class="code-keyword">null</span>!);
+
+<span class="code-keyword">export function</span> ThemeProvider({ children }: { children: React.ReactNode }) {
+  <span class="code-keyword">const</span> [theme, setThemeState] = useState&lt;Theme&gt;(<span class="code-string">'light'</span>);
+
+  useEffect(() =&gt; {
+    <span class="code-keyword">const</span> saved = localStorage.getItem(<span class="code-string">'app:theme'</span>) <span class="code-keyword">as</span> Theme | <span class="code-keyword">null</span>;
+    <span class="code-keyword">if</span> (saved) setThemeState(saved);
+  }, []);
+
+  <span class="code-keyword">const</span> setTheme = (t: Theme) =&gt; {
+    setThemeState(t);
+    localStorage.setItem(<span class="code-string">'app:theme'</span>, t);
+    document.documentElement.dataset.theme = t;
+  };
+
+  <span class="code-keyword">return</span> &lt;Ctx.Provider value={{ theme, setTheme }}&gt;{children}&lt;/Ctx.Provider&gt;;
+}
+
+<span class="code-keyword">export const</span> useTheme = () =&gt; useContext(Ctx);</pre></div>
+        </div>
+
+        <div class="step">
+          <div class="step-label">Step 4 · Run test, confirm green</div>
+          <div class="step-command">pnpm vitest tests/theme-provider.test.tsx</div>
+          <p class="step-expected">Expected: PASS</p>
+        </div>
+
+        <div class="step">
+          <div class="step-label">Step 5 · Commit</div>
+          <div class="step-command">git add app/providers tests/theme-provider.test.tsx && git commit -m "feat(theme): add ThemeProvider with localStorage persistence"</div>
+        </div>
+
+        <div class="task-dod">
+          <p class="task-dod-title">Task DOD</p>
+          <label class="task-dod-item"><input type="checkbox" class="dod-track"> New test passes</label>
+          <label class="task-dod-item"><input type="checkbox" class="dod-track"> <code>pnpm test</code> full suite green</label>
+          <label class="task-dod-item"><input type="checkbox" class="dod-track"> No console errors when wrapped around a sample component</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="task">
+      <div class="task-header">
+        <span class="task-chevron">▶</span>
+        <span class="task-number">02</span>
+        <span class="task-name">Inject inline script in &lt;head&gt; to prevent FOUC</span>
+        <span class="task-files">app/layout.tsx</span>
+      </div>
+      <div class="task-body">
+        <div class="files-list">
+          <div><span class="file-action">Modify:</span> app/layout.tsx (inside &lt;head&gt;)</div>
+        </div>
+
+        <div class="step">
+          <div class="step-label">Step 1 · Add blocking inline script before any render</div>
+          <div class="code-block"><pre>&lt;script
+  dangerouslySetInnerHTML={{
+    __html: <span class="code-string">`(function(){try{var t=localStorage.getItem('app:theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}})();`</span>
+  }}
+/&gt;</pre></div>
+        </div>
+
+        <div class="step">
+          <div class="step-label">Step 2 · Manual verify in browser</div>
+          <div class="step-command">pnpm dev</div>
+          <p class="step-expected">Expected: hard-refresh in dark mode shows dark immediately, no white flash</p>
+        </div>
+
+        <div class="step">
+          <div class="step-label">Step 3 · Commit</div>
+          <div class="step-command">git commit -am "feat(theme): inline pre-hydration script to prevent FOUC"</div>
+        </div>
+
+        <div class="risk-callout">
+          <div class="risk-label">⚠ Risk</div>
+          Inline script bypasses React hydration. Keep it minimal — IIFE with try/catch only. Any throw here halts page render.
+        </div>
+
+        <div class="task-dod">
+          <p class="task-dod-title">Task DOD</p>
+          <label class="task-dod-item"><input type="checkbox" class="dod-track"> No FOUC on hard reload</label>
+          <label class="task-dod-item"><input type="checkbox" class="dod-track"> CSP allows inline script (or nonce added)</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="milestone">
+    <div class="milestone-header">
+      <h3 class="milestone-title">M2 · UI (~1h)</h3>
+      <span class="milestone-meta">Tasks 3–4 · CSS variables + Settings toggle</span>
+    </div>
+    <p class="milestone-summary">User can flip the toggle in Settings → Appearance. CSS variables swap instantly.</p>
+
+    <div class="task">
+      <div class="task-header">
+        <span class="task-chevron">▶</span>
+        <span class="task-number">03</span>
+        <span class="task-name">Define dark-theme CSS variables</span>
+        <span class="task-files">styles/globals.css</span>
+      </div>
+      <div class="task-body">
+        <div class="files-list">
+          <div><span class="file-action">Modify:</span> styles/globals.css (append <code>:root[data-theme="dark"]</code> block)</div>
+        </div>
+
+        <div class="step">
+          <div class="step-label">Step 1 · Add dark token overrides</div>
+          <div class="code-block"><pre><span class="code-key">:root[data-theme="dark"]</span> {
+  <span class="code-key">--color-bg</span>: #0a0a0a;
+  <span class="code-key">--color-surface</span>: #1a1a1a;
+  <span class="code-key">--color-text</span>: #ffffff;
+  <span class="code-key">--color-text-muted</span>: #a0a0a0;
+  <span class="code-key">--color-border</span>: rgba(255,255,255,0.12);
+}</pre></div>
+        </div>
+
+        <div class="step">
+          <div class="step-label">Step 2 · Visual smoke test</div>
+          <div class="step-command">In devtools console: document.documentElement.dataset.theme = 'dark'</div>
+          <p class="step-expected">Expected: page recolors instantly across all components using the tokens</p>
+        </div>
+
+        <div class="step">
+          <div class="step-label">Step 3 · Commit</div>
+          <div class="step-command">git commit -am "feat(theme): add dark CSS variable overrides"</div>
+        </div>
+
+        <div class="task-dod">
+          <p class="task-dod-title">Task DOD</p>
+          <label class="task-dod-item"><input type="checkbox" class="dod-track"> All token-using components recolor correctly</label>
+          <label class="task-dod-item"><input type="checkbox" class="dod-track"> No hardcoded colors break the dark theme</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="task">
+      <div class="task-header">
+        <span class="task-chevron">▶</span>
+        <span class="task-number">04</span>
+        <span class="task-name">Add toggle UI in Settings → Appearance</span>
+        <span class="task-files">app/settings/appearance/page.tsx · tests/appearance.test.tsx</span>
+      </div>
+      <div class="task-body">
+        <div class="files-list">
+          <div><span class="file-action">Create:</span> app/settings/appearance/page.tsx</div>
+          <div><span class="file-action">Create:</span> tests/appearance.test.tsx</div>
+        </div>
+
+        <div class="step">
+          <div class="step-label">Step 1 · Write the failing test for toggle interaction</div>
+          <div class="code-block"><pre>test(<span class="code-string">'flipping toggle calls setTheme'</span>, async () =&gt; {
+  <span class="code-keyword">const</span> user = userEvent.setup();
+  render(&lt;ThemeProvider&gt;&lt;AppearancePage/&gt;&lt;/ThemeProvider&gt;);
+  <span class="code-keyword">await</span> user.click(screen.getByRole(<span class="code-string">'switch'</span>));
+  expect(document.documentElement.dataset.theme).toBe(<span class="code-string">'dark'</span>);
+});</pre></div>
+        </div>
+
+        <div class="step">
+          <div class="step-label">Step 2 · Implement the page with toggle</div>
+          <div class="code-block"><pre><span class="code-keyword">export default function</span> AppearancePage() {
+  <span class="code-keyword">const</span> { theme, setTheme } = useTheme();
+  <span class="code-keyword">return</span> (
+    &lt;Switch
+      role=<span class="code-string">"switch"</span>
+      checked={theme === <span class="code-string">'dark'</span>}
+      onCheckedChange={(v) =&gt; setTheme(v ? <span class="code-string">'dark'</span> : <span class="code-string">'light'</span>)}
+      label=<span class="code-string">"Dark mode"</span>
+    /&gt;
+  );
+}</pre></div>
+        </div>
+
+        <div class="step">
+          <div class="step-label">Step 3 · Run tests</div>
+          <div class="step-command">pnpm vitest tests/appearance.test.tsx</div>
+          <p class="step-expected">Expected: PASS</p>
+        </div>
+
+        <div class="step">
+          <div class="step-label">Step 4 · Gate behind feature flag</div>
+          <div class="code-block"><pre><span class="code-keyword">if</span> (!flags.theme_toggle_v1) <span class="code-keyword">return</span> &lt;NotEnabled/&gt;;</pre></div>
+        </div>
+
+        <div class="step">
+          <div class="step-label">Step 5 · Commit</div>
+          <div class="step-command">git commit -am "feat(theme): add toggle in settings/appearance behind flag"</div>
+        </div>
+
+        <div class="task-dod">
+          <p class="task-dod-title">Task DOD</p>
+          <label class="task-dod-item"><input type="checkbox" class="dod-track"> Toggle visible only when flag is on</label>
+          <label class="task-dod-item"><input type="checkbox" class="dod-track"> a11y: switch has accessible name</label>
+          <label class="task-dod-item"><input type="checkbox" class="dod-track"> Full test suite green</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="milestone">
+    <div class="milestone-header">
+      <h3 class="milestone-title">M3 · Verification (~30m)</h3>
+      <span class="milestone-meta">Task 5 · End-to-end check</span>
+    </div>
+    <p class="milestone-summary">Full happy-path verified in staging behind the flag.</p>
+
+    <div class="task">
+      <div class="task-header">
+        <span class="task-chevron">▶</span>
+        <span class="task-number">05</span>
+        <span class="task-name">End-to-end verification in staging</span>
+        <span class="task-files">manual + Playwright smoke</span>
+      </div>
+      <div class="task-body">
+        <div class="step">
+          <div class="step-label">Step 1 · Enable flag in staging</div>
+          <div class="step-command">flag-cli enable theme_toggle_v1 --env staging --user me@example.com</div>
+        </div>
+        <div class="step">
+          <div class="step-label">Step 2 · Walk the flow</div>
+          <p class="step-expected">Visit Settings → Appearance, flip toggle, confirm instant recolor. Reload, confirm theme sticks. Open new tab to same site, confirm theme matches.</p>
+        </div>
+        <div class="step">
+          <div class="step-label">Step 3 · Confirm DOD checkboxes</div>
+          <p class="step-expected">Tick all 5 project-level DOD items above</p>
+        </div>
+        <div class="step">
+          <div class="step-label">Step 4 · Open PR for review</div>
+          <div class="step-command">gh pr create --title "feat: dark mode toggle (theme_toggle_v1)" --body-file .pr-body.md</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        primaryColor: '#6164ff',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#6164ff',
+        lineColor: '#c3ced8',
+        secondaryColor: '#232427',
+        tertiaryColor: '#2D3035',
+        fontFamily: 'Poppins, sans-serif'
+      }
+    });
+
+    document.querySelectorAll('.task-header').forEach(header => {
+      header.addEventListener('click', () => {
+        header.closest('.task').classList.toggle('open');
+      });
+    });
+    const firstTask = document.querySelector('.task');
+    if (firstTask) firstTask.classList.add('open');
+
+    const tracked = document.querySelectorAll('.dod-track');
+    const fill = document.getElementById('progressFill');
+    const label = document.getElementById('progressLabel');
+    function refreshProgress() {
+      const total = tracked.length;
+      const done = Array.from(tracked).filter(c => c.checked).length;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      fill.style.width = pct + '%';
+      label.textContent = done + ' of ' + total + ' DOD items checked (' + pct + '%)';
+    }
+    tracked.forEach(c => c.addEventListener('change', refreshProgress));
+    refreshProgress();
+  </script>
+</body>
+</html>

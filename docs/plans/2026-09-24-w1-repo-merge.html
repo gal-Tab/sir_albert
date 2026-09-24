@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W1 Repo Merge — Implementation Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+:root{--color-bg:#000;--color-surface:#232427;--color-surface-alt:#2D3035;--color-text:#fff;--color-text-secondary:#c3ced8;--color-text-muted:#a0a0a0;--color-border:rgba(255,255,255,.15);--color-purple:#6164ff;--color-purple-light:#8A99FF;--color-green:#00c875;--color-yellow:#ffcb00;--color-red:#ff3d57;--font-main:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--font-mono:'SF Mono','Fira Code','Consolas','Monaco',monospace;--text-display:4vmin;--text-h2:2.6vmin;--text-h3:2.2vmin;--text-body:1.8vmin;--text-body-sm:1.5vmin;--text-caption:1.2vmin;--space-1:.5vmin;--space-2:1vmin;--space-3:1.5vmin;--space-4:2vmin;--space-5:3vmin;--space-6:4vmin;--space-8:6vmin;--radius-sm:6px;--radius-md:10px;--radius-full:999px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-main);background:var(--color-bg);color:var(--color-text);line-height:1.6;padding:var(--space-8) var(--space-6);max-width:1100px;margin:0 auto;font-size:var(--text-body)}
+h1{font-size:var(--text-display);font-weight:600}h2{font-size:var(--text-h2);font-weight:600;margin:var(--space-6) 0 var(--space-3)}h3{font-size:var(--text-h3);font-weight:600}
+p,li{color:var(--color-text-secondary)}ul{padding-left:var(--space-5)}
+code{font-family:var(--font-mono);background:var(--color-surface-alt);padding:0 var(--space-1);border-radius:var(--radius-sm);font-size:.9em}
+a{color:var(--color-purple-light)}
+.card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-4);margin-bottom:var(--space-3)}
+.meta{display:grid;grid-template-columns:max-content 1fr;gap:var(--space-2) var(--space-4)}.meta b{color:var(--color-text-muted);font-weight:400}
+.pill{display:inline-block;padding:0 var(--space-2);border-radius:var(--radius-full);font-size:var(--text-caption);font-weight:600;margin-left:var(--space-2)}
+.ask{background:var(--color-yellow);color:#000}.spike{background:var(--color-purple);color:#fff}
+.miles{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3)}.miles .card{border-top:3px solid var(--color-purple)}
+details.task{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);margin-bottom:var(--space-3)}
+details.task summary{cursor:pointer;padding:var(--space-3) var(--space-4);list-style:none;display:flex;justify-content:space-between;gap:var(--space-4)}
+details.task summary::before{content:'▸';color:var(--color-purple);margin-right:var(--space-2);transition:transform .2s}
+details[open].task summary::before{transform:rotate(90deg)}
+details.task summary .files{color:var(--color-text-muted);font-size:var(--text-body-sm);text-align:right}
+details.task .body{padding:0 var(--space-4) var(--space-4)}
+.risk{border-left:3px solid var(--color-yellow);padding-left:var(--space-3);margin-top:var(--space-3)}
+.dod label{display:block;color:var(--color-text-secondary)}
+.progress{height:6px;background:var(--color-surface-alt);border-radius:var(--radius-full);margin-top:var(--space-3)}.progress div{height:100%;width:0;background:var(--color-green);border-radius:var(--radius-full);transition:width .3s}
+</style>
+</head>
+<body>
+
+<h1>W1 — Repo merge</h1>
+<p>sir_albert + agent_knowledgebase → one repo, one marketplace, two plugins (<code>sir-albert</code>, <code>kb</code>)</p>
+<div class="progress"><div id="bar"></div></div>
+<p id="count" style="font-size:var(--text-caption)"></p>
+
+<h2>Header</h2>
+<div class="card meta">
+  <b>Goal</b><span>One repo is the live install: no symlink, no second marketplace, no local-vs-GitHub drift.</span>
+  <b>Architecture</b><span><code>git subtree add</code> brings the KB in with its history under <code>plugins/kb</code>. sir-albert moves with <code>git mv</code> into <code>plugins/sir-albert</code> and keeps its name, so <code>sir-albert:*</code> references are unchanged. KB is renamed <code>llm-wiki-agent</code> → <code>kb</code>. Repo data (<code>raw/</code>, <code>wiki/</code>) stays at the root.</span>
+  <b>Stack</b><span>git (subtree), Claude Code plugin marketplace (local directory), pytest, launchd, <code>/sir-albert:create-skill</code> for every SKILL.md edit</span>
+  <b>Effort</b><span>M: about half a day for the builder, plus 4 approval checkpoints</span>
+  <b>Builder</b><span>Sonnet 5 subagent; the coordinator (main session) answers questions and holds the checkpoints</span>
+  <b>Not included</b><span>Skill consolidation, router hooks, CLAUDE.md rewrite (W2–W3), dapulse migration, archiving the GitHub repo</span>
+</div>
+<p>Spec: <a href="../specs/2026-09-24-w1-repo-merge-design.md">docs/specs/2026-09-24-w1-repo-merge-design.md</a> · Tickets (agent source of truth): <code>docs/plans/2026-09-24-w1-repo-merge/tickets/</code></p>
+
+<h2>Definition of Done</h2>
+<div class="card"><ul>
+  <li>A fresh session lists <code>sir-albert:*</code> and <code>kb:*</code> skills and no <code>llm-wiki-agent:*</code></li>
+  <li>KB pytest suite passes from <code>plugins/kb</code></li>
+  <li>Every hook (guard, freeze, validate-skill, session-record, kb status/learn) and both launchd jobs run from the new paths</li>
+  <li>The stale-name grep (<code>llm-wiki-agent | kb-query | kb-compile</code>) is empty across the repo and <code>~/.claude</code></li>
+  <li>The edit loop is known and tested: an edit in the repo shows up in a new session</li>
+</ul></div>
+
+<h2>Ticket graph</h2>
+<div class="card"><pre class="mermaid">
+flowchart LR
+  T01[01 Pre-flight clean-up]:::ask --> T03[03 KB subtree]
+  T01 --> T04[04 Move sir-albert]
+  T02[02 Spike: local marketplace]:::spike --> T07
+  T03 --> T05[05 Rename → kb]
+  T04 --> T05
+  T05 --> T06[06 kw-compound + learnings]
+  T06 --> T07[07 Install switch]:::ask
+  T04 --> T07
+  T07 --> T08[08 Verify]
+  T08 --> T09[09 Retire old repo]:::ask
+  classDef ask fill:#ffcb00,color:#000,stroke:#ffcb00
+  classDef spike fill:#6164ff,color:#fff,stroke:#6164ff
+</pre>
+<p style="font-size:var(--text-caption)">Yellow = approval checkpoint. 01 and 02 can start in parallel.</p></div>
+
+<h2>Milestones</h2>
+<div class="miles">
+  <div class="card"><h3>M1 · Clean base</h3><p>01, 02</p><p>Branch merged, edits isolated, edit loop understood.</p></div>
+  <div class="card"><h3>M2 · One repo</h3><p>03, 04, 05, 06</p><p>Both plugins in <code>plugins/</code>, KB renamed and fixed. Still local and fully reversible.</p></div>
+  <div class="card"><h3>M3 · Live</h3><p>07, 08, 09</p><p>This machine runs from the repo, verified, and the old repo points to the new home.</p></div>
+</div>
+
+<h2>Tasks</h2>
+
+<details class="task" open><summary><span>01 · Pre-flight clean-up <span class="pill ask">ASK: push + merge</span></span><span class="files">branches, .memory-bank, docs/</span></summary><div class="body">
+<p>Stash the OS edits → push and PR the 2 commits → merge (after approval) → fast-forward <code>main</code> → put the OS edits on <code>os/preamble-heartbeat</code> → create <code>w1/repo-merge</code> → move <code>docs/superpowers/*</code> into <code>docs/specs|plans</code>, delete the verified <code>ga4-regex.zip</code>, commit.</p>
+<div class="dod"><label><input type="checkbox"> PR merged, <code>main</code> == <code>origin/main</code></label><label><input type="checkbox"> Only <code>hooks/hooks.json</code> and <code>validate-skill.py</code> left untracked</label></div>
+<p><a href="2026-09-24-w1-repo-merge/tickets/01-preflight-cleanup.md">Ticket 01 →</a></p></div></details>
+
+<details class="task"><summary><span>02 · Spike: local-directory marketplace <span class="pill spike">SPIKE</span></span><span class="files">/tmp/w1-spike (throwaway)</span></summary><div class="body">
+<p>Answers: does a local marketplace install copy into the cache (edits need <code>claude plugin update</code>) or read in place? Decides the edit loop, which keeps "one place to edit" true.</p>
+<div class="dod"><label><input type="checkbox"> <code>spike-02-result.md</code> written</label><label><input type="checkbox"> Spike plugin fully removed</label></div>
+<p><a href="2026-09-24-w1-repo-merge/tickets/02-spike-local-marketplace.md">Ticket 02 →</a></p></div></details>
+
+<details class="task"><summary><span>03 · KB subtree with history</span><span class="files">plugins/kb/**</span></summary><div class="body">
+<p>Fast-forward <code>agent_knowledgebase</code> to <code>9ffda12</code>+ → <code>git subtree add --prefix=plugins/kb</code> (no squash) → pytest.</p>
+<div class="dod"><label><input type="checkbox"> KB history under <code>plugins/kb</code></label><label><input type="checkbox"> pytest passes</label></div>
+<p><a href="2026-09-24-w1-repo-merge/tickets/03-kb-subtree.md">Ticket 03 →</a></p></div></details>
+
+<details class="task"><summary><span>04 · Move sir-albert into plugins/sir-albert</span><span class="files">plugin.json, marketplace.json, skills/ hooks/ os/ tools/ shared/</span></summary><div class="body">
+<p><code>git mv</code> → drop the dead <code>skills/knowledge</code> → a single root marketplace listing both plugins → fix absolute paths (repo launchd plists, <code>hooks.json</code> fallback, freeze/retro SKILL.md via create-skill) → check that scripts still resolve to the repo root.</p>
+<div class="risk">⚠️ Scripts that find the repo via <code>dirname $0/..</code> will land in <code>plugins/sir-albert</code>. Step 5 of the ticket greps for this.</div>
+<p><a href="2026-09-24-w1-repo-merge/tickets/04-move-sir-albert.md">Ticket 04 →</a></p></div></details>
+
+<details class="task"><summary><span>05 · Rename KB → <code>kb</code></span><span class="files">plugins/kb/.claude-plugin/plugin.json, REGISTRY, RESOLVER, build-discipline, .claude/settings.local.json</span></summary><div class="body">
+<p>Rename the plugin, check for hardcoded names in the KB code, update references (skills via create-skill).</p>
+<p><a href="2026-09-24-w1-repo-merge/tickets/05-rename-kb.md">Ticket 05 →</a></p></div></details>
+
+<details class="task"><summary><span>06 · kw-compound → kb, learnings → learn-recall</span><span class="files">plugins/kb/skills/{kw-compound,learn-recall}</span></summary><div class="body">
+<p>Move and fix the dead <code>kb-query</code>/<code>kb-compile</code> refs. Merge anything unique in <code>learnings</code> into <code>learn-recall</code>, then remove <code>learnings</code>. All through create-skill; ask if the overlap is unclear.</p>
+<p><a href="2026-09-24-w1-repo-merge/tickets/06-kb-skill-fixes.md">Ticket 06 →</a></p></div></details>
+
+<details class="task"><summary><span>07 · Install switch <span class="pill ask">ASK: live config</span></span><span class="files">~/.claude/{settings.json,CLAUDE.md}, plugins/*.json, LaunchAgents</span></summary><div class="body">
+<p>Back up → remove the symlink → add the local marketplace, install both plugins → uninstall <code>llm-wiki-agent</code> → update settings.json (4 hook paths, permissions, enabledPlugins, marketplace entry; diff reviewed first) → CLAUDE.md imports → reload the launchd jobs → report KB references in other projects (e.g. <code>gtm_agent</code>) without editing them.</p>
+<div class="risk">⚠️ Live config. A full rollback recipe is in the ticket; backups go to <code>~/.claude/backups/w1/</code>.</div>
+<p><a href="2026-09-24-w1-repo-merge/tickets/07-install-switch.md">Ticket 07 →</a></p></div></details>
+
+<details class="task"><summary><span>08 · End-to-end verification</span><span class="files">verify-08-result.md</span></summary><div class="body">
+<p>8 checks with pasted evidence: pytest, skill list, identity imports, every hook, stale-name grep, <code>kb:wiki-query</code> answering, launchd paths, edit loop. Then ask before pushing and opening the PR.</p>
+<div class="dod"><label><input type="checkbox"> All 8 checks pass with evidence</label><label><input type="checkbox"> W1 PR opened after approval</label></div>
+<p><a href="2026-09-24-w1-repo-merge/tickets/08-verify.md">Ticket 08 →</a></p></div></details>
+
+<details class="task"><summary><span>09 · Retire old repo <span class="pill ask">ASK: public</span></span><span class="files">gal-Tab/agent_knowledgebase README</span></summary><div class="body">
+<p>A "Moved" notice PR, drafted and approved first. No archiving and no local deletion; both stay Gal's call.</p>
+<p><a href="2026-09-24-w1-repo-merge/tickets/09-retire-old-repo.md">Ticket 09 →</a></p></div></details>
+
+<script>
+mermaid.initialize({startOnLoad:true,theme:'dark',themeVariables:{primaryColor:'#6164ff',primaryTextColor:'#ffffff',primaryBorderColor:'#6164ff',lineColor:'#c3ced8',secondaryColor:'#232427',tertiaryColor:'#2D3035',fontFamily:'Poppins, sans-serif'}});
+const boxes=[...document.querySelectorAll('input[type=checkbox]')];
+function upd(){const n=boxes.filter(b=>b.checked).length;document.getElementById('bar').style.width=(100*n/boxes.length)+'%';document.getElementById('count').textContent=n+' of '+boxes.length+' checks';}
+boxes.forEach(b=>b.addEventListener('change',upd));upd();
+</script>
+</body>
+</html>
