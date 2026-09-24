@@ -58,7 +58,7 @@ Knowledge is **inherited, not forked** — the canonical engine is the `kb` plug
 |---|---|
 | `wiki-query` · `learn-recall` · `learn-research` | `/wiki-init` · `/wiki-compile` · `/learn-capture` |
 
-> The legacy `kb-query` fork (was `plugins/sir-albert/skills/knowledge/kb-query/`) is **retired and deleted** — superseded by `wiki-query`. See `plugins/sir-albert/skills/knowledge/README.md` (retired).
+> The legacy `kb-query` fork is **retired and deleted** — superseded by `kb:wiki-query`.
 
 ### Knowledge Pipeline
 

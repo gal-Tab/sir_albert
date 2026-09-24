@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT:-/Users/galta/Development/sir_albert}/hooks/validate-skill.py\""
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT:-/Users/galta/Development/sir_albert/plugins/sir-albert}/hooks/validate-skill.py\""
           }
         ]
       }
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT:-/Users/galta/Development/sir_albert}/hooks/validate-skill.py\""
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT:-/Users/galta/Development/sir_albert/plugins/sir-albert}/hooks/validate-skill.py\""
           }
         ]
       }
