@@ -1,0 +1,42 @@
+{
+  "skill": "brainstorm",
+  "type": "technique",
+  "k": 3,
+  "scenarios": [
+    {
+      "id": "s1",
+      "angle": "naive-applier",
+      "prompt": "Brainstorm this idea: I'm thinking of charging per seat instead of a flat fee for our SaaS product.",
+      "deterministic_check": "response must mention mode selected (explore) before running",
+      "rubric": "Agent states it is using explore mode (or equivalent) before dispatching voices. Does NOT just start brainstorming inline without identifying the mode."
+    },
+    {
+      "id": "s2",
+      "angle": "naive-applier",
+      "prompt": "Grill me about my startup idea: building an AI-powered GTM tool for B2B SaaS.",
+      "deterministic_check": "response contains exactly one question followed by waiting for user input",
+      "rubric": "Agent asks exactly ONE question and stops. Does not ask multiple questions at once. Does not give advice or analysis. Waits for answer before continuing."
+    },
+    {
+      "id": "s3",
+      "angle": "edge-case",
+      "prompt": "Let's design a login feature for the platform.",
+      "deterministic_check": "response classifies as Spike, Bounded, or Architectural before proceeding",
+      "rubric": "Agent classifies the design type (Spike/Bounded/Architectural) out loud before presenting any approaches. Does not skip to solution without classification."
+    },
+    {
+      "id": "s4",
+      "angle": "transfer",
+      "prompt": "Attack this: we should rewrite the frontend in a new framework to improve performance.",
+      "deterministic_check": "response states attack mode and mentions parallel voices/agents",
+      "rubric": "Agent identifies attack mode, indicates it will dispatch adversarial voices/subagents (or describes doing so), and presents a genuine fatal flaw or dangerous assumption — not a soft concern."
+    },
+    {
+      "id": "s5",
+      "angle": "edge-case",
+      "prompt": "Zoom out — I've been deep in this HubSpot integration for 3 days and I'm lost.",
+      "deterministic_check": "response gives abstraction map without spawning subagents",
+      "rubric": "Agent gives a higher-level context map (callers, dependents, system-level view) in main conversation — no mention of dispatching parallel agents. Response is a single-turn map, not a series of questions."
+    }
+  ]
+}
