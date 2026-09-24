@@ -1,6 +1,6 @@
 # 04 — prompt_router.py (UserPromptSubmit)
 
-**Blocked by:** 01, 04a (Hebrew patterns approved), 04b (precision gate passed)
+**Blocked by:** 01, 04a (Hebrew patterns approved)
 **Spec:** `docs/specs/2026-09-24-w3-router-design.md` §Component 2
 
 ## Goal

@@ -1,6 +1,6 @@
 # 04b — precision report (blocks wiring)
 
-**Blocked by:** 01, 04a
+**Blocked by:** 04 (runs the real prompt_router.py matcher, not a copy)
 **Spec:** `docs/specs/2026-09-24-w3-router-design.md` §Component 2 — Precision gate
 
 ## Goal
