@@ -1,0 +1,26 @@
+{
+  "name": "sir-albert",
+  "owner": {
+    "name": "gal-Tab"
+  },
+  "plugins": [
+    {
+      "name": "sir-albert",
+      "description": "Gal's personal skills library for Claude Code: engineering workflow, document generation, business decision-making, and wiki query skills.",
+      "version": "0.1.0",
+      "source": "./plugins/sir-albert",
+      "author": {
+        "name": "gal-Tab"
+      }
+    },
+    {
+      "name": "kb",
+      "description": "Knowledge base agent that compiles PDFs, markdown, and repos into a structured wiki",
+      "version": "0.1.0",
+      "source": "./plugins/kb",
+      "author": {
+        "name": "gal-Tab"
+      }
+    }
+  ]
+}

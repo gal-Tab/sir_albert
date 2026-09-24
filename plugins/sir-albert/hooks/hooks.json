@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT:-/Users/galta/Development/sir_albert/plugins/sir-albert}/hooks/validate-skill.py\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT:-/Users/galta/Development/sir_albert/plugins/sir-albert}/hooks/validate-skill.py\""
+          }
+        ]
+      }
+    ]
+  }
+}
