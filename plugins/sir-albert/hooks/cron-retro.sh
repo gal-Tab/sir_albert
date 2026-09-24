@@ -14,7 +14,7 @@ PROMPT="Run /sir-albert:retro now. READ + PRINT ONLY. Analyze recent Claude Code
 
 {
   echo "=== retro run $(date) ==="
-  claude -p "$PROMPT" --permission-mode bypassPermissions --disallowedTools "Write" "Edit"
+  claude --plugin-dir "$HOME/Development/sir_albert/plugins" -p "$PROMPT" --permission-mode bypassPermissions --disallowedTools "Write" "Edit"
   echo "=== claude exit $? ==="
 } >> "$LOG" 2>&1
 exit 0

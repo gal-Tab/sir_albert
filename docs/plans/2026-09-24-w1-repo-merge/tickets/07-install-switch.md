@@ -14,7 +14,7 @@
    - The marketplace (`.claude-plugin/marketplace.json`) stays in the repo for new machines. Document the install in `README.md`: `claude plugin marketplace add <repo>` + `claude plugin install sir-albert@sir-albert kb@sir-albert`.
 4. `claude plugin uninstall llm-wiki-agent@llm-wiki-agent-dev` and `claude plugin marketplace remove llm-wiki-agent-dev`.
 5. `~/.claude/settings.json` edits (show the diff to the coordinator before saving):
-   - hooks: 4 commands `/Users/galta/Development/sir_albert/hooks/{validate-skill.py (×2), freeze-guard.sh, session-record.sh}` → `…/sir_albert/plugins/sir-albert/hooks/…`
+   - hooks: **remove** both `validate-skill.py` entries, because `plugins/sir-albert/hooks/hooks.json` now provides them and keeping both would fire it twice. Repoint `freeze-guard.sh` and `session-record.sh` → `…/sir_albert/plugins/sir-albert/hooks/…`. They move into plugin `hooks.json` in W3.
    - permissions: `Skill(llm-wiki-agent:kb-compile)` → `Skill(kb:wiki-compile)`. The 4 stale `cp …/llm-wiki-agent/0.1.0/…` permission lines (119–122) → remove.
    - enabledPlugins: remove `llm-wiki-agent@llm-wiki-agent-dev`. Don't add sir-albert or kb here (they load through `--plugin-dir`).
    - extraKnownMarketplaces: remove the `llm-wiki-agent-dev` block (it points to gal-Tab/agent_knowledgebase).
