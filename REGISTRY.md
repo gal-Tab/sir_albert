@@ -101,7 +101,6 @@ Domain-agnostic OS spine. Every core skill boots from `os/PREAMBLE.md`.
 | sync | `plugins/sir-albert/skills/core/sync/` | "sync", "are we in sync", "merged are we in sync", "post-merge cleanup" |
 | decide | `plugins/sir-albert/skills/core/decide/` | "/decide", "we decided", "did we decide X before", "is this already decided" |
 | discover | `plugins/sir-albert/skills/core/discover/` | "help me think through X", "let's explore", "which lens", "office hours" |
-| learnings | `plugins/sir-albert/skills/core/learnings/` | "learnings", "load past corrections", "canonicalize compound", "before wiki-compile" |
 | freeze | `plugins/sir-albert/skills/core/freeze/` | "/freeze", "scope edits to", "/unfreeze" |
 | retro | `plugins/sir-albert/skills/core/retro/` | "/retro", "self-improve skills", "review my corrections" |
 

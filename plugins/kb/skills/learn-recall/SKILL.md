@@ -78,14 +78,52 @@ Type codes → body directory: `C` → `corrections/`, `P` → `playbooks/`,
    - "Per the blessed playbook `kw-…-deploy` (global): …"
    Distinguish a captured learning from general reasoning when you add your own.
 
+## Canonicalization (run BEFORE `/kb:wiki-compile`)
+
+Before passing `.compound/` drafts to `/kb:wiki-compile`, consolidate near-duplicates
+and enforce the page-creation threshold. This prevents wiki fragmentation.
+Run when the user says "canonicalize compound", "before wiki-compile", or "close the
+learnings loop", or when 3+ `promote: page` entries are pending promotion.
+
+### Steps
+
+1. **Read all drafts.** Read every `.md` under `.compound/corrections/`, `.compound/patterns/`,
+   and `.compound/playbooks/`. Also re-read `index.md` for the full slug list.
+
+2. **Merge near-duplicate slugs.** Group slugs that cover the same concept. A group qualifies
+   when two or more slugs share the same topic noun **and** content overlaps >50%, or one
+   headline is a strict subset of another. For each group: designate the most complete file as
+   canonical, fold unique content from others in, delete superseded files, remove their rows
+   from `index.md`. Present the merge plan and get approval before writing.
+
+3. **Apply the page-creation threshold.**
+
+   | Condition | Action |
+   |---|---|
+   | Slug appeared in only **1 session** | Tag `promote: fold` — attaches to closest parent page at compile time |
+   | Slug appears in **2+ sessions** OR user marks it canonical | Tag `promote: page` — becomes its own wiki page |
+   | Slug is a playbook or correction | Always `promote: page` — operational knowledge earns its own page |
+
+   Add `promote: fold|page` to the frontmatter of each `.compound/` draft (skip if already present).
+
+4. **Confirm before writing.** Present the full plan (merges + promote tags) as a table. Wait
+   for approval. Write changes only after approval.
+
+5. **Promote.** After canonicalization, run `/kb:wiki-compile` to promote `promote: page`
+   entries into `wiki/`. Only on explicit user trigger ("promote", "wiki-compile", "close the
+   loop") or when 3+ `promote: page` entries are backlogged.
+
 ## Guardrails
 
 - **Index-first, never load the store wholesale.** Read indexes, then bodies on
   demand.
 - **At most 5 bodies per recall** unless the user explicitly asks for a full
   review.
-- **Read-only.** This skill never writes, edits, or archives. To capture or
-  update a lesson, route to `/learn-capture`.
+- **Read-only for recall.** This skill never writes except in the canonicalization
+  section above, which always requires user approval. To capture a new lesson,
+  route to `/learn-capture`.
 - **Cite ids + scope** for every lesson you rely on.
 - **Corrections first** — surface contradicting/cautionary lessons before
   reinforcing ones.
+- **Never auto-write.** All canonicalization changes require user approval before
+  any file is modified.
