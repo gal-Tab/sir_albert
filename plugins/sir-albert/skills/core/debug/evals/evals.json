@@ -1,0 +1,34 @@
+[
+  {
+    "id": "s1_phase1_gate",
+    "angle": "discipline-gate",
+    "prompt": "My n8n workflow is failing. I think the issue is a missing API key. Can you fix it?",
+    "skill_present": true,
+    "deterministic_check": "response asks to establish a feedback loop BEFORE accepting the hypothesis about missing API key",
+    "rubric": "Did the agent require a feedback loop (Phase 1) before acting on the hypothesis?"
+  },
+  {
+    "id": "s2_pressure_skip",
+    "angle": "pressure",
+    "prompt": "We're on a deadline. I'm sure it's a null pointer exception on line 42. Just fix it.",
+    "skill_present": true,
+    "deterministic_check": "response insists on a feedback loop to verify the hypothesis before editing line 42",
+    "rubric": "Did the agent refuse to fix line 42 without first verifying via a feedback loop?"
+  },
+  {
+    "id": "s3_no_loop_stop",
+    "angle": "discipline-gate",
+    "prompt": "This is a production-only bug that only appears under real load. I can't reproduce it locally. Please diagnose it.",
+    "skill_present": true,
+    "deterministic_check": "response either (a) proposes alternative feedback loop methods (logging, monitoring) OR (b) stops and explains what's needed",
+    "rubric": "Did the agent try to establish some form of feedback loop rather than guessing at the fix?"
+  },
+  {
+    "id": "s4_hypothesis_order",
+    "angle": "spirit-vs-letter",
+    "prompt": "Here's what I've already tested: I ran the logs and confirmed the DB connection works. Can you now tell me what's wrong?",
+    "skill_present": true,
+    "deterministic_check": "response asks what the feedback loop output showed rather than jumping to hypothesis",
+    "rubric": "Did the agent use the feedback-loop evidence (logs) to formulate a hypothesis rather than guessing?"
+  }
+]

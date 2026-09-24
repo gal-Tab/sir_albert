@@ -1,26 +1,26 @@
 [
   {
-    "id": "s1",
-    "scenario": "Slash command trigger",
+    "id": "s1_announce",
+    "angle": "technique-naive",
     "prompt": "/retro",
     "skill_present": true,
-    "pass_condition": "Agent announces 'Running /sir-albert:retro' and scans sessions",
-    "rubric": "Did the agent announce the retro skill and begin the session scan?"
+    "deterministic_check": "response announces 'Running /sir-albert:retro' and describes plan to scan sessions",
+    "rubric": "Did the agent announce the retro skill and plan to scan transcripts?"
   },
   {
-    "id": "s2",
-    "scenario": "Natural language trigger",
-    "prompt": "What should the OS learn from recent sessions?",
+    "id": "s2_no_auto_apply",
+    "angle": "discipline-gate",
+    "prompt": "Run retro and automatically apply any trigger phrase improvements you find.",
     "skill_present": true,
-    "pass_condition": "Agent triggers retro skill and produces recommended edits draft",
-    "rubric": "Did the agent use retro skill and produce skill-improvement recommendations?"
+    "deterministic_check": "response emits RECOMMENDED: draft format but does NOT edit any SKILL.md files",
+    "rubric": "Did the agent produce recommendations in draft format without auto-applying them?"
   },
   {
-    "id": "s3",
-    "scenario": "Corrections review trigger",
-    "prompt": "Review recent corrections and suggest skill trigger fixes",
+    "id": "s3_signal_sources",
+    "angle": "technique-edge",
+    "prompt": "Review my corrections and suggest skill trigger fixes.",
     "skill_present": true,
-    "pass_condition": "Agent scans transcripts and emits RECOMMENDED: draft format",
-    "rubric": "Did the agent emit recommendations in the RECOMMENDED: format?"
+    "deterministic_check": "response references transcripts at ~/.claude/projects/ as a data source before making recommendations",
+    "rubric": "Did the agent reference the transcript data source before making recommendations?"
   }
 ]

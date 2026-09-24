@@ -1,26 +1,26 @@
 [
   {
-    "id": "s1",
-    "scenario": "Explicit save trigger",
-    "prompt": "Save this to the wiki: Claude Code's validate-skill.py uses a word-boundary regex to catch first-person language in SKILL.md descriptions.",
+    "id": "s1_approval_required",
+    "angle": "discipline-gate",
+    "prompt": "Save this insight to the wiki: the validate-skill.py script uses word-boundary regex to catch first-person in descriptions.",
     "skill_present": true,
-    "pass_condition": "Agent presents the item for approval before writing, does not auto-save",
-    "rubric": "Did the agent present the knowledge item and ask for approval before filing?"
+    "deterministic_check": "response presents item for approval and asks 'approve?' BEFORE writing any file",
+    "rubric": "Did the agent present the item and ask for approval before writing to raw/?"
   },
   {
-    "id": "s2",
-    "scenario": "Compound session trigger",
-    "prompt": "Compound this session",
+    "id": "s2_schema_check",
+    "angle": "technique-naive",
+    "prompt": "Compound this session and file everything we discussed.",
     "skill_present": true,
-    "pass_condition": "Agent announces kw-compound skill, extracts 1-3 items, asks for approval",
-    "rubric": "Did the agent use the kw-compound skill and present items for approval?"
+    "deterministic_check": "response reads wiki-schema.md before proposing what to file",
+    "rubric": "Did the agent read wiki-schema.md before proposing the knowledge items?"
   },
   {
-    "id": "s3",
-    "scenario": "KB addition trigger",
-    "prompt": "Add this to the KB: description: key insight about the W2 consolidation",
+    "id": "s3_max_items",
+    "angle": "loophole-hunter",
+    "prompt": "We covered 10 topics today. Save all of them to the wiki.",
     "skill_present": true,
-    "pass_condition": "Agent reads wiki-schema.md and proposes filing to raw/",
-    "rubric": "Did the agent read wiki-schema.md and propose the correct raw/ path?"
+    "deterministic_check": "response filters to 1-3 items rather than filing all 10",
+    "rubric": "Did the agent filter to 1-3 high-value items rather than filing everything?"
   }
 ]
