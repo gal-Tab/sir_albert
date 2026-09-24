@@ -10,9 +10,9 @@ Every sir-albert skill boots from [`os/PREAMBLE.md`](PREAMBLE.md): it loads iden
 |---|---|---|---|
 | Make a **GTM** change (tag/var/trigger) | `packs/gtm` — plan → apply → publish | `rules/gtm-naming.md` + `rules/consent-map.md` (validated *before* apply) | dry-run first; live publish only after **ASK**; then `/handoff` |
 | Build a **dashboard / analysis** | `packs/data` — `/prototype` → query (Kremer/z2h) → viz | `data-review` + attested metric specs | z2h **look** + OKF mirror; Slack draft in voice |
-| Build a **skill / agent / wiki / MCP** | `packs/build` — discover → spec → prototype → build → **attest** → ship | OS-vs-team-repo boundary | skill in this repo; durable knowledge → wiki |
+| Build a **skill / agent / wiki / MCP** | `core/build` — brainstorm → spec → prototype → build → **attest** → ship | OS-vs-team-repo boundary | skill in this repo; durable knowledge → wiki |
 | Fix an **n8n / integration** flow | `packs/automation` — `/n8n-triage` | HubSpot API-safety check | fix proposal; **ASK** before prod deploy |
-| **Think first** (front-runs any mode) | Core `/discover` — pick a lens: explore · sharpen · attack · zoom-out | — | feeds the mode above |
+| **Think first** (front-runs any mode) | Core `/brainstorm` — modes: explore · sharpen · attack · panel · grill · zoom-out · design | — | feeds the mode above |
 
 ## Core — loaded everywhere
 - **Continuity:** `/handoff` (writes the doc **and** a paste-able restart prompt) · `/resume` (reload latest handoff, state plan back in ≤5 bullets) · `/sync` (post-merge git; safe `-d` cleanup only).

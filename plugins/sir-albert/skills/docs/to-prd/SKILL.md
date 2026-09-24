@@ -144,7 +144,7 @@ The PRD is a single, self-contained `.html` file styled with monday.com's dark t
 - `references/sample-prd.html` — **Start here.** A complete example PRD (Event Lead Ingest Agent) showing every section, component, and style in action. Use this as your primary structural and visual reference.
 - `../../../shared/references/design-tokens.md` — Full CSS variable set and component styles.
 - `../../../shared/references/mermaid-patterns.md` — Monday-themed Mermaid diagram config and common patterns.
-- `../html-plans/sample-plan.html` — An implementation plan example for additional styling reference (plans and PRDs share the same design system).
+- `../../../core/plan/sample-plan.html` — An implementation plan example for additional styling reference (plans and PRDs share the same design system).
 
 ### Key Requirements
 

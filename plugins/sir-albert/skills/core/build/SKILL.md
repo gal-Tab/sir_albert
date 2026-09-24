@@ -90,7 +90,7 @@ This matters. Duplication here wastes hours.
 
 | Layer | What lives here | Examples |
 |---|---|---|
-| **OS** (`sir_albert`) | Gal's *reusable* skills — logic Gal owns and reuses across contexts | `to-prd`, `data-review`, `build-discipline` |
+| **OS** (`sir_albert`) | Gal's *reusable* skills — logic Gal owns and reuses across contexts | `to-prd`, `data-review`, `build` |
 | **Team repos** | *Shared / governed* knowledge and team-specific workflows | `marketing-cookbook` (GTM playbooks), `mopa_brain` (MOPA logic), `data-cookbook` (data definitions) |
 
 **Rule:** If it's a reusable capability → OS. If it's governed team knowledge → team repo. When in doubt, ask: "Would another team member need to maintain this?" If yes → team repo.

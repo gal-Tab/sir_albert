@@ -1,4 +1,4 @@
-# Design Tokens — html-plans
+# Design Tokens — plan
 
 CSS variables and components for plan HTML files. Inline this entire set into your `<style>` block.
 
