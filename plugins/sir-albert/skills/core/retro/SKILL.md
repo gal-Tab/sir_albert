@@ -85,13 +85,13 @@ Append this as the **third** element of the existing `SessionEnd` array in `~/.c
 > **WARNING: APPEND — do NOT replace the array, or you break token-optimizer (measure.py collect) and axcli (_session-end). Keep all three entries.**
 
 ```json
-{ "hooks": [ { "type": "command", "command": "bash /Users/galta/Development/sir_albert/hooks/session-record.sh" } ] }
+{ "hooks": [ { "type": "command", "command": "bash /Users/galta/Development/sir_albert/plugins/sir-albert/hooks/session-record.sh" } ] }
 ```
 Full resulting array for reference:
 ```json
 "SessionEnd": [
   { "hooks": [ { "command": "python3 /Users/galta/.claude/token-optimizer/skills/token-optimizer/scripts/measure.py collect --quiet", "type": "command" } ] },
   { "hooks": [ { "command": "/Users/galta/.local/bin/axcli _session-end", "type": "command" } ] },
-  { "hooks": [ { "type": "command", "command": "bash /Users/galta/Development/sir_albert/hooks/session-record.sh" } ] }
+  { "hooks": [ { "type": "command", "command": "bash /Users/galta/Development/sir_albert/plugins/sir-albert/hooks/session-record.sh" } ] }
 ]
 ```

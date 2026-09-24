@@ -8,7 +8,7 @@
   <array>
     <string>/bin/zsh</string>
     <string>-lc</string>
-    <string>/Users/galta/Development/sir_albert/hooks/cron-retro.sh</string>
+    <string>/Users/galta/Development/sir_albert/plugins/sir-albert/hooks/cron-retro.sh</string>
   </array>
   <key>StartCalendarInterval</key>
   <dict>

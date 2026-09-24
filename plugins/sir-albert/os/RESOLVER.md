@@ -21,7 +21,7 @@ Every sir-albert skill boots from [`os/PREAMBLE.md`](PREAMBLE.md): it loads iden
 - **Voice / anti-slop:** `slack-in-my-voice`, `linkedin-in-my-voice` (channels resolved from `USER.md`) · TLDR-first, bullets, tables for comparisons, no re-explaining what I know.
 
 ## Knowledge engine — inherit, don't fork
-Query & capture via the **`llm-wiki-agent` plugin** (canonical): `wiki-query` / `learn-recall` / `learn-research`; commands `/wiki-init` `/wiki-compile` `/learn-capture`. Write side: `kw-compound` → `raw/` → canonicalize → `/wiki-compile`. **Legacy `kb-*` is retired — do not use.**
+Query & capture via the **`kb` plugin** (canonical): `kb:wiki-query` / `kb:learn-recall` / `kb:learn-research`; commands `/kb:wiki-init` `/kb:wiki-compile` `/kb:learn-capture`. Write side: `kw-compound` → `raw/` → canonicalize → `/kb:wiki-compile`. **Legacy `kb-*` and `llm-wiki-agent:*` are retired — do not use.**
 
 ## Externals — WRAP, never fork
 Called from here, kept intact and auto-updating: **superpowers** (process/skills spine) · **z2h** (dashboards) · **commit-commands** (git) · **pr-guardrails** (PR checks).

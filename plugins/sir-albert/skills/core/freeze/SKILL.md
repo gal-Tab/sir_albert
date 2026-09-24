@@ -59,7 +59,7 @@ To enable enforcement, add the following snippet to `~/.claude/settings.json` un
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/galta/Development/sir_albert/hooks/freeze-guard.sh"
+            "command": "/Users/galta/Development/sir_albert/plugins/sir-albert/hooks/freeze-guard.sh"
           }
         ]
       }
