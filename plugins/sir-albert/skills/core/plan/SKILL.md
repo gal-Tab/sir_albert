@@ -1,15 +1,63 @@
 ---
-name: html-plans
-description: Generate implementation plans as rich, interactive HTML files styled with monday.com's dark theme. Use this skill whenever the user asks to write a plan, create an implementation plan, plan a feature, write a technical spec for implementation, or break down a task into steps. Replaces markdown plans with visually rich HTML that includes collapsible sections, Mermaid diagrams, styled code blocks, and progress tracking. Also triggers on "plan this", "break this down", "write a plan for", "implementation steps", or any multi-step coding task that needs a plan before execution.
+name: plan
+description: Use when asked to write a plan, break down a task, create implementation steps, or turn a spec into agent-executable tickets. Triggers on "write a plan", "plan this", "break this down", "break this down into tickets", "implementation steps", "vertical slices", "write a plan for", "plan a feature".
 ---
 
-# html-plans
+# plan
 
-Generate implementation plans as single-file, self-contained HTML documents styled with monday.com's dark theme. Plans are visually rich, easy to skim, and executable by both humans and coding agents.
+Generates two artifacts from a single planning session: an interactive HTML document for human navigation and agent-executable ticket `.md` files as the source of truth for build work.
 
-**Announce at start:** "I'm using the html-plans skill to create an HTML implementation plan."
+**Announce at start:** "I'm using the plan skill."
 
 **Save plans to:** `docs/plans/YYYY-MM-DD-<feature-name>.html`
+
+## Approval gate
+
+Before generating any files:
+1. **Classify request depth:** one-file task / feature / subsystem (governs milestone count and granularity).
+2. Present the breakdown (milestones + ticket slugs) for user approval.
+3. Wait for explicit approval — "yes", "looks good", thumbs-up, etc.
+4. Generate HTML + ticket `.md` files only after approval. This is a tracer-bullet: approve once, then generate all files.
+
+Do not generate files before approval. Do not auto-approve.
+
+---
+
+## Ticket output
+
+For each milestone/task in the plan, also write a ticket `.md` file:
+
+**Path:** `docs/plans/YYYY-MM-DD-<topic>/tickets/NN-<slug>.md`
+
+**Format:**
+```markdown
+# NN — <slug>
+
+**Blocked by:** <ticket numbers or —>
+**Spec:** `docs/specs/YYYY-MM-DD-<topic>.md §<section>` (if applicable)
+
+## Goal
+One sentence: what does "done" look like?
+
+## Steps
+1. <exact file path + action, 2–5 min each>
+2. ...
+
+## Definition of Done
+- [ ] criterion
+
+## CHECKPOINT (if any irreversible action)
+Stop and ask before: pushing to remote, deploying, external sends, deletes.
+```
+
+**Granularity rules (writing-plans gates):**
+- Each step touches a specific file at a specific path — no vague steps ("update the config").
+- Steps are 2–5 minutes each. A 30-minute step is actually 6–10 steps.
+- Test steps are included explicitly: "Run: `pytest tests/…` — Expected: PASS."
+- Blocking edges are explicit: `**Blocked by:** 03, 07` not just prose.
+- One vertical slice (the smallest possible thing that works end-to-end) is always the first ticket.
+
+---
 
 ## Why HTML over Markdown
 
