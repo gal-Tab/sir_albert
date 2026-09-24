@@ -24,7 +24,7 @@ Every sir-albert skill boots from [`os/PREAMBLE.md`](PREAMBLE.md): it loads iden
 Query & capture via the **`kb` plugin** (canonical): `kb:wiki-query` / `kb:learn-recall` / `kb:learn-research`; commands `/kb:wiki-init` `/kb:wiki-compile` `/kb:learn-capture`. Write side: `kw-compound` → `raw/` → canonicalize → `/kb:wiki-compile`. **Legacy `kb-*` and `llm-wiki-agent:*` are retired — do not use.**
 
 ## Externals — WRAP, never fork
-Called from here, kept intact and auto-updating: **superpowers** (process/skills spine) · **z2h** (dashboards) · **commit-commands** (git) · **pr-guardrails** (PR checks).
+Called from here, kept intact and auto-updating: **superpowers** (installed, kept until W4 — process skills now live in `sir-albert core`) · **z2h** (dashboards) · **commit-commands** (git) · **pr-guardrails** (PR checks).
 
 ## Protected — NEVER disable (they ship critical payload)
 **token-optimizer** (hooks) · **axcli** (gateway+hooks) · **slack** (MCP) · **code-review** / **code-simplifier** · **cf-external** (vibe MCP).

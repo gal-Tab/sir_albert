@@ -12,7 +12,6 @@
     "skills-library"
   ],
   "skills": [
-    "./skills/agentic",
     "./skills/dev",
     "./skills/docs",
     "./skills/biz",
