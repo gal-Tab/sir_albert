@@ -24,7 +24,7 @@ Every build — no matter how small — touches all six stages. Size decides dep
 
 | Stage | What happens | Key skill |
 |---|---|---|
-| **discover** | Clarify the question, identify the right sub-loop, check what already exists | `kb-query`, `github-repo-analyzer` |
+| **discover** | Clarify the question, identify the right sub-loop, check what already exists | `kb:wiki-query`, `github-repo-analyzer` |
 | **spec** | Formalise intent as a testable PRD or one-pager | `to-prd` |
 | **prototype** | Answer one design question with throwaway code/query | `prototype` |
 | **build** | Implement against the spec | sub-loop specific (see below) |
@@ -54,7 +54,7 @@ prototype → query → viz → deliver
 
 ### knowledge
 
-**Entry:** You need to add, query, or compile governed knowledge. The engine is `llm-wiki-agent`.
+**Entry:** You need to add, query, or compile governed knowledge. The engine is the `kb` plugin.
 
 ```
 ingest → compile → query / recall / research

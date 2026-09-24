@@ -52,9 +52,9 @@ Shared design system: `plugins/sir-albert/shared/references/design-tokens.md` an
 
 ## knowledge — Knowledge Management
 
-Knowledge is **inherited, not forked** — the canonical engine is the `llm-wiki-agent` plugin.
+Knowledge is **inherited, not forked** — the canonical engine is the `kb` plugin.
 
-| Query (via llm-wiki-agent) | Pipeline commands |
+| Query (via kb) | Pipeline commands |
 |---|---|
 | `wiki-query` · `learn-recall` · `learn-research` | `/wiki-init` · `/wiki-compile` · `/learn-capture` |
 
@@ -66,9 +66,9 @@ Knowledge is **inherited, not forked** — the canonical engine is the `llm-wiki
 
 ```
 raw/ (source drop zone)
-  ↓  /wiki-compile          (llm-wiki-agent)
+  ↓  /wiki-compile          (kb)
 wiki/ (structured pages: sources/, entities/, concepts/, comparisons/)
-  ↑  wiki-query reads       (llm-wiki-agent)
+  ↑  wiki-query reads       (kb)
   ↑  /kw-compound writes back to raw/   (plugins/sir-albert/skills/agentic/)
 ```
 
