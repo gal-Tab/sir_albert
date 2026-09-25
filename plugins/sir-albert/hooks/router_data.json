@@ -1,0 +1,80 @@
+{
+  "pack_signals": [
+    {"pack": "gtm",        "signal_type": "glob",    "pattern": "apply-*.ts"},
+    {"pack": "n8n",        "signal_type": "glob",    "pattern": "*.workflow.json"},
+    {"pack": "hubspot",    "signal_type": "glob",    "pattern": "hs*.js"},
+    {"pack": "hubspot",    "signal_type": "dir",     "pattern": ".hubspot"},
+    {"pack": "kb",         "signal_type": "dir_pair","pattern": "raw+wiki"},
+    {"pack": "z2h",        "signal_type": "file",    "pattern": ".z2h"},
+    {"pack": "code",       "signal_type": "dir_pair","pattern": ".git+tests"}
+  ],
+  "keyword_patterns": [
+    {
+      "order": 10,
+      "intent": "attack",
+      "pattern": "\\b(devil['\u2019]s advocate|stress.?test (my|this)|find (the\\s)?holes in|attack (my|this))\\b",
+      "nudge": "\u2192 /sir-albert:brainstorm attack"
+    },
+    {
+      "order": 20,
+      "intent": "grill",
+      "pattern": "\\b(grill me|interview me (about|on))\\b",
+      "nudge": "\u2192 /sir-albert:brainstorm grill"
+    },
+    {
+      "order": 30,
+      "intent": "zoom-out",
+      "pattern": "\\b(zoom out|bigger picture|how does this fit into)\\b",
+      "nudge": "\u2192 /sir-albert:brainstorm zoom-out"
+    },
+    {
+      "order": 40,
+      "intent": "design",
+      "pattern": "\\b(let['\u2019]s design|design (a|the|this)|i want to build)\\b",
+      "nudge": "\u2192 /sir-albert:brainstorm design"
+    },
+    {
+      "order": 50,
+      "intent": "brainstorm",
+      "pattern": "\\blet['\u2019]s (brainstorm|explore|think through)\\b|fresh perspective on|help me think through\\b",
+      "nudge": "\u2192 /sir-albert:brainstorm (explore mode)"
+    },
+    {
+      "order": 60,
+      "intent": "plan",
+      "pattern": "\\b(make a plan|write a plan|turn (this|the) spec into a plan)\\b",
+      "nudge": "\u2192 /sir-albert:plan"
+    },
+    {
+      "order": 70,
+      "intent": "execute",
+      "pattern": "\\b(run the plan|execute the plan|implement (the|this) plan)\\b",
+      "nudge": "\u2192 /sir-albert:execute"
+    },
+    {
+      "order": 80,
+      "intent": "debug",
+      "pattern": "\\b(help me debug|let['\u2019]s debug|why is (this|it) (broken|failing|not working))\\b",
+      "nudge": "\u2192 /sir-albert:debug"
+    },
+    {
+      "order": 90,
+      "intent": "build",
+      "pattern": "\\b(finish (the\\s)?branch|ship (this\\s)?(feature|change|branch)|let['\u2019]s (ship|build and ship))\\b",
+      "nudge": "\u2192 /sir-albert:build"
+    },
+    {
+      "order": 100,
+      "intent": "handoff",
+      "pattern": "\\b(end of session|write (a\\s)?handoff|create (a\\s)?handoff)\\b",
+      "nudge": "\u2192 /sir-albert:handoff"
+    },
+    {
+      "order": 110,
+      "intent": "resume",
+      "pattern": "\\b(reload (my\\s)?context|where were we|continue (the\\s)?session)\\b",
+      "nudge": "\u2192 /sir-albert:resume"
+    }
+  ],
+  "hebrew_patterns": []
+}
