@@ -1,5 +1,17 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "python3 \"${CLAUDE_PLUGIN_ROOT:-/Users/galta/Development/sir_albert/plugins/sir-albert}/hooks/session_start.py\""
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "python3 \"${CLAUDE_PLUGIN_ROOT:-/Users/galta/Development/sir_albert/plugins/sir-albert}/hooks/prompt_router.py\""
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Write",
@@ -7,6 +19,15 @@
           {
             "type": "command",
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT:-/Users/galta/Development/sir_albert/plugins/sir-albert}/hooks/validate-skill.py\""
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT:-/Users/galta/Development/sir_albert/plugins/sir-albert}/hooks/freeze-guard.sh\""
           }
         ]
       }
@@ -20,6 +41,12 @@
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT:-/Users/galta/Development/sir_albert/plugins/sir-albert}/hooks/validate-skill.py\""
           }
         ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "type": "command",
+        "command": "bash \"${CLAUDE_PLUGIN_ROOT:-/Users/galta/Development/sir_albert/plugins/sir-albert}/hooks/session-record.sh\""
       }
     ]
   }
