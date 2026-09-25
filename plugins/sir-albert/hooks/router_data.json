@@ -76,5 +76,18 @@
       "nudge": "\u2192 /sir-albert:resume"
     }
   ],
-  "hebrew_patterns": []
+  "hebrew_patterns": [
+    {
+      "order": 200,
+      "intent": "slack-hebrew",
+      "pattern": "(?=.*(?:כתוב|נסח))(?=.*סלאק)",
+      "nudge": "→ /sir-albert:slack-in-my-voice"
+    },
+    {
+      "order": 210,
+      "intent": "linkedin-hebrew",
+      "pattern": "(?=.*(?:כתוב|נסח))(?=.*פוסט)(?=.*לינקדאין)",
+      "nudge": "→ /sir-albert:linkedin-in-my-voice"
+    }
+  ]
 }
