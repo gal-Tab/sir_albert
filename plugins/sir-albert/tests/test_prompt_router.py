@@ -55,8 +55,26 @@ class TestMatches:
     def test_design(self):
         assert "design" in _nudge("let's design this system")
 
+    def test_slack_in_my_voice(self):
+        assert "slack-in-my-voice" in _nudge("slack in my voice about what we found")
+
     def test_plan(self):
         assert "/sir-albert:plan" in _nudge("make a plan for this")
+
+    def test_plan_create(self):
+        assert "/sir-albert:plan" in _nudge("create a plan with validation steps")
+
+    def test_plan_write_me(self):
+        assert "/sir-albert:plan" in _nudge("write me a plan for this")
+
+    def test_brainstorm_wdyt(self):
+        assert "/sir-albert:brainstorm" in _nudge("wdyt about this approach")
+
+    def test_brainstorm_what_do_you_think(self):
+        assert "/sir-albert:brainstorm" in _nudge("what do you think about this?")
+
+    def test_handoff_wrap_session(self):
+        assert "/sir-albert:handoff" in _nudge("let's wrap this session and start a new one")
 
     def test_execute(self):
         assert "/sir-albert:execute" in _nudge("implement the plan now")
