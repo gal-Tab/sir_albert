@@ -190,6 +190,12 @@ def main():
         "",
         "## Run audit",
         f"- Run count: {n} / {EXPECTED_RUN_COUNT} ✓",
+        *[
+            f"- Arm {arm.upper()}: {sum(1 for r in _arts if r.get('truncated'))} of {len(_arts)} runs cut off "
+            f"(max-turns / budget cap); total cost ${sum(r.get('cost_usd') or 0 for r in _arts):.2f}"
+            for arm in ("a", "b")
+            for _arts in [[json.loads(f.read_text()) for f in run_files if f.name.startswith(f"{arm}-")]]
+        ],
         "",
         "## Win-rate (pooled)",
         "| Metric | Value |",

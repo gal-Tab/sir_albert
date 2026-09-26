@@ -98,6 +98,16 @@ skills_loaded = [
     for s in ((init_ev or {}).get('skills') or [])
 ]
 
+# assistant_text: every assistant text block, in order. A run that hits --max-turns or
+# the budget cap has NO result field (verified on the live canary), so the judge falls
+# back to this rather than seeing an empty response.
+assistant_text = '\n\n'.join(
+    b.get('text', '')
+    for e in events if e.get('type') == 'assistant'
+    for b in (e.get('message', {}).get('content') or [])
+    if isinstance(b, dict) and b.get('type') == 'text' and b.get('text', '').strip()
+)
+
 # skills_called: what the model actually invoked (Skill tool_use blocks).
 skills_called = [
     b.get('input', {}).get('skill', '')
@@ -125,6 +135,8 @@ artifact = {
     'result_subtype': result_subtype,
     'skills_loaded': skills_loaded,
     'skills_called': skills_called,
+    'assistant_text': assistant_text,
+    'truncated': result_ev is None or 'result' not in (result_ev or {}),
     'init_event': init_ev,
     'result_event': result_ev,
 }

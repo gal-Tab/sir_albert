@@ -267,3 +267,11 @@ def test_call_judge_sends_prompt_on_stdin(tmp_path):
     out = bj.call_judge("p", "left text", "right text", "claude-opus-5-5[1m]", settings,
                         bj.TOOLS_EVAL / "guarded.sh", str(stub))
     assert out["winner"] == "tie", out
+
+
+def test_summarize_falls_back_to_assistant_text_when_truncated():
+    """A max-turns run has no result field; the judge must see its assistant text."""
+    art = {"arm": "b", "prompt_hash": "t", "rep": 1, "skills_loaded": [],
+           "result_event": {"type": "result", "subtype": "error_max_turns"},
+           "assistant_text": "Here is the partial plan."}
+    assert bj.summarize(art) == "Here is the partial plan."

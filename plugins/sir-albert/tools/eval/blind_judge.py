@@ -36,7 +36,8 @@ Which response is better? Reply with JSON only: {{"winner": "left"|"right"|"tie"
 def summarize(artifact: dict) -> str:
     """Extract and anonymize the final response text from an artifact."""
     # Final response text lives in the result event (verified against the probe stream).
-    final_text = ((artifact.get("result_event") or {}).get("result") or "")
+    # A run cut off by --max-turns / budget has no result; fall back to its assistant text.
+    final_text = ((artifact.get("result_event") or {}).get("result") or artifact.get("assistant_text") or "")
     if not final_text.strip():
         raise ValueError(
             f"empty response in {artifact['arm']}-{artifact['prompt_hash']}-rep{artifact['rep']}"
