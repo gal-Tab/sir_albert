@@ -1,0 +1,114 @@
+Precision + Recall Report — 2026-09-25
+============================================================
+Organic user prompts:  1,982
+Total matches:         104
+Overall fire rate:     5.2%  (target: <15%)
+Recall examples found: 20
+
+Route table (precision + recall):
+  Route                Expected  Caught  Recall  Matches  Fire%
+  --------------------  -------- ------- ------- -------- ------
+  attack                      0       0     n/a        1   0.1%
+  grill                       0       0     n/a        0   0.0%
+  slack                       0       0     n/a        4   0.2%
+  zoom-out                    0       0     n/a        0   0.0%
+  design                      0       0     n/a        3   0.2%
+  brainstorm                  6       2     33%       33   1.7%
+  plan                        5       3     60%       41   2.1%
+  execute                     2       0      0%        6   0.3%
+  debug                       1       0      0%        1   0.1%
+  build                       0       0     n/a        0   0.0%
+  handoff                     2       2    100%       15   0.8%
+  resume                      0       0     n/a        0   0.0%
+  slack-hebrew                4       0      0%        0   0.0%
+  linkedin-hebrew             0       0     n/a        0   0.0%
+
+Recall misses (prompts that preceded skill invocations but didn't route):
+
+  [brainstorm]
+    MISS skill=superpowers:brainstorming actual=None text='some sort of gardlines when creating a skill'
+    MISS skill=superpowers:brainstorming actual=None text='1 (crosswalk migration) is done and live, per its acceptance criteria:          '
+    MISS skill=superpowers:brainstorming actual=None text='I got a request from the Facebook user acquisition team. They want a joint event'
+    MISS skill=superpowers:brainstorming actual=None text='i want you to plan ths split and use @SKILL_GUIDELINES.md for the skills.\nthese '
+
+  [plan]
+    MISS skill=superpowers:writing-plans actual=None text='ok contuine'
+    MISS skill=superpowers:writing-plans actual=None text='go'
+
+  [execute]
+    MISS skill=superpowers:subagent-driven-development actual=None text='1'
+    MISS skill=superpowers:subagent-driven-development actual=None text='1'
+
+  [debug]
+    MISS skill=superpowers:systematic-debugging actual=None text="Q1 - it exists. Still haven't started sending it.\nQ2 - we already have an event "
+
+  [slack-hebrew]
+    MISS skill=sir-albert:slack-in-my-voice actual=None text='google_search_ga4_events_intraday is irrlevent. give me a slack im my voice to t'
+    MISS skill=sir-albert:slack-in-my-voice actual=slack text='i want you to slack in my voice C0BMQV9653P about what we found and next steps.\n'
+    MISS skill=sir-albert:slack-in-my-voice actual=slack text='yes slack in my voice'
+    MISS skill=sir-albert:slack-in-my-voice actual=None text='No groups to manage\nYou are not an administrator of any MCP tool group. Ask a gr'
+
+Per-route hit samples (≤5, ≤80 chars):
+
+  [attack] (1 total matches)
+    • "Here is what we've been working on /Users/galta/Development/sir_albert/.claude/w"
+
+  [grill] (0 total matches)
+    (no matches)
+
+  [slack] (4 total matches)
+    • "i'm working on this ticket: https://monday.monday.com/boards/5582014840/views/12"
+    • 'i want you to slack in my voice C0BMQV9653P about what we found and next steps. '
+    • 'yes. alos are there  any other questins you need to know? will our setup manage '
+    • 'yes slack in my voice'
+
+  [zoom-out] (0 total matches)
+    (no matches)
+
+  [design] (3 total matches)
+    • 'do you think adressing these agents ( @output/gtm-agent-team/planner.md , @outpu'
+    • 'Read docs/HANDOFF.md in this repo and pick up from the "SESSION 4 PIVOT" section'
+    • 'i want to build a prsonal assitetnt in Sphera with the sphera agent remote. we d'
+
+  [brainstorm] (33 total matches)
+    • 'i think that form knolage we for skills we can either split or use /llm-wiki-age'
+    • 'Look at this https://diego-malamute-1.md.page/marko-architecture-v3#2-core-archi'
+    • 'read this consept https://www.littlemight.com/openclaw-paperclip-setup/ i think '
+    • 'I would also consider removing the DOD when Jose hands off to Alejandro (line 35'
+    • 'i want to investigate my current setup and make it: a. simpler b. agile - able t'
+
+  [plan] (41 total matches)
+    • "As long as it's a Solid consistent solution. I am good with it if we can use the"
+    • "There's no need to plan anything about the CAPI dedup. I want to focus on the va"
+    • 'somting in the folw i not working well. i want us to work on every agnt sepretly'
+    • 'create a plan with validation steps and a clear dod to make sure you deliver a s'
+    • "i'm not sure about this, i think that since we'll have double event streams (ga4"
+
+  [execute] (6 total matches)
+    • 'Execute the plan And save the new skill under @skills/ folder'
+    • 'i just run this plan: Execute the plan at /Users/galta/.claude/plans/we-currntly'
+    • 'If `` is empty, **STOP.** Respond: "Usage: `/gtm-start <path-to-approved-plan.ht'
+    • 'If `docs/plans/2026-07-29-webhook-client-api-key-auth.html` is empty, **STOP.** '
+    • 'Execute the plan at /Users/galta/.claude/plans/we-currntly-have-n8n-precious-gos'
+
+  [debug] (1 total matches)
+    • 'this PR is a skill that is a sub-item of Google tag manger (which is a tool), i '
+
+  [build] (0 total matches)
+    (no matches)
+
+  [handoff] (15 total matches)
+    • 'write handoff'
+    • 'write a handoff + prompt so i can start in a new session'
+    • "write a handoff and a promot to stat a new session i'll  have monday mcp live in"
+    • 'create a handoff file so i can contiune in a new session'
+    • 'publisehd and puased, write a handoff for next session with a prompt to start it'
+
+  [resume] (0 total matches)
+    (no matches)
+
+  [slack-hebrew] (0 total matches)
+    (no matches)
+
+  [linkedin-hebrew] (0 total matches)
+    (no matches)

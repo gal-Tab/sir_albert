@@ -1,0 +1,85 @@
+Precision Report — 2026-09-25
+==================================================
+Total user prompts:  3,996
+Total matches:       54
+Overall fire rate:   1.4%  (target: <15%)
+Large lines skipped: 30
+
+Per-route fire rates:
+  Intent                Matches    Rate
+  --------------------  --------  ------
+  attack                      2    0.1%
+  grill                       0    0.0%
+  zoom-out                    2    0.1%
+  design                      8    0.2%
+  brainstorm                  1    0.0%
+  plan                        3    0.1%
+  execute                    26    0.7%
+  debug                       0    0.0%
+  build                       0    0.0%
+  handoff                    12    0.3%
+  resume                      0    0.0%
+
+Per-route samples (≤10, ≤80 chars each):
+
+  [attack] (2 total)
+    • 'Base directory for this skill: /Users/galta/.claude/skills/sir-albert/skills/cor'
+    • "Here is what we've been working on /Users/galta/Development/sir_albert/.claude/w"
+
+  [grill] (0 total)
+    (no matches)
+
+  [zoom-out] (2 total)
+    • 'i want to creat a prompt for a sphera agent that will do discovery to new ticket'
+    • '<task-notification> <task-id>a901344a56c421ad0</task-id> <tool-use-id>toolu_bdrk'
+
+  [design] (8 total)
+    • 'do you think adressing these agents ( @output/gtm-agent-team/planner.md , @outpu'
+    • '# /design-nanoclaw  Run the full agent design pipeline for a given requirement, '
+    • '@"/Users/galta/Downloads/first ai loop.md" @"/Users/galta/Development/cookbook/S'
+    • 'Read docs/HANDOFF.md in this repo and pick up from the "SESSION 4 PIVOT" section'
+    • 'This session is being continued from a previous conversation that ran out of con'
+    • 'Base directory for this skill: /Users/galta/.claude/skills/sir-albert/skills/doc'
+    • 'Base directory for this skill: /Users/galta/.claude/skills/monday-brand-guidelin'
+    • 'i want to build a prsonal assitetnt in Sphera with the sphera agent remote. we d'
+
+  [brainstorm] (1 total)
+    • '<task-notification> <task-id>a1f4d5ac671f26797</task-id> <tool-use-id>toolu_bdrk'
+
+  [plan] (3 total)
+    • "As long as it's a Solid consistent solution. I am good with it if we can use the"
+    • 'spwan a subagent (opus 4.8 high) to write a plan for that gal-va/notes/session-s'
+    • 'write a plan, make sure to inclde exmples for jose on how to share context with '
+
+  [execute] (26 total)
+    • 'Base directory for this skill: /Users/galta/.claude/plugins/cache/claude-plugins'
+    • 'Base directory for this skill: /Users/galta/.claude/plugins/cache/claude-plugins'
+    • 'Base directory for this skill: /Users/galta/.claude/plugins/cache/claude-plugins'
+    • 'Base directory for this skill: /Users/galta/.claude/plugins/cache/claude-plugins'
+    • 'Execute the plan at /Users/galta/.claude/plans/we-currntly-have-n8n-precious-gos'
+    • 'Base directory for this skill: /Users/galta/.claude/plugins/cache/claude-plugins'
+    • 'i just run this plan: Execute the plan at /Users/galta/.claude/plans/we-currntly'
+    • 'Base directory for this skill: /Users/galta/.claude/plugins/cache/claude-plugins'
+    • 'If `docs/plans/2026-07-29-webhook-client-api-key-auth.html` is empty, **STOP.** '
+    • 'If `` is empty, **STOP.** Respond: "Usage: `/gtm-start <path-to-approved-plan.ht'
+
+  [debug] (0 total)
+    (no matches)
+
+  [build] (0 total)
+    (no matches)
+
+  [handoff] (12 total)
+    • "write a handoff and a promot to stat a new session i'll  have monday mcp live in"
+    • 'This session is being continued from a previous conversation that ran out of con'
+    • '<task-notification> <task-id>a85ab8bbb58fcb59f</task-id> <tool-use-id>toolu_bdrk'
+    • 'create a handoff file so i can contiune in a new session'
+    • 'Base directory for this skill: /Users/galta/.claude/skills/sir-albert/skills/dev'
+    • 'publisehd and puased, write a handoff for next session with a prompt to start it'
+    • 'write a handoff so i can plan again'
+    • 'write a handoff with a prompt so i can do that in a new session'
+    • "Can you use the test you've run or run a new test to validate that the value is "
+    • 'create a handoff file so i can contiune in a new session'
+
+  [resume] (0 total)
+    (no matches)
