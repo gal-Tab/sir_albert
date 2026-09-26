@@ -857,12 +857,12 @@ _DEAD_ROUTE_DIAGNOSIS = {
         "route may need to be dropped or replaced with a context-aware signal."
     ),
     "grill": (
-        "No corpus demand — only 7 Hebrew prompts of 1,938 total; "
-        "route is unmeasurable at current corpus size. Decision to keep or drop is Gal's."
+        "No corpus demand — broad probes ('grill', 'interview me', 'ask me questions') hit 3 prompts "
+        "of 1,938, all false positives; route is unmeasurable at current corpus size. Decision to keep or drop is Gal's."
     ),
     "zoom-out": (
-        "No corpus demand — only 7 Hebrew prompts of 1,938 total; "
-        "route is unmeasurable at current corpus size. Decision to keep or drop is Gal's."
+        "No corpus demand — broad probes ('zoom out', 'bigger picture', 'high level', 'overview') hit 11 prompts "
+        "of 1,938, all false positives; route is unmeasurable at current corpus size. Decision to keep or drop is Gal's."
     ),
     "slack-hebrew": (
         "No corpus demand — only 7 Hebrew prompts of 1,938 total; "

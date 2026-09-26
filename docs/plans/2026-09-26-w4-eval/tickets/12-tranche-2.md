@@ -40,3 +40,7 @@ Execute tranche 2: the remaining 5 prompts (rows 11-15 of `sample.jsonl`), 20 ru
 - [ ] 60 total artifact files in `docs/plans/2026-09-26-w4-eval/runs/` (`ls | wc -l == 60`)
 - [ ] All 60 artifact names are unique (no collision)
 - [ ] `RUNLOG.md` updated with tranche 2 delta and total cost
+
+## Review corrections (binding)
+
+Every correction in ticket 11 applies here too: the accurate CHECKPOINT text (settings *are* rewritten per spawn; worst case 20 × $0.60 = $12), per-rep arm interleaving, and `runs/` never committed.

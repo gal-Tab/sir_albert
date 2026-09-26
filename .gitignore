@@ -18,3 +18,12 @@ __pycache__/
 **/.DS_Store
 .idea/
 .pytest_cache/
+
+# W4 eval — anything holding raw prompt text or model responses stays local.
+# Gal's prompts come from other repos and include internal monday.com content.
+# Labels are committed text-free in labels.jsonl (_hash + label only).
+docs/plans/2026-09-26-w4-eval/labeled-set.jsonl
+docs/plans/2026-09-26-w4-eval/labeled-set-checklist.md
+docs/plans/2026-09-26-w4-eval/sample.jsonl
+docs/plans/2026-09-26-w4-eval/runs/
+docs/plans/2026-09-26-w4-eval/judgments*.jsonl

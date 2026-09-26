@@ -52,3 +52,14 @@ Add a `sample-p2` subcommand to `prompt_corpus.py` that selects N=15 from the la
 - [ ] Random seeds fixed (7, 8, 9) for reproducibility
 - [ ] Warns but does not fail if a slice has fewer than 5 candidates
 - [ ] Tests pass: `/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_p2_sample.py -q`
+
+## Review corrections (binding, supersede the steps above where they conflict)
+
+1. **The control slice must be real tasks, never context-free acks.** Step 5's pool (`label in none/ambiguous`) is dominated by `negative_control` rows such as "yes", "go" and "continue". Replayed with no context, both arms respond "what do you mean?", so those rows are guaranteed ties. Ties split 50/50, so 5 of 15 prompts would pull B toward 50% whatever its real performance, well above the 40% gate. **The `negative_control` slice is excluded from P2 entirely.** Control pool, in priority order:
+   - (a) `router_match` rows labelled `none`: the router fired where it shouldn't. This is the most informative control, because it tests whether a wrong nudge actually degrades B's output.
+   - (b) `task_initiating` rows labelled `none`: real tasks where no route applies. This tests for confabulated skill use.
+   - Sample (a) first, then fill from (b). Tag rows `p2_control_kind: "wrong_fire" | "no_route_task"`.
+   - Exclude `ambiguous` from P2. Its expected behaviour is undefined, so a judge preference on it measures nothing.
+2. **B-silent pool** also accepts `negative_control` rows that Gal labelled *with a route*. The router missed those. Every such row is router-silent by construction.
+3. **Path exclusion uses the broader pattern measured on 2026-09-26** (it flags 14% of the corpus). Use `r'(@[\w./-]+|\b[\w-]+/[\w./-]+\.(md|py|json|ts|tsx|js|yaml|yml|sql|html)\b|docs/|\.claude/|[/\\][\w.-]+\.[a-zA-Z]{2,5})'`. The ticket's regex misses `@file` references and bare `docs/` dirs. Report `path_excluded` per slice.
+4. Test: a fixture whose only `none` rows are `negative_control` acks must yield 0 control rows plus a WARN, never a sampled "yes".

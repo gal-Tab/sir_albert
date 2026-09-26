@@ -64,3 +64,12 @@ State clearly when asking:
 - [ ] `axcli usage` delta captured and reported to Gal
 - [ ] Extrapolation check passed (first 10 runs do not project > $40 for 60)
 - [ ] `RUNLOG.md` updated with run results
+
+## Review corrections (binding, supersede the steps above and the CHECKPOINT text where they conflict)
+
+1. **The CHECKPOINT text must be accurate.** Replace two claims:
+   - ~~"`~/.claude/settings.json` is NOT modified (protected by `--setting-sources`)"~~ is **false** (see `04-probe-results.md`). Say instead: *"axcli rewrites the default model on every spawn. `guarded.sh` restores it after each run. **Don't open new Claude sessions while the tranche runs**, or they start on Sonnet."*
+   - ~~"Expected total $5–$20 based on probe calibration"~~ is **unsupported**. The probe prompt was 1-turn "reply ok", and real runs go up to 12 turns. Say instead: *"Cost per real run is unknown. **Worst case $24** (40 × $0.60 per-run cap). An abort triggers if the first 10 runs extrapolate past $40 for all 60."*
+2. **Interleave arms per rep**: order runs as `a/rep1, b/rep1, a/rep2, b/rep2` per prompt, not `a,a,b,b`. That way time drift and cache warmth fall evenly on both arms.
+3. **Run artifacts are NOT committed.** `runs/` goes in `.gitignore`. Artifacts contain replayed prompt text and model responses drawn from Gal's work in other repos, including internal monday.com content. Commit only the verdict report, `RUNLOG.md` (hashes, costs, exit codes, no text) and the `ls | wc -l` evidence.
+4. The model assertion reads the expected value from the spec decision (`claude-opus-5-5[1m]`), and the restore target is `model-snapshot.txt`. Both must agree at start, or the run aborts.

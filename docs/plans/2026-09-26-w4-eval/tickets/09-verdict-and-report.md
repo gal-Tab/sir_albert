@@ -56,3 +56,10 @@ Write `plugins/sir-albert/tools/eval/verdict.py` that: asserts `ls runs/ | wc -l
 - [ ] Report filename is namespaced `verdict-<date>-<runid>.md`; never plain `verdict.md`
 - [ ] Report contains the explicit paragraph stating uninstalling superpowers is a separate decision
 - [ ] Tests pass: `/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_verdict.py -q`
+
+## Review corrections (binding, supersede the steps above where they conflict)
+
+1. **Per-slice win-rate.** Report B's win-rate and tie count for each `p2_slice` (`happy_path` / `b_silent` / `control`, joined from `sample.jsonl`), as well as the pooled figure. The gate stays pooled at ≥40%.
+2. **Tie-heavy → INCONCLUSIVE.** If ties are more than 50% of pairs, the verdict is `INCONCLUSIVE` (exit 3), never PASS. Ties count 0.5, so a tie-heavy run drifts to 50% and would pass the 40% gate by default. Exit codes: 0 PASS · 1 FAIL · 2 ABORT · 3 INCONCLUSIVE.
+3. **Judge errors.** `judge_error` pairs are excluded from the denominator and reported separately. More than 3 → ABORT (exit 2).
+4. Fixtures: all-ties → exit 3; 4 judge_error pairs → exit 2.
