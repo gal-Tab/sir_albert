@@ -54,17 +54,46 @@ End-to-end verification in a fresh session. Confirm injection fires, nudges rout
 ## Paste injection text here
 
 ```
-(paste actual additionalContext string from step 2)
-char count: XXX / 800 max
+## sir_albert — session start
+
+**Core skills** (sir-albert first):
+| Need | Skill |
+|------|-------|
+| Explore / attack an idea | `/sir-albert:brainstorm` |
+| Spec → plan | `/sir-albert:plan` |
+| Run a plan | `/sir-albert:execute` |
+| Debug a system | `/sir-albert:debug` |
+| Ship a branch | `/sir-albert:build` |
+| Write a handoff | `/sir-albert:handoff` |
+| Reload last handoff | `/sir-albert:resume` |
+| Make / recall a decision | `/sir-albert:decide` |
+| Scope-lock edits | `/sir-albert:freeze` |
+| Create or edit a skill | `/sir-albert:create-skill` |
+
+Map: `os/RESOLVER.md`
+Active packs: kb
+Resume: .memory-bank/HANDOFF-2026-09-25.md found — run /sir-albert:resume
+
+char count: 670 / 800 max
 ```
 
 ## Definition of Done
 
-- [ ] `pytest` 0 failures
-- [ ] Injection char count ≤ 800 (measured, not estimated)
-- [ ] All 11 nudge routes produce correct output
-- [ ] All 4 false-positive prompts produce empty stdout
-- [ ] Precision report exists, fire rate < 15%
-- [ ] freeze-guard fires exactly once per edit
-- [ ] session-record fires exactly once per session end
-- [ ] superpowers still active (W4 gate)
+- [x] `pytest` 0 failures
+- [x] Injection char count ≤ 800 (measured, not estimated)
+- [x] All 11 nudge routes produce correct output
+- [x] All 4 false-positive prompts produce empty stdout
+- [x] Precision report exists, fire rate < 15%
+- [x] freeze-guard fires exactly once per edit
+- [x] session-record fires exactly once per session end
+- [x] superpowers still active (W4 gate)
+
+## Results (2026-09-26)
+
+- pytest: 44 passed (python3.13). Fixed a typo that stopped collection (`subprocess.CompletedResult` → `CompletedProcess`).
+- **Bug found + fixed:** hooks.json SessionStart / UserPromptSubmit / SessionEnd were missing the `{"hooks": [...]}` wrapper, so none of them had ever fired live. session-record had been silent since ticket 07.
+- Live check: `claude --plugin-dir …/plugins -p` → startup injection present, the brainstorm nudge fired, sessions.jsonl grew by +1 (6326 → 6327).
+- Routes 11/11 correct; false positives 4/4 empty; fire rate 1.4% (04b report) / 5.2% (04c router-eval).
+- freeze-guard: 0 refs in settings.json, 1 in hooks.json → fires once.
+- superpowers: still active alongside the sir_albert injection.
+- 04c router-eval had overwritten the 04b report (same filename). 04b restored; the 04c output is now `router-eval-report-2026-09-25.txt`, and the tool writes to that name from now on.
