@@ -22,7 +22,7 @@ import random
 import re
 import sys
 from collections import Counter, defaultdict
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
@@ -652,12 +652,150 @@ def cmd_label_set(args):
 
 # ── validate-labels ────────────────────────────────────────────────────────────
 def cmd_validate_labels(args):
-    raise NotImplementedError("validate-labels not yet implemented")
+    file_path = args.file
+    valid = _get_valid_labels()
+    malformed = []
+    null_count = 0
+    total = 0
+
+    for idx, row in enumerate(load_jsonl(file_path)):
+        total += 1
+        # Check required keys
+        if "_hash" not in row:
+            malformed.append((idx, "missing _hash"))
+            continue
+        if "text" not in row:
+            malformed.append((idx, "missing text"))
+            continue
+        label = row.get("label")
+        if label is not None and label not in valid:
+            malformed.append((idx, f"invalid label '{label}' at hash={row['_hash']}"))
+            continue
+        if label is None:
+            null_count += 1
+
+    if malformed:
+        for idx, reason in malformed:
+            print(f"malformed row at index {idx}: {reason}")
+        sys.exit(1)
+
+    if null_count > 0:
+        print(f"remaining={null_count} / total={total}")
+        sys.exit(1)
+
+    print(f"ok: {total}/{total} labelled")
 
 
 # ── import-labels ──────────────────────────────────────────────────────────────
+_HEADER_RE = re.compile(r'^### \[\d+\] hash=([0-9a-f]+) slice=(\S+)', re.MULTILINE)
+_LABEL_LINE_RE = re.compile(r'^\*\*Label:\*\*\s*(\S+)')
+_PREDICTED_RE = re.compile(r'^predicted: (\S+)')
+
+
 def cmd_import_labels(args):
-    raise NotImplementedError("import-labels not yet implemented")
+    checklist_path = Path(args.checklist)
+    jsonl_path = Path(args.file)
+    valid = _get_valid_labels()
+
+    if not checklist_path.exists():
+        print(f"checklist not found: {checklist_path}")
+        sys.exit(1)
+    if not jsonl_path.exists():
+        print(f"labeled-set.jsonl not found: {jsonl_path}")
+        sys.exit(1)
+
+    # Load existing rows keyed by hash
+    existing = {}
+    for row in load_jsonl(str(jsonl_path)):
+        existing[row["_hash"]] = dict(row)
+
+    # Parse checklist line by line
+    content = checklist_path.read_text(encoding="utf-8")
+    lines = content.splitlines()
+
+    current_hash = None
+    current_slice = None
+    current_predicted = None
+    # Map: hash -> (label_raw, slice_, predicted_route)
+    parsed: dict[str, tuple[str, str, str | None]] = {}
+
+    for line in lines:
+        m = _HEADER_RE.match(line)
+        if m:
+            current_hash = m.group(1)
+            current_slice = m.group(2)
+            current_predicted = None
+            continue
+
+        if current_hash:
+            pm = _PREDICTED_RE.match(line)
+            if pm:
+                current_predicted = pm.group(1)
+                continue
+
+            lm = _LABEL_LINE_RE.match(line)
+            if lm:
+                label_raw = lm.group(1)
+                if label_raw and label_raw != "___":
+                    parsed[current_hash] = (label_raw, current_slice, current_predicted)
+                current_hash = None
+                current_slice = None
+                current_predicted = None
+
+    # Resolve shorthands and validate
+    errors: list[str] = []
+    resolved: dict[str, str] = {}
+
+    for h, (label_raw, slice_, predicted) in parsed.items():
+        if label_raw == "y":
+            if slice_ == "router_match":
+                if predicted is None:
+                    errors.append(f"hash={h}: 'y' on router_match but no predicted route in checklist")
+                    continue
+                resolved[h] = predicted
+            elif slice_ == "negative_control":
+                resolved[h] = "none"
+            elif slice_ == "task_initiating":
+                errors.append(f"hash={h}: 'y' is not valid for task_initiating slice (no predicted route)")
+                continue
+            else:
+                errors.append(f"hash={h}: unknown slice '{slice_}'")
+                continue
+        else:
+            if label_raw not in valid:
+                errors.append(f"hash={h}: invalid label '{label_raw}'")
+                continue
+            resolved[h] = label_raw
+
+    if errors:
+        for e in errors:
+            print(e)
+        sys.exit(1)
+
+    # Apply — never clear existing labels
+    now = datetime.now(timezone.utc).isoformat()
+    for h, label in resolved.items():
+        if h in existing and existing[h].get("label") is None:
+            existing[h]["label"] = label
+            existing[h]["labeled_by"] = "gal"
+            existing[h]["labeled_at"] = now
+
+    # Write back preserving original row order
+    all_rows = list(load_jsonl(str(jsonl_path)))
+    updated = []
+    for row in all_rows:
+        h = row["_hash"]
+        if h in existing:
+            updated.append(existing[h])
+        else:
+            updated.append(row)
+
+    jsonl_path.write_text(
+        "\n".join(json.dumps(r, ensure_ascii=False) for r in updated) + "\n",
+        encoding="utf-8",
+    )
+    filled = sum(1 for r in updated if r.get("label") is not None)
+    print(f"imported: {len(resolved)} labels applied, {filled}/{len(updated)} total labelled")
 
 
 # ── p1-score ───────────────────────────────────────────────────────────────────
