@@ -127,6 +127,7 @@ def _sequenced_stub(rundir, first, second):
         "#!/bin/bash\n"
         'for a in "$@"; do [ "$a" = "--cwd" ] && { echo "stub: --cwd is not a claude flag" >&2; exit 2; }; done\n'
         f'[ "$(pwd -P)" = "$(cd {scratch!r} && pwd -P)" ] || {{ echo "stub: wrong cwd $(pwd)" >&2; exit 3; }}\n'
+        '[ "$(cat)" = "write handoff" ] || { echo "stub: prompt not on stdin" >&2; exit 6; }\n'
         f"n=$(( $(cat {str(counter)!r}) + 1 )); echo $n > {str(counter)!r}\n"
         f'if [ $n -eq 1 ]; then cat {str(first)!r}; else cat {str(second)!r}; fi\n'
     )

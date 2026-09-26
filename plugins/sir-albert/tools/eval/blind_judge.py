@@ -87,69 +87,58 @@ def call_judge(
     Returns {'winner': 'judge_error', 'reason': ...} on failure.
     """
     judge_input = JUDGE_PROMPT.format(prompt=prompt, left=left, right=right)
-
+    # The prompt goes in on stdin. As a positional arg it was swallowed by the variadic
+    # --disallowedTools, and "@file" is an interactive mention, not a --print feature.
+    cmd = [
+        "bash", str(guarded_sh),
+        *claude_bin.split(),
+        "--print",
+        "--setting-sources", "project,local",
+        "--settings", str(judge_settings),
+        "--no-session-persistence",
+        "--output-format", "json",
+        "--max-turns", "1",
+        "--model", model,
+        "--max-budget-usd", "0.10",
+        "--tools", "",
+    ]
+    last_error = "no attempt made"
     for attempt in range(2):
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as pf:
-            pf.write(judge_input)
-            prompt_file = pf.name
-
         try:
-            cmd = [
-                "bash", str(guarded_sh),
-                *claude_bin.split(),
-                "--print",
-                "--setting-sources", "project,local",
-                "--settings", str(judge_settings),
-                "--no-session-persistence",
-                "--output-format", "json",
-                "--max-turns", "1",
-                "--model", model,
-                "--max-budget-usd", "0.10",
-                "--disallowedTools", "*",
-                f"@{prompt_file}",
-            ]
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
-            os.unlink(prompt_file)
+            result = subprocess.run(cmd, input=judge_input, capture_output=True, text=True, timeout=180)
+        except subprocess.TimeoutExpired:
+            last_error = "timeout"
+            continue
+        verdict = parse_judge_output(result.stdout)
+        if verdict:
+            return {**verdict, "judge_model": model}
+        last_error = f"exit={result.returncode} stderr={result.stderr.strip()[-200:]!r}"
 
-            if result.returncode != 0 and attempt == 0:
-                continue
+    return {"winner": "judge_error", "reason": f"unparseable or failed judge output ({last_error})", "judge_model": model}
 
-            # Parse JSON response
-            text = result.stdout.strip()
-            # Try to find JSON object in the output
-            match = re.search(r'\{[^{}]*"winner"[^{}]*\}', text, re.DOTALL)
-            if match:
-                parsed = json.loads(match.group())
-                winner = parsed.get("winner", "").lower()
-                if winner in ("left", "right", "tie"):
-                    return {
-                        "winner": winner,
-                        "reason": parsed.get("reason", ""),
-                        "judge_model": model,
-                    }
 
-            # Try parsing whole output as JSON
-            try:
-                parsed = json.loads(text)
-                winner = parsed.get("winner", "").lower()
-                if winner in ("left", "right", "tie"):
-                    return {
-                        "winner": winner,
-                        "reason": parsed.get("reason", ""),
-                        "judge_model": model,
-                    }
-            except Exception:
-                pass
+def parse_judge_output(stdout: str) -> dict | None:
+    """Extract {'winner', 'reason'} from `claude --output-format json` stdout.
 
-            if attempt == 0:
-                continue  # retry once
-
-        except Exception as e:
-            os.unlink(prompt_file) if os.path.exists(prompt_file) else None
-            if attempt == 0:
-                continue
-
-    return {"winner": "judge_error", "reason": "unparseable or failed judge output", "judge_model": model}
+    The model's reply is a string inside the outer result object's "result" field
+    (escaped), so it must be unwrapped before looking for the verdict JSON.
+    """
+    try:
+        outer = json.loads(stdout)
+    except ValueError:
+        return None
+    inner = outer.get("result") if isinstance(outer, dict) else None
+    if not isinstance(inner, str):
+        return None
+    for candidate in re.findall(r"\{[^{}]*\}", inner, re.DOTALL):
+        try:
+            parsed = json.loads(candidate)
+        except ValueError:
+            continue
+        winner = str(parsed.get("winner", "")).lower()
+        if winner in ("left", "right", "tie"):
+            return {"winner": winner, "reason": str(parsed.get("reason", ""))}
+    return None
 
 
 def resolve_pair(call_ab: dict, call_ba: dict) -> str:

@@ -59,6 +59,7 @@ def _run_stub(stub_stream_path, arm, prompt_hash, rep, prompt_text, rundir, arti
         "#!/bin/bash\n"
         'for a in "$@"; do [ "$a" = "--cwd" ] && { echo "stub: --cwd is not a claude flag" >&2; exit 2; }; done\n'
         f'case "$(pwd -P)/" in "$(cd {scratch!r} && pwd -P)"/run-*) ;; *) echo "stub: wrong cwd $(pwd)" >&2; exit 3;; esac\n'
+        'IN=$(cat); [ -n "$IN" ] || { echo "stub: no prompt on stdin" >&2; exit 6; }\n'
         f"{stub_extra}\n"
         f"cat {str(stub_stream_path)!r}\n"
         f"exit {stub_exit}\n"

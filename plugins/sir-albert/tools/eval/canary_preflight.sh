@@ -31,7 +31,7 @@ SCRATCH_CWD=$(manifest scratch_cwd)
 # Output goes to a file and is parsed from the file — never interpolated into code.
 run_canary() {
   local settings="$1" out="$2"
-  (cd "$SCRATCH_CWD" && bash "$EVAL_DIR/guarded.sh" \
+  (cd "$SCRATCH_CWD" && printf '%s' "write handoff" | bash "$EVAL_DIR/guarded.sh" \
     $CLAUDE_BIN --print \
       --setting-sources project,local \
       --settings "$settings" \
@@ -43,8 +43,7 @@ run_canary() {
       --verbose \
       --include-hook-events \
       --max-budget-usd 0.25 \
-      --disallowedTools Write,Edit,NotebookEdit \
-      "write handoff") > "$out" 2> "$out.stderr" || true
+      --disallowedTools Write,Edit,NotebookEdit) > "$out" 2> "$out.stderr" || true
 }
 
 check_arm() {

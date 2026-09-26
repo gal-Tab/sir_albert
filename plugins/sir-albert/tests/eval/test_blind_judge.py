@@ -237,3 +237,33 @@ def test_redaction_removes_namespaced_and_bare_hyphenated_skill_names():
     for leak in ("superpowers", "sir-albert", "brainstorming", "writing-plans", "wiki-query", "kb:"):
         assert leak not in text.lower(), f"{leak!r} leaked: {text!r}"
     assert "We plan the rollout." in text, "ordinary prose must survive redaction"
+
+
+def test_parse_judge_output_unwraps_result_string():
+    """Regression: the verdict JSON arrives escaped inside the outer result object's
+    "result" string. The old parser searched the raw stdout and never matched."""
+    import json as _j
+    reply = 'Looking at both.\n```json\n{"winner": "right", "reason": "more complete"}\n```'
+    stdout = _j.dumps({"type": "result", "subtype": "success", "is_error": False, "result": reply})
+    assert bj.parse_judge_output(stdout) == {"winner": "right", "reason": "more complete"}
+    assert bj.parse_judge_output(_j.dumps({"type": "result", "result": "no verdict"})) is None
+    assert bj.parse_judge_output("not json") is None
+
+
+def test_call_judge_sends_prompt_on_stdin(tmp_path):
+    """The judge prompt must arrive on stdin, never as '@file' or a positional arg."""
+    import json as _j
+    stub = tmp_path / "judge_stub.sh"
+    stub.write_text(
+        "#!/bin/bash\n"
+        'for a in "$@"; do case "$a" in @*) echo "stub: @file arg" >&2; exit 7;; esac; done\n'
+        'IN=$(cat); case "$IN" in *"Response Left"*) ;; *) echo "stub: no prompt on stdin" >&2; exit 6;; esac\n'
+        + f"cat {str(tmp_path / 'reply.json')!r}\n"
+    )
+    (tmp_path / "reply.json").write_text(_j.dumps({"type": "result", "result": '{"winner": "tie", "reason": "same"}'}))
+    stub.chmod(0o755)
+    settings = tmp_path / "judge.json"
+    settings.write_text('{"model": "claude-opus-5-5[1m]"}')
+    out = bj.call_judge("p", "left text", "right text", "claude-opus-5-5[1m]", settings,
+                        bj.TOOLS_EVAL / "guarded.sh", str(stub))
+    assert out["winner"] == "tie", out

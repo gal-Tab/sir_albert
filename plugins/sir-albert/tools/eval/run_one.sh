@@ -52,7 +52,9 @@ RAW_FILE=$(mktemp -t w4-run-XXXX.jsonl)
 trap "rm -f $RAW_FILE" EXIT
 
 EXIT_CODE=0
-(cd "$SCRATCH_CWD" && bash "$EVAL_DIR/guarded.sh" \
+# The prompt goes in on stdin: as a positional arg it is swallowed by the variadic
+# --disallowedTools (verified live 2026-09-26: "Input must be provided...").
+(cd "$SCRATCH_CWD" && printf '%s' "$PROMPT" | bash "$EVAL_DIR/guarded.sh" \
   $CLAUDE_BIN --print \
     --setting-sources project,local \
     --settings "$ARM_SETTINGS" \
@@ -64,8 +66,7 @@ EXIT_CODE=0
     --verbose \
     --include-hook-events \
     --max-budget-usd 0.60 \
-    --disallowedTools Write,Edit,NotebookEdit \
-    "$PROMPT") > "$RAW_FILE" || EXIT_CODE=$?
+    --disallowedTools Write,Edit,NotebookEdit) > "$RAW_FILE" || EXIT_CODE=$?
 
 # The plugin clone is arm B's (and A's) sir_albert. A run that modified it would change
 # the treatment for every later run: abort the replay rather than keep measuring.
