@@ -289,3 +289,115 @@ class TestLabelSetMerge:
         rows_after = [json.loads(l) for l in jsonl.read_text().splitlines() if l]
         match = next(r for r in rows_after if r["_hash"] == labeled_hash)
         assert match["label"] == "brainstorm"
+
+
+# ── labels.jsonl (text-free durable record) ────────────────────────────────────
+
+class TestLabelsJsonl:
+    def _setup(self, tmp_path, monkeypatch, rows, checklist_content):
+        jsonl = tmp_path / "labeled-set.jsonl"
+        _write(jsonl, rows)
+        cl = tmp_path / "labeled-set-checklist.md"
+        cl.write_text(checklist_content, encoding="utf-8")
+        monkeypatch.setattr(prompt_corpus, "EVAL_DIR", tmp_path)
+        return argparse.Namespace(file=str(jsonl), checklist=str(cl))
+
+    def test_import_writes_labels_jsonl(self, tmp_path, monkeypatch):
+        r = _row("make a plan for the project", predicted_route="plan",
+                 slice_="router_match", idx=0)
+        entry = _make_checklist_entry(1, r["_hash"], "router_match",
+                                      r["text"], "y", predicted_route="plan")
+        cl = _make_checklist([entry])
+        args = self._setup(tmp_path, monkeypatch, [r], cl)
+
+        prompt_corpus.cmd_import_labels(args)
+
+        labels_file = tmp_path / "labels.jsonl"
+        assert labels_file.exists()
+        rows = [json.loads(l) for l in labels_file.read_text().splitlines() if l]
+        assert len(rows) == 1
+        assert rows[0]["_hash"] == r["_hash"]
+        assert rows[0]["label"] == "plan"
+        assert "text" not in rows[0]
+
+    def test_labels_jsonl_has_required_keys_only(self, tmp_path, monkeypatch):
+        r = _row("write a handoff for session", predicted_route="handoff",
+                 slice_="router_match", idx=1)
+        entry = _make_checklist_entry(1, r["_hash"], "router_match",
+                                      r["text"], "y", predicted_route="handoff")
+        cl = _make_checklist([entry])
+        args = self._setup(tmp_path, monkeypatch, [r], cl)
+
+        prompt_corpus.cmd_import_labels(args)
+
+        labels_file = tmp_path / "labels.jsonl"
+        row = json.loads(labels_file.read_text().splitlines()[0])
+        expected_keys = {"_hash", "slice", "predicted_route", "label", "labeled_by", "labeled_at"}
+        assert set(row.keys()) == expected_keys
+
+    def test_labels_jsonl_cumulative_on_reimport(self, tmp_path, monkeypatch):
+        """Re-importing should not duplicate; only filled rows appear."""
+        r1 = _row("make a plan here", predicted_route="plan", slice_="router_match", idx=10)
+        r2 = _row("write a handoff now", predicted_route="handoff", slice_="router_match", idx=11)
+        entry1 = _make_checklist_entry(1, r1["_hash"], "router_match", r1["text"], "y", "plan")
+        entry2 = _make_checklist_entry(2, r2["_hash"], "router_match", r2["text"], "y", "handoff")
+        cl = _make_checklist([entry1, entry2])
+        args = self._setup(tmp_path, monkeypatch, [r1, r2], cl)
+
+        prompt_corpus.cmd_import_labels(args)
+        prompt_corpus.cmd_import_labels(args)  # second import
+
+        labels_file = tmp_path / "labels.jsonl"
+        rows = [json.loads(l) for l in labels_file.read_text().splitlines() if l]
+        hashes = [r["_hash"] for r in rows]
+        # No duplicates
+        assert len(hashes) == len(set(hashes))
+
+
+# ── label-set rehydrates from labels.jsonl ────────────────────────────────────
+
+class TestLabelSetRehydration:
+    def test_rehydrates_labels_when_local_file_absent(self, tmp_path, monkeypatch):
+        """If labeled-set.jsonl is absent but labels.jsonl exists, labels survive."""
+        from tests.eval.test_label_set import make_fixture_rows, _write_jsonl
+
+        corpus_file = tmp_path / "corpus.jsonl"
+        _write_jsonl(corpus_file, make_fixture_rows())
+        eval_dir = tmp_path / "eval"
+        eval_dir.mkdir()
+        monkeypatch.setattr(prompt_corpus, "CORPUS_FILE", corpus_file)
+        monkeypatch.setattr(prompt_corpus, "EVAL_DIR", eval_dir)
+
+        # First run: generate labeled-set.jsonl
+        prompt_corpus.cmd_label_set(argparse.Namespace(merge=False))
+
+        jsonl = eval_dir / "labeled-set.jsonl"
+        rows = [json.loads(l) for l in jsonl.read_text().splitlines() if l]
+        labeled_hash = rows[0]["_hash"]
+
+        # Write labels.jsonl manually (simulating import-labels having run)
+        labels_file = eval_dir / "labels.jsonl"
+        labels_file.write_text(
+            json.dumps({
+                "_hash": labeled_hash,
+                "slice": rows[0]["slice"],
+                "predicted_route": rows[0]["predicted_route"],
+                "label": "brainstorm",
+                "labeled_by": "gal",
+                "labeled_at": "2026-09-26T00:00:00Z",
+            }) + "\n",
+            encoding="utf-8",
+        )
+
+        # Delete local labeled-set.jsonl (simulate loss)
+        jsonl.unlink()
+
+        # Re-run label-set: should rebuild from corpus + labels.jsonl
+        prompt_corpus.cmd_label_set(argparse.Namespace(merge=False))
+
+        rows_after = [json.loads(l) for l in jsonl.read_text().splitlines() if l]
+        restored = next((r for r in rows_after if r["_hash"] == labeled_hash), None)
+        assert restored is not None, "Row missing after rehydration"
+        assert restored["label"] == "brainstorm", (
+            f"Label not restored from labels.jsonl, got: {restored['label']}"
+        )

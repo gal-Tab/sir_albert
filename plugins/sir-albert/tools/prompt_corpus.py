@@ -424,26 +424,36 @@ def cmd_label_set(args):
     out_file = EVAL_DIR / "labeled-set.jsonl"
     checklist_path = EVAL_DIR / "labeled-set-checklist.md"
 
-    # Guard: refuse to overwrite existing non-null labels
-    existing_labels = {}
+    # Rehydrate labels: prefer local labeled-set.jsonl, fall back to labels.jsonl
+    existing_labels: dict[str, dict] = {}
+
+    # Always load labels.jsonl first as the durable base
+    for h, lrow in _load_labels_jsonl().items():
+        existing_labels[h] = {
+            "label": lrow.get("label"),
+            "labeled_by": lrow.get("labeled_by"),
+            "labeled_at": lrow.get("labeled_at"),
+        }
+
+    # Guard: refuse to overwrite existing non-null labels in local file
     if out_file.exists():
         existing_rows = [
             json.loads(line)
             for line in out_file.read_text(encoding="utf-8").splitlines()
             if line.strip()
         ]
-        n_labeled = sum(1 for r in existing_rows if r.get("label") is not None)
+        # Merge local labels on top of labels.jsonl (local is more recent)
+        local_labeled = {r["_hash"]: r for r in existing_rows if r.get("label") is not None}
+        for h, r in local_labeled.items():
+            existing_labels[h] = {
+                "label": r["label"],
+                "labeled_by": r.get("labeled_by"),
+                "labeled_at": r.get("labeled_at"),
+            }
+        n_labeled = len(local_labeled)
         if n_labeled > 0 and not merge:
             print(f"refusing to overwrite {n_labeled} existing labels; use --merge")
             sys.exit(1)
-        if merge:
-            for r in existing_rows:
-                if r.get("label") is not None:
-                    existing_labels[r["_hash"]] = {
-                        "label": r["label"],
-                        "labeled_by": r.get("labeled_by"),
-                        "labeled_at": r.get("labeled_at"),
-                    }
 
     patterns = _compile_patterns()
 
@@ -686,6 +696,39 @@ def cmd_validate_labels(args):
     print(f"ok: {total}/{total} labelled")
 
 
+# ── labels.jsonl helpers (text-free durable record) ───────────────────────────
+_LABELS_JSONL_KEYS = ("_hash", "slice", "predicted_route", "label", "labeled_by", "labeled_at")
+
+
+def _write_labels_jsonl(all_rows: list[dict]) -> None:
+    """Write/merge text-free labels.jsonl from all_rows that have a non-null label."""
+    labels_path = EVAL_DIR / "labels.jsonl"
+    # Load existing to avoid duplicates (keyed by _hash)
+    existing: dict[str, dict] = {}
+    if labels_path.exists():
+        for row in load_jsonl(str(labels_path)):
+            existing[row["_hash"]] = row
+    # Merge: update with any newly-labeled rows
+    for row in all_rows:
+        if row.get("label") is not None:
+            existing[row["_hash"]] = {k: row.get(k) for k in _LABELS_JSONL_KEYS}
+    labels_path.write_text(
+        "\n".join(json.dumps(r, ensure_ascii=False) for r in existing.values()) + "\n",
+        encoding="utf-8",
+    )
+
+
+def _load_labels_jsonl() -> dict[str, dict]:
+    """Load text-free labels keyed by _hash from labels.jsonl (if present)."""
+    labels_path = EVAL_DIR / "labels.jsonl"
+    if not labels_path.exists():
+        return {}
+    result = {}
+    for row in load_jsonl(str(labels_path)):
+        result[row["_hash"]] = row
+    return result
+
+
 # ── import-labels ──────────────────────────────────────────────────────────────
 _HEADER_RE = re.compile(r'^### \[\d+\] hash=([0-9a-f]+) slice=(\S+)', re.MULTILINE)
 _LABEL_LINE_RE = re.compile(r'^\*\*Label:\*\*\s*(\S+)')
@@ -794,13 +837,237 @@ def cmd_import_labels(args):
         "\n".join(json.dumps(r, ensure_ascii=False) for r in updated) + "\n",
         encoding="utf-8",
     )
+
+    # Write text-free durable record: labels.jsonl (committed artifact)
+    _write_labels_jsonl(updated)
+
     filled = sum(1 for r in updated if r.get("label") is not None)
     print(f"imported: {len(resolved)} labels applied, {filled}/{len(updated)} total labelled")
 
 
 # ── p1-score ───────────────────────────────────────────────────────────────────
+_DEAD_ROUTE_DIAGNOSIS = {
+    "build": (
+        "Vocabulary mismatch — corpus has 86 prompts with \"open pr\"/\"merge\"/\"push\" "
+        "but pattern requires \"finish the branch\"/\"ship this feature\". Fix: extend pattern."
+    ),
+    "resume": (
+        "Regex-impossible — Gal types \"continue\" which is also his most common mid-thread reply; "
+        "matching it would breach the false-fire gate. No regex fix is safe; "
+        "route may need to be dropped or replaced with a context-aware signal."
+    ),
+    "grill": (
+        "No corpus demand — only 7 Hebrew prompts of 1,938 total; "
+        "route is unmeasurable at current corpus size. Decision to keep or drop is Gal's."
+    ),
+    "zoom-out": (
+        "No corpus demand — only 7 Hebrew prompts of 1,938 total; "
+        "route is unmeasurable at current corpus size. Decision to keep or drop is Gal's."
+    ),
+    "slack-hebrew": (
+        "No corpus demand — only 7 Hebrew prompts of 1,938 total; "
+        "route is unmeasurable at current corpus size. Decision to keep or drop is Gal's."
+    ),
+    "linkedin-hebrew": (
+        "No corpus demand — only 7 Hebrew prompts of 1,938 total; "
+        "route is unmeasurable at current corpus size. Decision to keep or drop is Gal's."
+    ),
+}
+
+
 def cmd_p1_score(args):
-    raise NotImplementedError("p1-score not yet implemented")
+    file_path = args.file
+    patterns = _compile_patterns()
+    all_intents_ordered = list(dict.fromkeys(intent for intent, _, _ in patterns))
+
+    # Load rows by slice
+    rm_rows = []   # router_match
+    ti_rows = []   # task_initiating
+    nc_rows = []   # negative_control
+
+    for row in load_jsonl(file_path):
+        s = row.get("slice", "")
+        if s == "router_match":
+            rm_rows.append(row)
+        elif s == "task_initiating":
+            ti_rows.append(row)
+        elif s == "negative_control":
+            nc_rows.append(row)
+
+    gate_failures = []
+    scorecard_sections = []
+
+    # Guard: insufficient labels
+    rm_labeled = [r for r in rm_rows if r.get("label") is not None]
+    if len(rm_labeled) == 0:
+        msg = "GATE FAIL: 0 labelled rows in router_match slice — run validate-labels first"
+        print(msg)
+        sys.exit(2)
+
+    # ── Precision ─────────────────────────────────────────────────────────────
+    # Exclude ambiguous from denominator (review correction 1)
+    rm_scoreable = [r for r in rm_labeled if r.get("label") != "ambiguous"]
+    n_ambig = len(rm_labeled) - len(rm_scoreable)
+    n_correct = sum(
+        1 for r in rm_scoreable
+        if r.get("label") == r.get("predicted_route")
+    )
+    n_wrong = len(rm_scoreable) - n_correct
+    precision = n_correct / len(rm_scoreable) if rm_scoreable else 0.0
+    prec_pass = precision >= 0.80
+
+    # Count "fired on non-task prompt" (router_match rows labelled none)
+    fired_on_none = sum(1 for r in rm_scoreable if r.get("label") == "none")
+
+    if not prec_pass:
+        gate_failures.append(
+            f"GATE FAIL: precision {precision:.1%} < 80.0%"
+        )
+
+    # ── Recall (diagnostic only) ───────────────────────────────────────────────
+    ti_labeled = [
+        r for r in ti_rows
+        if r.get("label") not in (None, "none", "ambiguous")
+    ]
+    recall_hits = sum(
+        1 for r in ti_labeled
+        if _route(r.get("text", ""), patterns) == r.get("label")
+    )
+    recall = recall_hits / len(ti_labeled) if ti_labeled else 0.0
+
+    # ── False-fire rate ───────────────────────────────────────────────────────
+    # Denominator: only controls labelled 'none' (review correction 3)
+    nc_none = [r for r in nc_rows if r.get("label") == "none"]
+    nc_fire = sum(1 for r in nc_none if _route(r.get("text", ""), patterns) is not None)
+    ff = nc_fire / len(nc_none) if nc_none else 0.0
+    ff_pass = ff <= 0.10
+
+    if not ff_pass:
+        gate_failures.append(
+            f"GATE FAIL: false-fire {ff:.1%} > 10.0%"
+        )
+
+    # ── Per-route breakdown ───────────────────────────────────────────────────
+    route_tp: dict[str, int] = {k: 0 for k in all_intents_ordered}
+    route_fp: dict[str, int] = {k: 0 for k in all_intents_ordered}
+    route_fn: dict[str, int] = {k: 0 for k in all_intents_ordered}
+    route_fp_samples: dict[str, list[str]] = {k: [] for k in all_intents_ordered}
+
+    for r in rm_scoreable:
+        pred = r.get("predicted_route")
+        lbl = r.get("label")
+        if pred in route_tp:
+            if lbl == pred:
+                route_tp[pred] += 1
+            else:
+                route_fp[pred] += 1
+                # Store hash + first 80 chars for FP samples
+                sample = f"hash={r.get('_hash','')} | {r.get('text','')[:80]}"
+                route_fp_samples[pred].append(sample)
+        # FN: label is a route but predicted was different
+        if lbl in route_fn and lbl != pred:
+            route_fn[lbl] += 1
+
+    # ── Dead routes ──────────────────────────────────────────────────────────
+    # Count corpus matches per intent
+    corpus_match_counts: dict[str, int] = {}
+    for row in load_jsonl(str(CORPUS_FILE)):
+        text = row.get("text", "")
+        if not is_organic(text):
+            continue
+        r = _route(text, patterns)
+        if r:
+            corpus_match_counts[r] = corpus_match_counts.get(r, 0) + 1
+    dead_routes = [intent for intent in all_intents_ordered
+                   if corpus_match_counts.get(intent, 0) == 0]
+
+    # ── Build scorecard ──────────────────────────────────────────────────────
+    verdict_precision = "PASS" if prec_pass else "FAIL"
+    verdict_ff = "PASS" if ff_pass else "FAIL"
+
+    scorecard_sections.append("# P1 Router Scorecard\n")
+    scorecard_sections.append("## Summary\n")
+    scorecard_sections.append("| Metric | Value | Bar | Result |")
+    scorecard_sections.append("|---|---|---|---|")
+    scorecard_sections.append(
+        f"| Precision (gate) | {precision:.1%} (n={len(rm_scoreable)}) | ≥80% | {verdict_precision} |"
+    )
+    scorecard_sections.append(
+        f"| Recall (diagnostic) | {recall:.1%} (n={len(ti_labeled)}) | ≥50% | — |"
+    )
+    scorecard_sections.append(
+        f"| False-fire rate (gate) | {ff:.1%} (n={len(nc_none)}) | ≤10% | {verdict_ff} |"
+    )
+    if n_ambig:
+        scorecard_sections.append(f"\nAmbiguous rows excluded from precision denominator: {n_ambig}")
+    scorecard_sections.append(
+        f"\nFired on non-task prompt (router_match labelled `none`): {fired_on_none} of {len(rm_scoreable)}"
+    )
+    scorecard_sections.append(
+        "\n*The control slice is a low-power sanity check (n≈10). "
+        "The real wrong-fire evidence is router_match rows labelled `none`, which precision captures.*"
+    )
+
+    if gate_failures:
+        scorecard_sections.append("\n## Gate Failures\n")
+        for gf in gate_failures:
+            scorecard_sections.append(f"- {gf}")
+
+    scorecard_sections.append("\n## Dead Routes\n")
+    scorecard_sections.append("| Route | Corpus matches | Diagnosis |")
+    scorecard_sections.append("|---|---|---|")
+    for intent in dead_routes:
+        diag = _DEAD_ROUTE_DIAGNOSIS.get(intent, "diagnosis: _")
+        scorecard_sections.append(f"| {intent} | 0 | {diag} |")
+    if not dead_routes:
+        scorecard_sections.append("| — | — | No dead routes |")
+
+    scorecard_sections.append("\n## Per-route breakdown\n")
+    scorecard_sections.append("| Route | TP | FP | Precision | Note |")
+    scorecard_sections.append("|---|---|---|---|---|")
+    # Sort by FP descending
+    sorted_routes = sorted(all_intents_ordered, key=lambda k: route_fp[k], reverse=True)
+    for intent in sorted_routes:
+        tp = route_tp[intent]
+        fp = route_fp[intent]
+        n = tp + fp
+        if n >= 10:
+            prec_str = f"{tp / n:.1%}"
+            note = ""
+        else:
+            prec_str = "—"
+            note = f"under-powered (n={n})"
+        scorecard_sections.append(f"| {intent} | {tp} | {fp} | {prec_str} | {note} |")
+
+    scorecard_sections.append("\n## Ranked fix list\n")
+    scorecard_sections.append("Routes ordered by FP count (most problematic first):\n")
+    for intent in sorted_routes:
+        fp = route_fp[intent]
+        if fp == 0:
+            continue
+        scorecard_sections.append(f"### {intent} (FP={fp})\n")
+        scorecard_sections.append("Sample FP prompts:")
+        for sample in route_fp_samples[intent][:3]:
+            scorecard_sections.append(f"- {sample}")
+        scorecard_sections.append("\nSuggested fix: _\n")
+
+    scorecard_text = "\n".join(scorecard_sections)
+
+    # Write scorecard regardless of pass/fail (review correction 2)
+    EVAL_DIR.mkdir(parents=True, exist_ok=True)
+    scorecard_path = EVAL_DIR / "p1-scorecard-2026-09-26.md"
+    scorecard_path.write_text(scorecard_text, encoding="utf-8")
+
+    # Print summary
+    print(f"Precision: {precision:.1%} ({verdict_precision})")
+    print(f"Recall: {recall:.1%} (diagnostic)")
+    print(f"False-fire: {ff:.1%} ({verdict_ff})")
+
+    # Gate failures → exit 2 (after writing scorecard)
+    if gate_failures:
+        for gf in gate_failures:
+            print(gf)
+        sys.exit(2)
 
 
 # ── CLI ────────────────────────────────────────────────────────────────────────
