@@ -2,14 +2,22 @@
   "hooks": {
     "SessionStart": [
       {
-        "type": "command",
-        "command": "python3 \"${CLAUDE_PLUGIN_ROOT:-/Users/galta/Development/sir_albert/plugins/sir-albert}/hooks/session_start.py\""
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT:-/Users/galta/Development/sir_albert/plugins/sir-albert}/hooks/session_start.py\""
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
       {
-        "type": "command",
-        "command": "python3 \"${CLAUDE_PLUGIN_ROOT:-/Users/galta/Development/sir_albert/plugins/sir-albert}/hooks/prompt_router.py\""
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT:-/Users/galta/Development/sir_albert/plugins/sir-albert}/hooks/prompt_router.py\""
+          }
+        ]
       }
     ],
     "PreToolUse": [
@@ -45,8 +53,12 @@
     ],
     "SessionEnd": [
       {
-        "type": "command",
-        "command": "bash \"${CLAUDE_PLUGIN_ROOT:-/Users/galta/Development/sir_albert/plugins/sir-albert}/hooks/session-record.sh\""
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT:-/Users/galta/Development/sir_albert/plugins/sir-albert}/hooks/session-record.sh\""
+          }
+        ]
       }
     ]
   }
