@@ -30,7 +30,13 @@ MODEL=$(cat "$RUNDIR/model-snapshot.txt")
 MANIFEST=$(cat "$RUNDIR/run-manifest.json")
 
 CLONE_PATH=$(echo "$MANIFEST" | /usr/local/bin/python3.13 -c "import sys,json; print(json.load(sys.stdin)['clone_path'])")
-SCRATCH_CWD=$(echo "$MANIFEST" | /usr/local/bin/python3.13 -c "import sys,json; print(json.load(sys.stdin)['scratch_cwd'])")
+# Fresh scratch repo per run, under the manifest's scratch dir. Bash is enabled, so a run
+# can create files (e.g. `cat > plan.md` when Write is disallowed); a shared cwd would
+# hand those to the next run — possibly the other arm. mktemp means no deletes needed.
+SCRATCH_ROOT=$(echo "$MANIFEST" | /usr/local/bin/python3.13 -c "import sys,json; print(json.load(sys.stdin)['scratch_cwd'])")
+mkdir -p "$SCRATCH_ROOT"
+SCRATCH_CWD=$(mktemp -d "$SCRATCH_ROOT/run-$ARM-$HASH-rep$REP.XXXX")
+git -C "$SCRATCH_CWD" init -q && git -C "$SCRATCH_CWD" commit -q --allow-empty -m scratch
 
 if [ "$ARM" = "a" ]; then
   ARM_SETTINGS=$(echo "$MANIFEST" | /usr/local/bin/python3.13 -c "import sys,json; print(json.load(sys.stdin)['arm_a_settings'])")
@@ -60,6 +66,13 @@ EXIT_CODE=0
     --max-budget-usd 0.60 \
     --disallowedTools Write,Edit,NotebookEdit \
     "$PROMPT") > "$RAW_FILE" || EXIT_CODE=$?
+
+# The plugin clone is arm B's (and A's) sir_albert. A run that modified it would change
+# the treatment for every later run: abort the replay rather than keep measuring.
+if [ -n "$(git -C "$CLONE_PATH" status --porcelain 2>/dev/null)" ]; then
+  echo "ABORT: plugin clone modified during $ARM-$HASH-rep$REP: $(git -C "$CLONE_PATH" status --porcelain | head -3)" >&2
+  exit 4
+fi
 
 # Parse stream-json and build artifact
 /usr/local/bin/python3.13 - "$ARM" "$HASH" "$REP" "$PROMPT" "$MODEL" "$EXIT_CODE" "$OUT" "$RAW_FILE" <<'PY'

@@ -47,7 +47,7 @@ def _make_manifest(tmp_path, clone=None, scratch=None, arm_a=None, arm_b=None):
     return tmp_path
 
 
-def _run_stub(stub_stream_path, arm, prompt_hash, rep, prompt_text, rundir, artifact_dir, stub_exit=0):
+def _run_stub(stub_stream_path, arm, prompt_hash, rep, prompt_text, rundir, artifact_dir, stub_exit=0, stub_extra=":"):
     """Run run_one.sh with a stub that emits a pre-canned stream.
 
     The stub behaves like the real CLI where it matters: it rejects --cwd (not a
@@ -58,7 +58,8 @@ def _run_stub(stub_stream_path, arm, prompt_hash, rep, prompt_text, rundir, arti
     stub.write_text(
         "#!/bin/bash\n"
         'for a in "$@"; do [ "$a" = "--cwd" ] && { echo "stub: --cwd is not a claude flag" >&2; exit 2; }; done\n'
-        f'[ "$(pwd -P)" = "$(cd {scratch!r} && pwd -P)" ] || {{ echo "stub: wrong cwd $(pwd)" >&2; exit 3; }}\n'
+        f'case "$(pwd -P)/" in "$(cd {scratch!r} && pwd -P)"/run-*) ;; *) echo "stub: wrong cwd $(pwd)" >&2; exit 3;; esac\n'
+        f"{stub_extra}\n"
         f"cat {str(stub_stream_path)!r}\n"
         f"exit {stub_exit}\n"
     )
@@ -194,3 +195,31 @@ def test_nonzero_claude_exit_still_writes_artifact(tmp_path):
     artifact = json.loads((art_dir / "b-capped1-rep1.json").read_text())
     assert artifact["exit_code"] == 1, result.stderr
     assert artifact["cost_usd"] == pytest.approx(0.140838)
+
+
+def test_each_run_gets_a_fresh_scratch_repo(tmp_path):
+    """A file a run creates (Bash `cat > plan.md`) must not be visible to the next run."""
+    rundir = _make_manifest(tmp_path)
+    art_dir = tmp_path / "runs"
+    art_dir.mkdir()
+    leak_check = 'if [ -e plan.md ]; then echo "stub: saw previous run\'s file" >&2; exit 5; fi; echo x > plan.md'
+    r1 = _run_stub(FIXTURES_DIR / "arm-b.jsonl", "a", "fresh1", 1, "p", rundir, art_dir, stub_extra=leak_check)
+    r2 = _run_stub(FIXTURES_DIR / "arm-b.jsonl", "b", "fresh1", 1, "p", rundir, art_dir, stub_extra=leak_check)
+    assert json.loads((art_dir / "a-fresh1-rep1.json").read_text())["exit_code"] == 0, r1.stderr
+    assert json.loads((art_dir / "b-fresh1-rep1.json").read_text())["exit_code"] == 0, r2.stderr
+
+
+def test_modified_plugin_clone_aborts(tmp_path):
+    """If a run edits the plugin clone, the treatment changed: abort (exit 4)."""
+    import subprocess as sp
+    clone = tmp_path / "clone"
+    clone.mkdir()
+    sp.run(["git", "init", "-q", str(clone)], check=True)
+    sp.run(["git", "-C", str(clone), "commit", "-q", "--allow-empty", "-m", "c"], check=True)
+    rundir = _make_manifest(tmp_path, clone=clone)
+    art_dir = tmp_path / "runs"
+    art_dir.mkdir()
+    result = _run_stub(FIXTURES_DIR / "arm-b.jsonl", "b", "tamper1", 1, "p", rundir, art_dir,
+                       stub_extra=f"echo evil > {str(clone)!r}/injected.md")
+    assert result.returncode == 4, result.stderr
+    assert "plugin clone modified" in result.stderr
