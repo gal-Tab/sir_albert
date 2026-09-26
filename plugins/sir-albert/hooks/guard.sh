@@ -11,7 +11,7 @@ if [ -z "$CMD" ]; then
 fi
 
 block() {
-  echo "BLOCKED: $1" >&2
+  echo "BLOCKED: $1. Final — do not retry. Diagnose why it was needed and propose a safe alternative (e.g. rebase + plain push, branch -d after merge check, targeted rm)." >&2
   exit 2
 }
 
