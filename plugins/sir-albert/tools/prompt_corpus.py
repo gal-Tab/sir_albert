@@ -33,6 +33,7 @@ HOOK_SCRIPT = PLUGIN_ROOT / "hooks" / "prompt_router.py"
 CORPUS_DIR = Path.home() / ".claude" / "sir-albert-corpus"
 CORPUS_FILE = CORPUS_DIR / "corpus.jsonl"
 REPORT_DIR = REPO_ROOT / "docs" / "plans" / "2026-09-24-w3-router"
+EVAL_DIR = REPO_ROOT / "docs" / "plans" / "2026-09-26-w4-eval"
 
 MAX_LINE_BYTES = 200_000
 MAX_PROMPT_CHARS = 2000
@@ -406,6 +407,264 @@ def cmd_router_eval(args):
     return fire_rate < 0.15
 
 
+# ── Eval constants (depend on _compile_patterns, defined after it) ─────────────
+def _get_valid_labels():
+    """Return set of valid label values derived from current router patterns."""
+    return {intent for intent, _, _ in _compile_patterns()} | {"none", "ambiguous"}
+
+
+# ── label-set ──────────────────────────────────────────────────────────────────
+_PATH_REF_RE = re.compile(r'[/\\][a-zA-Z0-9_.-]+\.[a-zA-Z]{2,5}')
+_TRAP_RE1 = re.compile(r'^(continue|resume|yes|ok|go|1|done)\b', re.IGNORECASE)
+_TRAP_RE2 = re.compile(r'yes open pr|open pr|merge', re.IGNORECASE)
+
+
+def cmd_label_set(args):
+    merge = getattr(args, "merge", False)
+    out_file = EVAL_DIR / "labeled-set.jsonl"
+    checklist_path = EVAL_DIR / "labeled-set-checklist.md"
+
+    # Guard: refuse to overwrite existing non-null labels
+    existing_labels = {}
+    if out_file.exists():
+        existing_rows = [
+            json.loads(line)
+            for line in out_file.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        n_labeled = sum(1 for r in existing_rows if r.get("label") is not None)
+        if n_labeled > 0 and not merge:
+            print(f"refusing to overwrite {n_labeled} existing labels; use --merge")
+            sys.exit(1)
+        if merge:
+            for r in existing_rows:
+                if r.get("label") is not None:
+                    existing_labels[r["_hash"]] = {
+                        "label": r["label"],
+                        "labeled_by": r.get("labeled_by"),
+                        "labeled_at": r.get("labeled_at"),
+                    }
+
+    patterns = _compile_patterns()
+
+    # Load all corpus rows once
+    all_rows = list(load_jsonl(str(CORPUS_FILE)))
+
+    # Slice 1: router matches
+    router_match_rows = []
+    router_match_hashes = set()
+    for row in all_rows:
+        text = row.get("text", "")
+        if not is_organic(text):
+            continue
+        route = _route(text, patterns)
+        if route is not None:
+            h = row.get("_hash", "")
+            if h and h not in router_match_hashes:
+                router_match_rows.append(row)
+                router_match_hashes.add(h)
+
+    # Slice 2: task-initiating
+    task_pool = []
+    for row in all_rows:
+        text = row.get("text", "")
+        h = row.get("_hash", "")
+        if h in router_match_hashes:
+            continue
+        if row.get("preceding_turns", []) != []:
+            continue
+        if len(text) <= 40:
+            continue
+        if _PATH_REF_RE.search(text):
+            continue
+        if not is_organic(text):
+            continue
+        task_pool.append(row)
+
+    random.seed(42)
+    task_rows = random.sample(task_pool, min(30, len(task_pool)))
+
+    # Slice 3: negative controls
+    neg_pool = []
+    neg_pool_hashes = set()
+    for row in all_rows:
+        text = row.get("text", "")
+        h = row.get("_hash", "")
+        if not is_organic(text):
+            continue
+        if not (len(row.get("preceding_turns", [])) > 0 and len(text.strip()) < 50):
+            continue
+        if h not in neg_pool_hashes:
+            neg_pool.append(row)
+            neg_pool_hashes.add(h)
+
+    random.seed(99)
+    neg_rows = random.sample(neg_pool, min(10, len(neg_pool)))
+    neg_hashes = {r.get("_hash", "") for r in neg_rows}
+
+    # Ensure false-fire trap1 (acks) is present
+    has_trap1 = any(_TRAP_RE1.search(r.get("text", "")) for r in neg_rows)
+    if not has_trap1:
+        extra = next(
+            (r for r in neg_pool if _TRAP_RE1.search(r.get("text", "")) and r.get("_hash") not in neg_hashes),
+            None
+        )
+        if extra:
+            neg_rows.append(extra)
+            neg_hashes.add(extra.get("_hash", ""))
+        else:
+            synthetic = {
+                "_hash": "synthetic_continue",
+                "text": "continue",
+                "preceding_turns": [{"role": "user", "text": "prev"}],
+                "label": None,
+                "synthetic": True,
+            }
+            neg_rows.append(synthetic)
+
+    # Ensure false-fire trap2 (open pr / merge) is present, if available
+    has_trap2 = any(_TRAP_RE2.search(r.get("text", "")) for r in neg_rows)
+    if not has_trap2:
+        extra2 = next(
+            (r for r in neg_pool if _TRAP_RE2.search(r.get("text", "")) and r.get("_hash") not in neg_hashes),
+            None
+        )
+        if extra2:
+            neg_rows.append(extra2)
+
+    # Build output rows
+    def _base(h):
+        return existing_labels.get(h, {"label": None, "labeled_by": None, "labeled_at": None})
+
+    out_rows = []
+    for row in router_match_rows:
+        h = row.get("_hash", "")
+        b = _base(h)
+        out_rows.append({
+            "_hash": h,
+            "text": row.get("text", ""),
+            "predicted_route": _route(row.get("text", ""), patterns),
+            "slice": "router_match",
+            "label": b["label"],
+            "labeled_by": b["labeled_by"],
+            "labeled_at": b["labeled_at"],
+        })
+    for row in task_rows:
+        h = row.get("_hash", "")
+        b = _base(h)
+        out_rows.append({
+            "_hash": h,
+            "text": row.get("text", ""),
+            "predicted_route": None,
+            "slice": "task_initiating",
+            "label": b["label"],
+            "labeled_by": b["labeled_by"],
+            "labeled_at": b["labeled_at"],
+        })
+    for row in neg_rows:
+        h = row.get("_hash", "")
+        b = _base(h)
+        out_rows.append({
+            "_hash": h,
+            "text": row.get("text", ""),
+            "predicted_route": None,
+            "slice": "negative_control",
+            "label": b["label"],
+            "labeled_by": b["labeled_by"],
+            "labeled_at": b["labeled_at"],
+        })
+
+    # Write JSONL
+    EVAL_DIR.mkdir(parents=True, exist_ok=True)
+    out_file.write_text(
+        "\n".join(json.dumps(r, ensure_ascii=False) for r in out_rows) + "\n",
+        encoding="utf-8",
+    )
+
+    # Write checklist
+    def _trunc(text, n=400):
+        return (text[:n] + "…") if len(text) > n else text
+
+    cl_lines = [
+        "# Labeling Checklist — W4 Router Eval",
+        "",
+        "## Shorthand legend",
+        "- **Router matches:** `y` = predicted route is correct. Otherwise write the correct route name, `none`, or `ambiguous`.",
+        "- **Task-initiating:** write a route name, `none`, or `ambiguous`.",
+        "- **Negative controls:** `y` = should NOT route (`none`). Otherwise write the route it *should* take.",
+        "",
+    ]
+
+    cl_lines.append("## Router matches (binary: yes this should route / no + correct route if wrong)")
+    cl_lines.append("")
+    for i, row in enumerate(router_match_rows):
+        h = row.get("_hash", "")
+        text = row.get("text", "")
+        route = _route(text, patterns)
+        # Skip already-labelled rows in --merge mode
+        if merge and h in existing_labels:
+            continue
+        cl_lines.append(f"### [{i + 1}] hash={h} slice=router_match")
+        cl_lines.append(f"> {_trunc(text)}")
+        cl_lines.append(f"predicted: {route}")
+        cl_lines.append(f"**Label:** ___  **Notes:** ___")
+        cl_lines.append("")
+
+    cl_lines.append("## Task-initiating (label: one of the route names | none | ambiguous)")
+    cl_lines.append("")
+    offset = len(router_match_rows)
+    for i, row in enumerate(task_rows):
+        h = row.get("_hash", "")
+        text = row.get("text", "")
+        if merge and h in existing_labels:
+            continue
+        cl_lines.append(f"### [{offset + i + 1}] hash={h} slice=task_initiating")
+        cl_lines.append(f"> {_trunc(text)}")
+        cl_lines.append(f"**Label:** ___  **Notes:** ___")
+        cl_lines.append("")
+
+    cl_lines.append("## Negative controls (binary: should NOT fire)")
+    cl_lines.append("")
+    offset2 = len(router_match_rows) + len(task_rows)
+    for i, row in enumerate(neg_rows):
+        h = row.get("_hash", "")
+        text = row.get("text", "")
+        if merge and h in existing_labels:
+            continue
+        cl_lines.append(f"### [{offset2 + i + 1}] hash={h} slice=negative_control")
+        cl_lines.append(f"> {_trunc(text)}")
+        cl_lines.append(f"**Label:** ___  **Notes:** ___")
+        cl_lines.append("")
+
+    if merge and existing_labels:
+        already = len(existing_labels)
+        remaining = sum(1 for r in out_rows if r["label"] is None)
+        cl_lines.append(f"<!-- already labelled={already}, remaining={remaining} -->")
+
+    checklist_path.write_text("\n".join(cl_lines), encoding="utf-8")
+
+    print(
+        f"router_match={len(router_match_rows)} "
+        f"task_initiating={len(task_rows)} "
+        f"negative_control={len(neg_rows)}"
+    )
+
+
+# ── validate-labels ────────────────────────────────────────────────────────────
+def cmd_validate_labels(args):
+    raise NotImplementedError("validate-labels not yet implemented")
+
+
+# ── import-labels ──────────────────────────────────────────────────────────────
+def cmd_import_labels(args):
+    raise NotImplementedError("import-labels not yet implemented")
+
+
+# ── p1-score ───────────────────────────────────────────────────────────────────
+def cmd_p1_score(args):
+    raise NotImplementedError("p1-score not yet implemented")
+
+
 # ── CLI ────────────────────────────────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser(description="sir_albert prompt corpus tool")
@@ -420,6 +679,19 @@ def main():
 
     sub.add_parser("router-eval")
 
+    p_label_set = sub.add_parser("label-set")
+    p_label_set.add_argument("--merge", action="store_true", default=False)
+
+    p_validate = sub.add_parser("validate-labels")
+    p_validate.add_argument("--file", default=str(EVAL_DIR / "labeled-set.jsonl"))
+
+    p_import = sub.add_parser("import-labels")
+    p_import.add_argument("--checklist", default=str(EVAL_DIR / "labeled-set-checklist.md"))
+    p_import.add_argument("--file", default=str(EVAL_DIR / "labeled-set.jsonl"))
+
+    p_p1 = sub.add_parser("p1-score")
+    p_p1.add_argument("--file", default=str(EVAL_DIR / "labeled-set.jsonl"))
+
     args = parser.parse_args()
     if args.cmd == "extract":
         cmd_extract(args)
@@ -430,6 +702,14 @@ def main():
     elif args.cmd == "router-eval":
         ok = cmd_router_eval(args)
         sys.exit(0 if ok else 1)
+    elif args.cmd == "label-set":
+        cmd_label_set(args)
+    elif args.cmd == "validate-labels":
+        cmd_validate_labels(args)
+    elif args.cmd == "import-labels":
+        cmd_import_labels(args)
+    elif args.cmd == "p1-score":
+        cmd_p1_score(args)
     else:
         parser.print_help()
 
