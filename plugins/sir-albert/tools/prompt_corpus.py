@@ -603,6 +603,20 @@ def cmd_label_set(args):
         "- **Task-initiating:** write a route name, `none`, or `ambiguous`.",
         "- **Negative controls:** `y` = should NOT route (`none`). Otherwise write the route it *should* take.",
         "",
+        "**Question to ask per prompt:** read alone, as the first message of a session — should the router nudge a skill?",
+        "",
+        "## Valid route names",
+        "| Route | Nudges toward | Route | Nudges toward |",
+        "|---|---|---|---|",
+        "| `brainstorm` | explore / think an idea through | `plan` | write a plan / break into tickets |",
+        "| `design` | design a solution → spec | `execute` | implement a plan / tickets |",
+        "| `attack` | stress-test / find holes | `debug` | something is broken |",
+        "| `grill` | interview me, one question at a time | `build` | finish / ship a branch, open PR |",
+        "| `zoom-out` | bigger picture / how it fits | `handoff` | wrap session for a fresh one |",
+        "| `slack` | Slack message in Gal's voice | `resume` | reload last handoff |",
+        "| `slack-hebrew` | Slack message, Hebrew request | `linkedin-hebrew` | LinkedIn post, Hebrew request |",
+        "| `none` | no skill applies | `ambiguous` | can't tell — excluded from scoring |",
+        "",
     ]
 
     cl_lines.append("## Router matches (binary: yes this should route / no + correct route if wrong)")
