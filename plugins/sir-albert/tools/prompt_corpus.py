@@ -792,8 +792,12 @@ def cmd_import_labels(args):
 
             lm = _LABEL_LINE_RE.match(line)
             if lm:
-                label_raw = lm.group(1)
-                if label_raw and label_raw != "___":
+                # People fill the blank in place ("___" -> "_y_"), so strip the blank's
+                # underscores and any markdown emphasis before reading the label.
+                label_raw = lm.group(1).strip("_*` ").lower()
+                if label_raw == "yes":
+                    label_raw = "y"
+                if label_raw:
                     parsed[current_hash] = (label_raw, current_slice, current_predicted)
                 current_hash = None
                 current_slice = None
@@ -939,24 +943,24 @@ def cmd_p1_score(args):
         )
 
     # ── Recall (diagnostic only) ───────────────────────────────────────────────
-    ti_labeled = [
-        r for r in ti_rows
-        if r.get("label") not in (None, "none", "ambiguous")
-    ]
-    recall_hits = sum(
-        1 for r in ti_labeled
-        if _route(r.get("text", ""), patterns) == r.get("label")
-    )
-    recall = recall_hits / len(ti_labeled) if ti_labeled else 0.0
+    # The task_initiating slice is sampled only from prompts the router did NOT fire
+    # on, so "recall" over it is 0% by construction. What it measures is the router's
+    # miss rate among ignored task prompts: of those, how many Gal says should route.
+    ti_decided = [r for r in ti_rows if r.get("label") not in (None, "ambiguous")]
+    ti_labeled = [r for r in ti_decided if r.get("label") != "none"]
+    recall = len(ti_labeled) / len(ti_decided) if ti_decided else None   # miss rate
 
     # ── False-fire rate ───────────────────────────────────────────────────────
-    # Denominator: only controls labelled 'none' (review correction 3)
+    # Denominator: only controls labelled 'none' (review correction 3).
+    # An empty denominator is INSUFFICIENT, never a pass.
     nc_none = [r for r in nc_rows if r.get("label") == "none"]
     nc_fire = sum(1 for r in nc_none if _route(r.get("text", ""), patterns) is not None)
-    ff = nc_fire / len(nc_none) if nc_none else 0.0
-    ff_pass = ff <= 0.10
+    ff = nc_fire / len(nc_none) if nc_none else None
+    ff_pass = ff is not None and ff <= 0.10
 
-    if not ff_pass:
+    if ff is None:
+        gate_failures.append("GATE INSUFFICIENT: 0 negative controls labelled 'none'")
+    elif not ff_pass:
         gate_failures.append(
             f"GATE FAIL: false-fire {ff:.1%} > 10.0%"
         )
@@ -997,7 +1001,8 @@ def cmd_p1_score(args):
 
     # ── Build scorecard ──────────────────────────────────────────────────────
     verdict_precision = "PASS" if prec_pass else "FAIL"
-    verdict_ff = "PASS" if ff_pass else "FAIL"
+    verdict_ff = "INSUFFICIENT" if ff is None else ("PASS" if ff_pass else "FAIL")
+    pct = lambda x: "n/a" if x is None else f"{x:.1%}"
 
     scorecard_sections.append("# P1 Router Scorecard\n")
     scorecard_sections.append("## Summary\n")
@@ -1007,10 +1012,10 @@ def cmd_p1_score(args):
         f"| Precision (gate) | {precision:.1%} (n={len(rm_scoreable)}) | ≥80% | {verdict_precision} |"
     )
     scorecard_sections.append(
-        f"| Recall (diagnostic) | {recall:.1%} (n={len(ti_labeled)}) | ≥50% | — |"
+        f"| Miss rate among non-routed task prompts (diagnostic) | {pct(recall)} ({len(ti_labeled)} of n={len(ti_decided)} should have routed) | — | — |"
     )
     scorecard_sections.append(
-        f"| False-fire rate (gate) | {ff:.1%} (n={len(nc_none)}) | ≤10% | {verdict_ff} |"
+        f"| False-fire rate (gate) | {pct(ff)} (n={len(nc_none)}) | ≤10% | {verdict_ff} |"
     )
     if n_ambig:
         scorecard_sections.append(f"\nAmbiguous rows excluded from precision denominator: {n_ambig}")
@@ -1074,8 +1079,8 @@ def cmd_p1_score(args):
 
     # Print summary
     print(f"Precision: {precision:.1%} ({verdict_precision})")
-    print(f"Recall: {recall:.1%} (diagnostic)")
-    print(f"False-fire: {ff:.1%} ({verdict_ff})")
+    print(f"Miss rate (non-routed task prompts, diagnostic): {pct(recall)} ({len(ti_labeled)}/{len(ti_decided)})")
+    print(f"False-fire: {pct(ff)} (n={len(nc_none)}, {verdict_ff})")
 
     # Gate failures → exit 2 (after writing scorecard)
     if gate_failures:

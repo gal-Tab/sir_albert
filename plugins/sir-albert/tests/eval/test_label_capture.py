@@ -401,3 +401,13 @@ class TestLabelSetRehydration:
         assert restored["label"] == "brainstorm", (
             f"Label not restored from labels.jsonl, got: {restored['label']}"
         )
+
+
+def test_label_normalization_accepts_filled_in_blanks():
+    """Gal fills blanks in place: '___' becomes '_y_' or '_none_'. Those must import."""
+    import re as _re
+    pat = _re.compile(r'^\*\*Label:\*\*\s*(\S+)')
+    for raw, want in (("**Label:** _y_  **Notes:** ___", "y"), ("**Label:** _none_", "none"),
+                      ("**Label:** **plan**", "plan"), ("**Label:** `Y`", "y"), ("**Label:** ___", "")):
+        got = pat.match(raw).group(1).strip("_*` ").lower()
+        assert got == want, (raw, got)

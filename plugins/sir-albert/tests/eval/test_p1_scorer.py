@@ -276,3 +276,16 @@ class TestP1ScoreFFDenominator:
         prompt_corpus.cmd_p1_score(args)
         out = capsys.readouterr().out
         assert "GATE FAIL" not in out
+
+
+def test_empty_negative_controls_block_the_gate(tmp_path, monkeypatch, capsys):
+    """Regression: with 0 controls labelled, false-fire printed '0.0% (PASS)'.
+    An empty denominator is INSUFFICIENT and must exit 2, never pass."""
+    rows = _make_router_match_rows(30, 30)
+    args = _run_score(tmp_path, monkeypatch, rows)
+    with pytest.raises(SystemExit) as exc:
+        prompt_corpus.cmd_p1_score(args)
+    assert exc.value.code == 2
+    out = capsys.readouterr().out
+    assert "INSUFFICIENT" in out
+    assert "False-fire: 0.0%" not in out
