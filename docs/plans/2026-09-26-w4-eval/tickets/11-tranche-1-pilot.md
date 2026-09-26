@@ -73,3 +73,11 @@ State clearly when asking:
 2. **Interleave arms per rep**: order runs as `a/rep1, b/rep1, a/rep2, b/rep2` per prompt, not `a,a,b,b`. That way time drift and cache warmth fall evenly on both arms.
 3. **Run artifacts are NOT committed.** `runs/` goes in `.gitignore`. Artifacts contain replayed prompt text and model responses drawn from Gal's work in other repos, including internal monday.com content. Commit only the verdict report, `RUNLOG.md` (hashes, costs, exit codes, no text) and the `ls | wc -l` evidence.
 4. The model assertion reads the expected value from the spec decision (`claude-opus-5-5[1m]`), and the restore target is `model-snapshot.txt`. Both must agree at start, or the run aborts.
+
+## Labeling coverage (decided by Gal 2026-09-26)
+
+Gal labels a subset, not all 143 rows. The prerequisite becomes minimum coverage, not `validate-labels` exit 0:
+- `router_match` ≥ 21 scored (have: 20/21 correct, 95%, 95% CI 77–99%)
+- `task_initiating` ≥ 15 labelled (the only source of P2's `b_silent` and `no_route_task` slices)
+- `negative_control` = all 11 (the false-fire gate is INSUFFICIENT on an empty slice)
+- `p1-score` exits 0.
