@@ -399,7 +399,7 @@ def cmd_router_eval(args):
 
     report = "\n".join(lines)
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    report_path = REPORT_DIR / f"precision-recall-report-{date.today()}.txt"
+    report_path = REPORT_DIR / f"router-eval-report-{date.today()}.txt"
     report_path.write_text(report, encoding="utf-8")
     print(report)
     print(f"\nReport: {report_path}", file=sys.stderr)

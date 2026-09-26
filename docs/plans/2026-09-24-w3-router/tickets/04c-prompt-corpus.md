@@ -44,7 +44,7 @@ python3 plugins/sir-albert/tools/prompt_corpus.py router-eval
     Reads corpus.jsonl for labeled examples (recall set).
     Also reads ~/.claude/projects/**/*.jsonl for organic prompts (precision set).
     Runs prompt_router.py patterns, reports precision + recall table.
-    Writes report to docs/plans/2026-09-24-w3-router/precision-recall-report-YYYY-MM-DD.txt.
+    Writes report to docs/plans/2026-09-24-w3-router/router-eval-report-YYYY-MM-DD.txt.
 ```
 
 ## Label detection

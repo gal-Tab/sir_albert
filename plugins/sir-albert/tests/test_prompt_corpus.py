@@ -14,7 +14,7 @@ def _make_jsonl(messages: list[dict]) -> str:
     return "\n".join(json.dumps(m) for m in messages) + "\n"
 
 
-def _run_extract(jsonl_content: str, corpus_dir: Path) -> subprocess.CompletedResult:
+def _run_extract(jsonl_content: str, corpus_dir: Path) -> subprocess.CompletedProcess:
     import os
     # Write fixture to $HOME/.claude/projects/ (tool expands ~ using HOME env)
     projects_dir = corpus_dir / ".claude" / "projects" / "test-project"

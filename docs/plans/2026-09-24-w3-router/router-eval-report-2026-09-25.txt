@@ -1,0 +1,90 @@
+Precision + Recall Report — 2026-09-25
+============================================================
+Organic prompts: 1,983  |  Fire rate: 5.2%  (target <15%)
+Recall examples: 6
+
+  Route                  Exp   Hit  Recall  Matches  Fire%
+  --------------------  ----- ----- ------- -------- ------
+  attack                   0     0     n/a        1   0.1%
+  grill                    0     0     n/a        0   0.0%
+  slack                    1     1    100%        4   0.2%
+  zoom-out                 0     0     n/a        0   0.0%
+  design                   0     0     n/a        3   0.2%
+  brainstorm               3     2     67%       33   1.7%
+  plan                     1     1    100%       41   2.1%
+  execute                  0     0     n/a        6   0.3%
+  debug                    0     0     n/a        1   0.1%
+  build                    0     0     n/a        0   0.0%
+  handoff                  1     1    100%       15   0.8%
+  resume                   0     0     n/a        0   0.0%
+  slack-hebrew             0     0     n/a        0   0.0%
+  linkedin-hebrew          0     0     n/a        0   0.0%
+
+Recall misses:
+  [brainstorm]
+    MISS (superpowers:brainstorming): 'i want you to plan ths split and use @SKILL_GUIDELINES.md for the skills.\nthese '
+
+Hit samples (≤5, ≤80 chars):
+
+  [attack] (1)
+    • "Here is what we've been working on /Users/galta/Development/sir_albert/.claude/w"
+
+  [grill] (0)
+    (none)
+
+  [slack] (4)
+    • 'yes slack in my voice'
+    • "i'm working on this ticket: https://monday.monday.com/boards/5582014840/views/12"
+    • 'i want you to slack in my voice C0BMQV9653P about what we found and next steps. '
+    • 'yes. alos are there  any other questins you need to know? will our setup manage '
+
+  [zoom-out] (0)
+    (none)
+
+  [design] (3)
+    • 'do you think adressing these agents ( @output/gtm-agent-team/planner.md , @outpu'
+    • 'i want to build a prsonal assitetnt in Sphera with the sphera agent remote. we d'
+    • 'Read docs/HANDOFF.md in this repo and pick up from the "SESSION 4 PIVOT" section'
+
+  [brainstorm] (33)
+    • 'ok what if i\'ll add this to the mix as a possible solution, wdyt?:  "Everyone ta'
+    • "what do you think about this? which path should we chose? i'd like to here what "
+    • 'This is a service that needs to be available to my entire marketing team So I ca'
+    • 'yoav told me to create a sercert in this stracurte: {     "CLIENT_ID": "7**.apps'
+    • 'Out of these options along with the conversation what do you think is the best r'
+
+  [plan] (41)
+    • "create a plan to migrate GA4 tags from webiste contaier to main. don't move what"
+    • 'i want to change @output/gtm-agent-team/planner.md plan handoff, the plan is not'
+    • "I'll be working with The file store tag we've created, It has some gaps. I'm fin"
+    • 'yes,create a plan before execution to get a well rounded solution.  i also want '
+    • 'I work with an agent to Investigate and plan A ticket this was the tikcet - http'
+
+  [execute] (6)
+    • 'i just run this plan: Execute the plan at /Users/galta/.claude/plans/we-currntly'
+    • 'You are resuming work on gtm_agent (agent_tag repo), branch `plan/firestore-visi'
+    • 'If `docs/plans/2026-07-29-webhook-client-api-key-auth.html` is empty, **STOP.** '
+    • 'Execute the plan at /Users/galta/.claude/plans/we-currntly-have-n8n-precious-gos'
+    • 'Execute the plan And save the new skill under @skills/ folder'
+
+  [debug] (1)
+    • 'this PR is a skill that is a sub-item of Google tag manger (which is a tool), i '
+
+  [build] (0)
+    (none)
+
+  [handoff] (15)
+    • 'write handoff'
+    • "write a handoff and a promot to stat a new session i'll  have monday mcp live in"
+    • 'I want you to review the handover skill or command, I saw https://code.claude.co'
+    • 'i want to work in a new worktree undser /Users/galta/Development/gtm_agent/* mak'
+    • "let's wrap this session i want to strat a new one,"
+
+  [resume] (0)
+    (none)
+
+  [slack-hebrew] (0)
+    (none)
+
+  [linkedin-hebrew] (0)
+    (none)
