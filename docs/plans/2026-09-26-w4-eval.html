@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>W4 — Router Scorecard + Thin A/B Replay — Implementation Plan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --color-bg: #000000;
+      --color-surface: #232427;
+      --color-surface-alt: #2D3035;
+      --color-text: #ffffff;
+      --color-text-secondary: #c3ced8;
+      --color-text-muted: #a0a0a0;
+      --color-border: rgba(255,255,255,0.15);
+      --color-border-strong: rgba(255,255,255,0.8);
+      --color-purple: #6164ff;
+      --color-purple-light: #8A99FF;
+      --color-green: #00c875;
+      --color-yellow: #ffcb00;
+      --color-red: #ff3d57;
+      --font-main: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'SF Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+      --weight-regular: 400;
+      --weight-semibold: 600;
+      --text-display: 4vmin;
+      --text-h1: 3.2vmin;
+      --text-h2: 2.6vmin;
+      --text-h3: 2.2vmin;
+      --text-body: 1.8vmin;
+      --text-body-sm: 1.5vmin;
+      --text-caption: 1.2vmin;
+      --space-1: 0.5vmin;
+      --space-2: 1vmin;
+      --space-3: 1.5vmin;
+      --space-4: 2vmin;
+      --space-5: 3vmin;
+      --space-6: 4vmin;
+      --space-7: 5vmin;
+      --space-8: 6vmin;
+      --space-9: 8vmin;
+      --space-10: 10vmin;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-full: 999px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-main);
+      font-weight: var(--weight-regular);
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      padding: var(--space-8) var(--space-6);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    h1, h2, h3, h4 { font-weight: var(--weight-semibold); line-height: 1.3; }
+
+    /* ── Plan Header ── */
+    .plan-header {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-7);
+      margin-bottom: var(--space-7);
+    }
+    .plan-title {
+      font-size: var(--text-display);
+      font-weight: var(--weight-semibold);
+      margin-bottom: var(--space-4);
+      color: var(--color-text);
+    }
+    .plan-goal {
+      font-size: var(--text-h3);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-5);
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: var(--space-2) var(--space-4);
+      margin-bottom: var(--space-5);
+      font-size: var(--text-body-sm);
+    }
+    .meta-label { color: var(--color-text-muted); font-weight: var(--weight-semibold); }
+    .meta-value { color: var(--color-text-secondary); }
+    .meta-badges {
+      display: flex;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+      margin-top: var(--space-3);
+    }
+    .badge {
+      background: var(--color-surface-alt);
+      color: var(--color-text-secondary);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+    }
+    .badge-purple { border: 1px solid var(--color-purple); color: var(--color-purple); }
+    .badge-green { border: 1px solid var(--color-green); color: var(--color-green); }
+    .badge-yellow { border: 1px solid var(--color-yellow); color: var(--color-yellow); }
+    .badge-red { border: 1px solid var(--color-red); color: var(--color-red); }
+
+    /* ── Progress bar ── */
+    .progress-bar-wrap {
+      margin: var(--space-4) 0 0;
+    }
+    .progress-label {
+      font-size: var(--text-caption);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-1);
+    }
+    .progress-bar {
+      height: 4px;
+      background: var(--color-surface-alt);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--color-purple);
+      border-radius: var(--radius-full);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* ── DOD Section ── */
+    .dod-section {
+      background: var(--color-surface);
+      border-left: 3px solid var(--color-purple);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      margin-bottom: var(--space-7);
+    }
+    .dod-section h2 { font-size: var(--text-h2); margin-bottom: var(--space-3); }
+    .dod-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-2);
+      padding: var(--space-2) 0;
+      color: var(--color-text-secondary);
+      font-size: var(--text-body);
+    }
+    .dod-item input[type="checkbox"] {
+      accent-color: var(--color-purple);
+      margin-top: 3px;
+      flex-shrink: 0;
+    }
+
+    /* ── Diagram ── */
+    .diagram-container {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      margin: var(--space-5) 0;
+      overflow-x: auto;
+    }
+    .diagram-title {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-4);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: var(--text-caption);
+    }
+    .mermaid { display: flex; justify-content: center; }
+
+    /* ── Section heading ── */
+    .section-heading {
+      font-size: var(--text-h1);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text);
+      margin: var(--space-7) 0 var(--space-5);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    /* ── Milestones ── */
+    .milestones-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: var(--space-4);
+      margin-bottom: var(--space-7);
+    }
+    .milestone-card {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      border-top: 3px solid var(--color-purple);
+    }
+    .milestone-card.m2 { border-top-color: var(--color-purple-light); }
+    .milestone-card.m3 { border-top-color: #c3ced8; }
+    .milestone-card.m4 { border-top-color: var(--color-yellow); }
+    .milestone-card.m5 { border-top-color: var(--color-green); }
+    .milestone-name {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      margin-bottom: var(--space-2);
+    }
+    .milestone-tickets {
+      font-size: var(--text-caption);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-2);
+    }
+    .milestone-cost {
+      font-size: var(--text-caption);
+      color: var(--color-text-muted);
+    }
+    .milestone-cost.spend { color: var(--color-yellow); }
+    .milestone-summary {
+      font-size: var(--text-caption);
+      color: var(--color-text-secondary);
+      margin-top: var(--space-2);
+    }
+
+    /* ── Tasks ── */
+    .task {
+      background: var(--color-surface-alt);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-3);
+      overflow: hidden;
+    }
+    .task-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4);
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s ease;
+    }
+    .task-header:hover { background: rgba(255,255,255,0.05); }
+    .task-chevron {
+      transition: transform 0.2s ease;
+      color: var(--color-text-muted);
+      flex-shrink: 0;
+      font-size: 1.1em;
+    }
+    .task.open .task-chevron { transform: rotate(90deg); }
+    .task-number {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      color: var(--color-purple);
+      min-width: 3ch;
+    }
+    .task-name {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      flex: 1;
+    }
+    .task-meta {
+      display: flex;
+      gap: var(--space-2);
+      flex-shrink: 0;
+    }
+    .task-body {
+      padding: 0 var(--space-4) var(--space-4);
+      display: none;
+    }
+    .task.open .task-body { display: block; }
+
+    /* ── Task content ── */
+    .task-info-row {
+      display: flex;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-4);
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .task-info-item { font-size: var(--text-caption); color: var(--color-text-muted); }
+    .task-info-item strong { color: var(--color-text-secondary); }
+
+    .steps-list { list-style: none; margin: var(--space-3) 0; }
+    .step-item {
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .step-item:last-child { border-bottom: none; }
+    .step-label {
+      font-size: var(--text-body-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--color-purple-light);
+      margin-bottom: var(--space-2);
+    }
+    .step-desc {
+      font-size: var(--text-body-sm);
+      color: var(--color-text-secondary);
+    }
+    .step-cmd {
+      font-family: var(--font-mono);
+      font-size: var(--text-body-sm);
+      background: var(--color-bg);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-sm);
+      color: var(--color-green);
+      margin: var(--space-2) 0;
+      overflow-x: auto;
+      display: block;
+    }
+    .step-expected {
+      font-size: var(--text-caption);
+      color: var(--color-text-muted);
+      font-style: italic;
+    }
+
+    /* ── Code block ── */
+    .code-block {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin: var(--space-3) 0;
+      overflow-x: auto;
+    }
+    .code-block pre {
+      font-family: var(--font-mono);
+      font-size: var(--text-body-sm);
+      line-height: 1.5;
+      color: var(--color-text-secondary);
+      white-space: pre;
+      margin: 0;
+    }
+
+    /* ── Task DOD ── */
+    .task-dod {
+      margin-top: var(--space-4);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border);
+    }
+    .task-dod-title {
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-2);
+    }
+    .task-dod-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-2);
+      padding: var(--space-1) 0;
+      font-size: var(--text-body-sm);
+      color: var(--color-text-secondary);
+    }
+    .task-dod-item input[type="checkbox"] {
+      accent-color: var(--color-purple);
+      margin-top: 3px;
+      flex-shrink: 0;
+    }
+
+    /* ── Risk callout ── */
+    .risk-callout {
+      border-left: 3px solid var(--color-yellow);
+      background: rgba(255,203,0,0.06);
+      padding: var(--space-3) var(--space-4);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin: var(--space-3) 0;
+      font-size: var(--text-body-sm);
+    }
+    .risk-callout.high {
+      border-left-color: var(--color-red);
+      background: rgba(255,61,87,0.06);
+    }
+    .risk-label {
+      font-weight: var(--weight-semibold);
+      color: var(--color-yellow);
+      font-size: var(--text-caption);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-1);
+    }
+    .risk-callout.high .risk-label { color: var(--color-red); }
+
+    /* ── Checkpoint ── */
+    .checkpoint {
+      border: 1px solid var(--color-red);
+      background: rgba(255,61,87,0.06);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin: var(--space-4) 0;
+    }
+    .checkpoint-title {
+      font-size: var(--text-body-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--color-red);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-2);
+    }
+    .checkpoint p { font-size: var(--text-body-sm); color: var(--color-text-secondary); }
+
+    /* ── Data table ── */
+    table { width: 100%; border-collapse: collapse; margin: var(--space-3) 0; }
+    th {
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: var(--space-2) var(--space-3);
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+    }
+    td {
+      font-size: var(--text-body-sm);
+      color: var(--color-text-secondary);
+      padding: var(--space-2) var(--space-3);
+      border-bottom: 1px solid var(--color-border);
+    }
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.9em;
+      background: var(--color-surface-alt);
+      padding: 0.1em 0.4em;
+      border-radius: 3px;
+      color: var(--color-purple-light);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ HEADER ═══════════════════════════════ -->
+<div class="plan-header">
+  <div class="plan-title">W4 — Router Scorecard + Thin A/B Replay</div>
+  <div class="plan-goal">Produce a defensible, auditable answer to one question: is sir_albert good enough on its own that removing superpowers costs nothing?</div>
+
+  <div class="meta-grid">
+    <span class="meta-label">Spec</span>
+    <span class="meta-value"><code>docs/specs/2026-09-26-w4-eval.md</code></span>
+    <span class="meta-label">Branch</span>
+    <span class="meta-value"><code>w4/eval</code></span>
+    <span class="meta-label">Corpus</span>
+    <span class="meta-value">1,938 organic prompts — 102 router matches (5.3% fire rate)</span>
+    <span class="meta-label">Arms</span>
+    <span class="meta-value">A = today (superpowers ON + plugin-dir) · B = today minus superpowers (same plugin-dir) · ONLY variable: enabledPlugins superpowers flag</span>
+    <span class="meta-label">Gates</span>
+    <span class="meta-value">P1: precision ≥80%, false-fire ≤10% (offline, $0) → P2: blind A/B preference B win-rate ≥40% + skill 4/5 (≤$40)</span>
+    <span class="meta-label">Effort</span>
+    <span class="meta-value">~20 min Gal labeling time + infra build + gated execution</span>
+    <span class="meta-label">Scope boundary</span>
+    <span class="meta-value">Does NOT uninstall superpowers, does NOT fix patterns, does NOT push to remote</span>
+  </div>
+
+  <div class="meta-badges">
+    <span class="badge badge-purple">14 tickets</span>
+    <span class="badge badge-purple">5 milestones</span>
+    <span class="badge badge-green">M1–M3 $0 offline</span>
+    <span class="badge badge-yellow">M4 ≤$40 gated</span>
+    <span class="badge">pytest: /usr/local/bin/python3.13</span>
+    <span class="badge badge-green">Ticket 04 DONE ($0.32 spent)</span>
+  </div>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-label" id="progress-label">0 of 14 tasks complete</div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ DOD ═══════════════════════════════ -->
+<div class="dod-section">
+  <h2>Definition of Done — Project Level</h2>
+  <div class="dod-item"><input type="checkbox"> P1 scorecard emitted: overall precision ≥80%, false-fire ≤10%, dead-route report with pre-diagnoses</div>
+  <div class="dod-item"><input type="checkbox"> P2 replay complete: 60 artifact files in <code>runs/</code>, <code>ls | wc -l == 60</code> confirmed</div>
+  <div class="dod-item"><input type="checkbox"> Blind judge run: 60 judgment calls, position-bias controlled, <code>judgments-resolved.jsonl</code> with 30 rows</div>
+  <div class="dod-item"><input type="checkbox"> Verdict report delivered to Gal — namespaced filename, explicit superpowers-separation paragraph</div>
+  <div class="dod-item"><input type="checkbox"> All pytest suites pass under <code>/usr/local/bin/python3.13</code>; <code>~/.claude/settings.json</code> unmodified at end</div>
+</div>
+
+<!-- ═══════════════════════════════ DIAGRAMS ═══════════════════════════════ -->
+<h2 class="section-heading">Architecture</h2>
+
+<div class="diagram-container">
+  <div class="diagram-title">A/B Replay Data Flow</div>
+  <pre class="mermaid">
+flowchart LR
+  C[("corpus.jsonl\n1938 prompts")] -->|"label-set subcommand"| LS["labeled-set.jsonl\n~144 rows"]
+  LS -->|"p1-score"| P1{"P1 Gate\nprec≥80%\nFF≤10%"}
+  P1 -->|"FAIL → halt"| HALT(["Report to Gal.\nFix patterns.\nRe-score."])
+  P1 -->|"PASS"| SS["sample.jsonl\nN=15 stratified"]
+  SS -->|"k=2 reps"| AA["Arm A\n30 runs\ntoday: superpowers+sir_albert"]
+  SS -->|"k=2 reps"| BB["Arm B\n30 runs\nminus superpowers"]
+  AA --> R[("runs/\n60 .json artifacts")]
+  BB --> R
+  R -->|"30 pairs × 2 orderings"| J["Blind judge\n60 calls text-only"]
+  J --> V{"Verdict\nwin≥40%\nskill 4/5"}
+  V -->|"PASS/FAIL"| RPT["verdict-DATE-ID.md"]
+  style P1 fill:#ffcb00,color:#000
+  style HALT fill:#ff3d57,color:#fff
+  style V fill:#6164ff,color:#fff
+  style RPT fill:#00c875,color:#000
+  </pre>
+</div>
+
+<div class="diagram-container">
+  <div class="diagram-title">Ticket Dependency Graph</div>
+  <pre class="mermaid">
+flowchart TD
+  T01["01 labeled-set-builder"] --> T02["02 label-capture"]
+  T02 --> T03["03 p1-scorer"]
+  T03 --> T10["10 p2-sample-selection"]
+  T04["04 config-dir-spike"] --> T05["05 arm-builder"]
+  T05 --> T06["06 canary+model-guard"]
+  T06 --> T07["07 run-executor"]
+  T07 --> T08["08 blind-judge"]
+  T08 --> T09["09 verdict-and-report"]
+  T03 --> T11["11 tranche-1-pilot 💰"]
+  T07 --> T11
+  T10 --> T11
+  T11 --> T12["12 tranche-2 💰"]
+  T09 --> T13["13 verdict-report"]
+  T12 --> T13
+  T03 --> T14["14 t2-discipline-skills 💰"]
+  T13 --> T14
+  style T01 fill:#6164ff,color:#fff
+  style T04 fill:#6164ff,color:#fff
+  style T11 fill:#ffcb00,color:#000
+  style T12 fill:#ffcb00,color:#000
+  style T14 fill:#ffcb00,color:#000
+  style T13 fill:#00c875,color:#000
+  </pre>
+</div>
+
+<!-- ═══════════════════════════════ MILESTONES ═══════════════════════════════ -->
+<h2 class="section-heading">Milestones</h2>
+<div class="milestones-grid">
+  <div class="milestone-card m1">
+    <div class="milestone-name">M1 — Router Scorecard</div>
+    <div class="milestone-tickets">Tickets 01 · 02 · 03</div>
+    <div class="milestone-cost">~$0, offline</div>
+    <div class="milestone-summary">Labeled set built, schema validated, P1 scorer gates precision ≥80% &amp; false-fire ≤10%, dead-route report emitted.</div>
+  </div>
+  <div class="milestone-card m2">
+    <div class="milestone-name">M2 — Replay Harness</div>
+    <div class="milestone-tickets">Tickets 04✓ · 05 · 06 · 07</div>
+    <div class="milestone-cost">$0.32 spent (04 done)</div>
+    <div class="milestone-summary">04 DONE: CLI flags verified, axcli model-rewrite discovered, guarded.sh proven. 05–07: arm builder, canary (init-event based), executor (stream-json + sessions strip).</div>
+  </div>
+  <div class="milestone-card m3">
+    <div class="milestone-name">M3 — Judging</div>
+    <div class="milestone-tickets">Tickets 08 · 09</div>
+    <div class="milestone-cost">$0 to build</div>
+    <div class="milestone-summary">Blind paired judge with position-bias control; verdict enforces run count == 60 and applies win-rate + skill-invocation gates.</div>
+  </div>
+  <div class="milestone-card m4">
+    <div class="milestone-name">M4 — Execution</div>
+    <div class="milestone-tickets">Tickets 10 · 11 · 12 · 13</div>
+    <div class="milestone-cost spend">SPEND ≤$40 — gated</div>
+    <div class="milestone-summary">Sample selected, tranche 1 pilot (CHECKPOINT), tranche 2 (CHECKPOINT), final verdict to Gal.</div>
+  </div>
+  <div class="milestone-card m5">
+    <div class="milestone-name">M5 — T2 Skills</div>
+    <div class="milestone-tickets">Ticket 14</div>
+    <div class="milestone-cost spend">SPEND — gated, after P1+P2</div>
+    <div class="milestone-summary">Real-agent T2 scenarios for brainstorm/execute/debug/plan/build, drawn from corpus, weighted toward P1 weak routes.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ TASKS ═══════════════════════════════ -->
+<h2 class="section-heading">Tasks</h2>
+
+<!-- ── M1 LABEL ── -->
+<div style="font-size:var(--text-body-sm);color:var(--color-purple);font-weight:var(--weight-semibold);margin:var(--space-4) 0 var(--space-2);text-transform:uppercase;letter-spacing:0.05em;">M1 — Router Scorecard</div>
+
+<!-- Task 01 -->
+<div class="task open" id="task-01">
+  <div class="task-header">
+    <span class="task-chevron">›</span>
+    <span class="task-number">01</span>
+    <span class="task-name">labeled-set-builder</span>
+    <div class="task-meta">
+      <span class="badge badge-purple">First slice</span>
+    </div>
+  </div>
+  <div class="task-body">
+    <div class="task-info-row">
+      <div class="task-info-item"><strong>Blocked by:</strong> —</div>
+      <div class="task-info-item"><strong>Modifies:</strong> <code>plugins/sir-albert/tools/prompt_corpus.py</code></div>
+      <div class="task-info-item"><strong>Creates:</strong> <code>labeled-set.jsonl</code>, <code>labeled-set-checklist.md</code>, <code>tests/eval/test_label_set.py</code></div>
+    </div>
+
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);">Add a <code>label-set</code> subcommand to <code>prompt_corpus.py</code> that emits the labeling set — all router matches (102 as of 2026-09-26; count computed at runtime), 30 random task-initiating prompts, 10 negative controls including "continue"/"resume"/"yes open pr" traps. Reuses <code>is_organic</code>, <code>_route</code>, <code>_compile_patterns</code>.</p>
+
+    <ul class="steps-list">
+      <li class="step-item">
+        <div class="step-label">Step 1 — Write failing test</div>
+        <div class="step-desc">Create <code>plugins/sir-albert/tests/eval/__init__.py</code> (empty) and <code>tests/eval/test_label_set.py</code> with a 20-row fixture corpus and assertions on output structure.</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_label_set.py -q</code>
+        <div class="step-expected">Expected: FAIL — ImportError or AttributeError (subcommand not yet implemented)</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 2 — Add EVAL_DIR + stub</div>
+        <div class="step-desc">Add <code>EVAL_DIR</code> constant after <code>REPORT_DIR</code>, add <code>cmd_label_set(args)</code> stub, wire into <code>sub.add_parser("label-set")</code> and <code>main()</code>.</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 3 — Router-match slice</div>
+        <div class="step-desc">Load corpus via <code>load_jsonl(CORPUS_FILE)</code>, call <code>_route(text, patterns)</code> per row, collect all that return a non-None route. Deduplicate by <code>_hash</code>. Count computed at runtime.</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 4 — Task-initiating slice</div>
+        <div class="step-desc">Filter: <code>preceding_turns==[]</code>, <code>len(text)&gt;40</code>, not already in router-match set, no path reference (<code>re.search(r'[/\\][a-zA-Z0-9_.-]+\.[a-zA-Z]{2,5}', text)</code>). <code>random.seed(42)</code>, sample 30.</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 5 — Negative-control slice</div>
+        <div class="step-desc">Filter: <code>len(preceding_turns)&gt;0</code>, text &lt; 50 chars. Explicitly ensure the sample includes "continue"/"resume"/"yes open pr" style prompts — the known false-fire traps. <code>random.seed(99)</code>, sample 10.</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 6 — Write checklist + stub</div>
+        <div class="step-desc">Write human-labelable <code>labeled-set-checklist.md</code> with three sections and entry format <code>### [n] hash={hash}\n&gt; {text}\n**Label:** ___</code>. Write <code>labeled-set.jsonl</code> stub with all <code>label: null</code>.</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 7 — Tests pass</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_label_set.py -q</code>
+        <div class="step-expected">Expected: PASS</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 8 — Smoke run</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 plugins/sir-albert/tools/prompt_corpus.py label-set</code>
+        <div class="step-expected">Expected: prints "router_match=102 task_initiating=30 negative_control=10", files created</div>
+      </li>
+    </ul>
+
+    <div class="risk-callout">
+      <div class="risk-label">Risk</div>
+      Editing <code>prompt_corpus.py</code> is immediately live in every new session via <code>--plugin-dir</code>. Add the new subcommand after existing code; do not modify existing functions.
+    </div>
+
+    <div class="task-dod">
+      <div class="task-dod-title">Definition of Done</div>
+      <div class="task-dod-item"><input type="checkbox"> <code>label-set</code> subcommand wired in CLI</div>
+      <div class="task-dod-item"><input type="checkbox"> <code>labeled-set.jsonl</code> emitted with all <code>label: null</code>; router-match rows have <code>predicted_route</code> set</div>
+      <div class="task-dod-item"><input type="checkbox"> Checklist has three labelled sections; negative controls include false-fire trap prompts</div>
+      <div class="task-dod-item"><input type="checkbox"> Test passes: <code>/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_label_set.py -q</code></div>
+    </div>
+  </div>
+</div>
+
+<!-- Task 02 -->
+<div class="task" id="task-02">
+  <div class="task-header">
+    <span class="task-chevron">›</span>
+    <span class="task-number">02</span>
+    <span class="task-name">label-capture</span>
+    <div class="task-meta"><span class="badge">Blocked by 01</span></div>
+  </div>
+  <div class="task-body">
+    <div class="task-info-row">
+      <div class="task-info-item"><strong>Blocked by:</strong> 01</div>
+      <div class="task-info-item"><strong>Modifies:</strong> <code>prompt_corpus.py</code></div>
+      <div class="task-info-item"><strong>Creates:</strong> <code>tests/eval/test_label_capture.py</code></div>
+    </div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);">Define the <code>labeled-set.jsonl</code> row schema, add a <code>validate-labels</code> subcommand, and implement <code>--merge</code> on <code>label-set</code> for resumability.</p>
+    <ul class="steps-list">
+      <li class="step-item">
+        <div class="step-label">Step 1 — Write failing test</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_label_capture.py -q</code>
+        <div class="step-expected">Expected: FAIL</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 2 — Add VALID_LABELS constant</div>
+        <div class="step-desc">Add <code>VALID_LABELS = {"brainstorm","debug","plan","execute","build","handoff","resume","slack","linkedin-hebrew","none","ambiguous"}</code> to <code>prompt_corpus.py</code>.</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 3 — Implement validate-labels</div>
+        <div class="step-desc">Add <code>cmd_validate_labels(args)</code>: check required keys, check <code>label</code> in <code>VALID_LABELS</code> or null, count nulls, exit 0 if complete else exit 1 with message.</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 4 — Add --merge to label-set</div>
+        <div class="step-desc">Load existing <code>labeled-set.jsonl</code>; preserve <code>label</code>, <code>labeled_by</code>, <code>labeled_at</code> for rows already labelled. Checklist skips them, prints <code>already labelled=K, remaining=N</code>.</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 5 — Tests pass</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_label_capture.py -q</code>
+        <div class="step-expected">Expected: PASS</div>
+      </li>
+    </ul>
+    <div class="task-dod">
+      <div class="task-dod-title">Definition of Done</div>
+      <div class="task-dod-item"><input type="checkbox"> <code>validate-labels</code> exits 0 on complete, 1 on incomplete/malformed</div>
+      <div class="task-dod-item"><input type="checkbox"> <code>--merge</code> preserves existing non-null labels on re-run</div>
+      <div class="task-dod-item"><input type="checkbox"> Test passes: <code>/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_label_capture.py -q</code></div>
+    </div>
+  </div>
+</div>
+
+<!-- Task 03 -->
+<div class="task" id="task-03">
+  <div class="task-header">
+    <span class="task-chevron">›</span>
+    <span class="task-number">03</span>
+    <span class="task-name">p1-scorer</span>
+    <div class="task-meta"><span class="badge">Blocked by 01,02</span><span class="badge badge-red">Gate</span></div>
+  </div>
+  <div class="task-body">
+    <div class="task-info-row">
+      <div class="task-info-item"><strong>Blocked by:</strong> 01, 02</div>
+      <div class="task-info-item"><strong>Creates:</strong> <code>p1-scorecard-2026-09-26.md</code>, <code>tests/eval/test_p1_scorer.py</code></div>
+    </div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);">Add <code>p1-score</code> subcommand. Gates on overall precision ≥80% (n=102) and false-fire ≤10% (n=10). Per-route precision only for plan/brainstorm/handoff (n≥5); others emit "under-powered (n=N)". Dead-route report with pre-diagnoses as a top-level section, not a footnote.</p>
+
+    <table>
+      <tr><th>Metric</th><th>Bar</th><th>Role</th><th>n</th></tr>
+      <tr><td>Precision</td><td>≥ 80%</td><td><span style="color:var(--color-red)">GATE</span></td><td>102</td></tr>
+      <tr><td>Recall</td><td>≥ 50%</td><td>Diagnostic only</td><td>30</td></tr>
+      <tr><td>False-fire rate</td><td>≤ 10%</td><td><span style="color:var(--color-red)">GATE</span></td><td>10</td></tr>
+    </table>
+
+    <div style="margin:var(--space-3) 0;">
+      <div style="font-size:var(--text-body-sm);font-weight:var(--weight-semibold);color:var(--color-text-muted);margin-bottom:var(--space-2);">Measured dead routes (as of 2026-09-26 corpus, 1,938 prompts):</div>
+      <table>
+        <tr><th>Route</th><th>Root cause</th></tr>
+        <tr><td><code>build</code></td><td>Vocabulary mismatch — corpus says "open pr"/"merge"/"push"; pattern requires "finish the branch"</td></tr>
+        <tr><td><code>resume</code></td><td>Regex-impossible — "continue" is also Gal's most common mid-thread reply; matching breaches FF gate</td></tr>
+        <tr><td><code>grill</code>, <code>zoom-out</code>, <code>slack-hebrew</code>, <code>linkedin-hebrew</code></td><td>No corpus demand (7 Hebrew prompts of 1,938); unmeasurable at current size</td></tr>
+      </table>
+    </div>
+
+    <ul class="steps-list">
+      <li class="step-item">
+        <div class="step-label">Step 1 — Write failing test</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_p1_scorer.py -q</code>
+        <div class="step-expected">Expected: FAIL</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Steps 2–6 — Implement p1-score</div>
+        <div class="step-desc">Compute precision, recall, FF; implement hard stop (exit 2); build per-route breakdown; build dead-route report with pre-diagnoses for known dead routes; write scorecard.</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 7 — Tests pass</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_p1_scorer.py -q</code>
+        <div class="step-expected">Expected: PASS</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 8 — Smoke run on null stub</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 plugins/sir-albert/tools/prompt_corpus.py p1-score</code>
+        <div class="step-expected">Expected: exits 2 with "GATE FAIL: 0 labelled rows in router_match slice — run validate-labels first" (no traceback)</div>
+      </li>
+    </ul>
+    <div class="task-dod">
+      <div class="task-dod-title">Definition of Done</div>
+      <div class="task-dod-item"><input type="checkbox"> Exits 2 with GATE FAIL if precision &lt; 80% or false-fire &gt; 10%</div>
+      <div class="task-dod-item"><input type="checkbox"> Dead-route report as top-level section with pre-diagnosed root causes</div>
+      <div class="task-dod-item"><input type="checkbox"> Per-route column shows % only for n≥5; "under-powered (n=N)" for all others</div>
+      <div class="task-dod-item"><input type="checkbox"> Scorecard always written (even on gate fail)</div>
+      <div class="task-dod-item"><input type="checkbox"> Test passes: <code>/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_p1_scorer.py -q</code></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── M2 LABEL ── -->
+<div style="font-size:var(--text-body-sm);color:var(--color-purple-light);font-weight:var(--weight-semibold);margin:var(--space-6) 0 var(--space-2);text-transform:uppercase;letter-spacing:0.05em;">M2 — Replay Harness</div>
+
+<!-- Task 04 -->
+<div class="task" id="task-04" style="border-left:3px solid var(--color-green);">
+  <div class="task-header">
+    <span class="task-chevron">›</span>
+    <span class="task-number" style="color:var(--color-green)">04</span>
+    <span class="task-name">config-dir-spike <span style="color:var(--color-green);font-size:var(--text-caption)">✓ DONE</span></span>
+    <div class="task-meta"><span class="badge badge-green">$0.32 spent</span></div>
+  </div>
+  <div class="task-body">
+    <div class="task-info-row">
+      <div class="task-info-item"><strong>Status:</strong> Completed 2026-09-26 by Gal</div>
+      <div class="task-info-item"><strong>Results:</strong> <code>docs/plans/2026-09-26-w4-eval/04-probe-results.md</code></div>
+    </div>
+
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);">Key findings from the probe:</p>
+
+    <table>
+      <tr><th>Finding</th><th>Result</th></tr>
+      <tr><td>Arm switch (<code>enabledPlugins</code>)</td><td style="color:var(--color-green)">CONFIRMED — A: 15 superpowers + 28 sir-albert; B: 0 superpowers + 28 sir-albert</td></tr>
+      <tr><td>axcli model rewrite</td><td style="color:var(--color-red)">FOUND — axcli rewrites settings.json on every spawn, even --help</td></tr>
+      <tr><td>guarded.sh</td><td style="color:var(--color-green)">WORKING — self-test: model drift restored</td></tr>
+      <tr><td>--no-session-persistence</td><td style="color:var(--color-green)">CONFIRMED — no transcripts written</td></tr>
+      <tr><td>SessionEnd hook side-effect</td><td style="color:var(--color-yellow)">PRESENT — appends to sir-albert-sessions.jsonl; strip required post-tranche</td></tr>
+      <tr><td>Scratch cwd must be git repo</td><td style="color:var(--color-yellow)">REQUIRED — HEAD error without it</td></tr>
+    </table>
+
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-top:var(--space-3);">Model under test confirmed: <code>claude-opus-5-5[1m]</code>. Both arms use <code>--plugin-dir &lt;clone&gt;/plugins</code> — arm A also has superpowers enabled.</p>
+
+    <div class="task-dod">
+      <div class="task-dod-title">Definition of Done — All confirmed</div>
+      <div class="task-dod-item"><input type="checkbox" checked> Arm isolation via <code>--setting-sources project,local --settings &lt;arm-file&gt;</code> confirmed</div>
+      <div class="task-dod-item"><input type="checkbox" checked> <code>guarded.sh</code> implemented and self-tested</div>
+      <div class="task-dod-item"><input type="checkbox" checked> Scratch cwd requirement documented</div>
+      <div class="task-dod-item"><input type="checkbox" checked> SessionEnd side-effect documented; cleanup planned in ticket 07</div>
+      <div class="task-dod-item"><input type="checkbox" checked> Total spend $0.32 (under $0.50 cap)</div>
+    </div>
+  </div>
+</div>
+
+<!-- Task 05 -->
+<div class="task" id="task-05">
+  <div class="task-header">
+    <span class="task-chevron">›</span>
+    <span class="task-number">05</span>
+    <span class="task-name">arm-builder</span>
+    <div class="task-meta"><span class="badge">Blocked by 04</span></div>
+  </div>
+  <div class="task-body">
+    <div class="task-info-row">
+      <div class="task-info-item"><strong>Blocked by:</strong> 04</div>
+      <div class="task-info-item"><strong>Creates:</strong> <code>build_arms.sh</code>, <code>tests/eval/test_arm_builder.py</code></div>
+    </div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);">Copy <code>~/.claude/settings.json</code> into arm A/B settings files, override only <code>enabledPlugins["superpowers@claude-plugins-official"]</code>. Both arms get the same <code>--plugin-dir</code> to the /tmp clone. Create a scratch cwd (git repo with 1 commit at <code>/tmp/w4-eval-scratch</code>) — required so hooks don't error on HEAD. Copy <code>probe/guarded.sh</code> to <code>tools/eval/guarded.sh</code>. Write <code>run-manifest.json</code> including <code>scratch_cwd</code>.</p>
+
+    <div class="risk-callout">
+      <div class="risk-label">Key invariants</div>
+      <code>~/.claude/settings.json</code> is NEVER modified. The arm files are copies with one key overridden. The hooks block (including guard.sh) is preserved. Both arms use <code>--plugin-dir</code> to the same clone — the ONLY difference is the superpowers flag.
+    </div>
+
+    <ul class="steps-list">
+      <li class="step-item">
+        <div class="step-label">Step 1 — Write failing test</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_arm_builder.py -q</code>
+        <div class="step-expected">Expected: FAIL</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Steps 2–5 — Write build_arms.sh</div>
+        <div class="step-desc">Generate arm A settings (superpowers=true), arm B settings (superpowers=false); verify hooks block preserved; <code>git clone --local</code> to <code>/tmp/w4-arm-b-&lt;sha&gt;</code>; verify not a worktree (<code>ls -la .git</code> is a directory); write <code>run-manifest.json</code>.</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 6 — Tests pass</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_arm_builder.py -q</code>
+        <div class="step-expected">Expected: PASS</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 7 — Integration smoke</div>
+        <code class="step-cmd">bash plugins/sir-albert/tools/eval/build_arms.sh</code>
+        <div class="step-expected">Expected: prints RUNDIR=... and CLONE_PATH=...; arm-b has superpowers=false; clone is a directory .git</div>
+      </li>
+    </ul>
+    <div class="task-dod">
+      <div class="task-dod-title">Definition of Done</div>
+      <div class="task-dod-item"><input type="checkbox"> Arm A: superpowers=true; arm B: superpowers=false</div>
+      <div class="task-dod-item"><input type="checkbox"> Both settings files preserve the <code>hooks</code> block</div>
+      <div class="task-dod-item"><input type="checkbox"> Clone is <code>git clone --local</code> (not worktree); confirmed by <code>ls -la .git</code></div>
+      <div class="task-dod-item"><input type="checkbox"> <code>~/.claude/settings.json</code> unmodified</div>
+      <div class="task-dod-item"><input type="checkbox"> Test passes: <code>/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_arm_builder.py -q</code></div>
+    </div>
+  </div>
+</div>
+
+<!-- Task 06 -->
+<div class="task" id="task-06">
+  <div class="task-header">
+    <span class="task-chevron">›</span>
+    <span class="task-number">06</span>
+    <span class="task-name">canary-and-model-guard</span>
+    <div class="task-meta"><span class="badge">Blocked by 04,05</span></div>
+  </div>
+  <div class="task-body">
+    <div class="task-info-row">
+      <div class="task-info-item"><strong>Blocked by:</strong> 04, 05</div>
+      <div class="task-info-item"><strong>Creates:</strong> <code>canary_preflight.sh</code>, <code>tests/eval/test_canary.py</code></div>
+    </div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);">Canary verifies both arms by asserting on the <code>stream-json</code> init event (<code>{"type":"system","subtype":"init","skills":[...]}</code>). Arm A: &gt;0 superpowers skills AND &gt;0 sir-albert skills + <code>using-superpowers</code> in hook events. Arm B: 0 superpowers skills AND &gt;0 sir-albert skills + no <code>using-superpowers</code>. Model guard is the PRIMARY defence — axcli rewrites <code>~/.claude/settings.json</code> on every spawn; <code>guarded.sh</code> must wrap every <code>command claude</code> call. Harness asserts model == <code>claude-opus-5-5[1m]</code> at start and aborts otherwise. Runs are strictly sequential.</p>
+    <ul class="steps-list">
+      <li class="step-item">
+        <div class="step-label">Step 1 — Write failing test (mocked)</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_canary.py -q</code>
+        <div class="step-expected">Expected: FAIL</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Steps 2–4 — Write canary_preflight.sh</div>
+        <div class="step-desc">Snapshot model to <code>$RUNDIR/model-snapshot.txt</code>; set <code>trap restore_model EXIT</code>; run arm B canary (<code>write handoff</code>) and check SessionStart + nudge; run arm A canary and check <code>using-superpowers</code>. Either failure → <code>echo ABORT; exit 1</code>.</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 5 — Tests pass</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_canary.py -q</code>
+        <div class="step-expected">Expected: PASS</div>
+      </li>
+    </ul>
+    <div class="risk-callout">
+      <div class="risk-label">Risk</div>
+      The exact strings to assert in arm B output (SessionStart injection text, nudge text) must be read from <code>plugins/sir-albert/hooks/session_start.py</code> and <code>prompt_router.py</code> before hardcoding in the canary. Do not guess.
+    </div>
+    <div class="task-dod">
+      <div class="task-dod-title">Definition of Done</div>
+      <div class="task-dod-item"><input type="checkbox"> Model snapshotted to <code>model-snapshot.txt</code>; never hardcoded</div>
+      <div class="task-dod-item"><input type="checkbox"> Both arm canaries checked; either failure aborts with ABORT message</div>
+      <div class="task-dod-item"><input type="checkbox"> Model-reset guard: trap EXIT, restore on drift</div>
+      <div class="task-dod-item"><input type="checkbox"> Test passes: <code>/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_canary.py -q</code></div>
+    </div>
+  </div>
+</div>
+
+<!-- Task 07 -->
+<div class="task" id="task-07">
+  <div class="task-header">
+    <span class="task-chevron">›</span>
+    <span class="task-number">07</span>
+    <span class="task-name">run-executor</span>
+    <div class="task-meta"><span class="badge">Blocked by 05,06</span></div>
+  </div>
+  <div class="task-body">
+    <div class="task-info-row">
+      <div class="task-info-item"><strong>Blocked by:</strong> 05, 06</div>
+      <div class="task-info-item"><strong>Creates:</strong> <code>run_one.sh</code>, <code>tests/eval/test_run_executor.py</code></div>
+    </div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);">One invocation of <code>run_one.sh</code> produces exactly one artifact. Format is <code>stream-json --verbose --include-hook-events</code>. Every call wrapped in <code>guarded.sh</code>. Per-run ceiling: <code>--max-budget-usd 0.60</code>. Scratch cwd required. SessionEnd hook side-effect cleaned up once per tranche via <code>strip_harness_sessions.py</code>. <code>skills_called</code> comes from actual <code>Skill</code> tool-use blocks; <code>skills_loaded</code> (init event) feeds only the canary. SessionEnd cleanup runs once per tranche.</p>
+
+    <div class="code-block">
+      <pre>bash guarded.sh command claude --print \
+  --setting-sources project,local \
+  --settings "$ARM_SETTINGS" \
+  --plugin-dir "$CLONE/plugins"    # BOTH arms
+  --model "$(cat model-snapshot.txt)" \
+  --max-turns 12 \
+  --no-session-persistence \
+  --output-format stream-json \
+  --verbose --include-hook-events \
+  --max-budget-usd 0.60 \
+  --disallowedTools Write,Edit,NotebookEdit \
+  --cwd "$SCRATCH_CWD" \
+  "$PROMPT"</pre>
+    </div>
+
+    <ul class="steps-list">
+      <li class="step-item">
+        <div class="step-label">Step 1 — Write failing test</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_run_executor.py -q</code>
+        <div class="step-expected">Expected: FAIL</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Steps 2–5 — Write run_one.sh</div>
+        <div class="step-desc">Accept arm/hash/rep/prompt/RUNDIR args; guard duplicate artifact (exit 1 if exists); invoke arm; build artifact JSON with all required keys; write to <code>runs/</code>.</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 6 — Tests pass</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_run_executor.py -q</code>
+        <div class="step-expected">Expected: PASS</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 7 — Syntax check</div>
+        <code class="step-cmd">bash -n plugins/sir-albert/tools/eval/run_one.sh</code>
+        <div class="step-expected">Expected: no errors</div>
+      </li>
+    </ul>
+    <div class="task-dod">
+      <div class="task-dod-title">Definition of Done</div>
+      <div class="task-dod-item"><input type="checkbox"> Writes exactly one artifact per call; exits 1 on duplicate</div>
+      <div class="task-dod-item"><input type="checkbox"> Artifact has: <code>arm</code>, <code>prompt_hash</code>, <code>rep</code>, <code>prompt_text</code>, <code>model</code>, <code>exit_code</code>, <code>timestamp_utc</code>, <code>cost_usd</code>, <code>turn_count</code>, <code>budget_capped</code>, <code>result_subtype</code>, <code>skills_loaded</code>, <code>skills_called</code>, <code>init_event</code>, <code>result_event</code></div>
+      <div class="task-dod-item"><input type="checkbox"> Model from <code>model-snapshot.txt</code>, never hardcoded; asserted == <code>claude-opus-5-5[1m]</code></div>
+      <div class="task-dod-item"><input type="checkbox"> Both arms use <code>--plugin-dir $CLONE/plugins</code>; both wrapped in <code>guarded.sh</code>; strictly sequential</div>
+      <div class="task-dod-item"><input type="checkbox"> <code>strip_harness_sessions.py</code> cleans up SessionEnd rows post-run</div>
+      <div class="task-dod-item"><input type="checkbox"> Test passes: <code>/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_run_executor.py -q</code></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── M3 LABEL ── -->
+<div style="font-size:var(--text-body-sm);color:var(--color-text-muted);font-weight:var(--weight-semibold);margin:var(--space-6) 0 var(--space-2);text-transform:uppercase;letter-spacing:0.05em;">M3 — Judging Infrastructure</div>
+
+<!-- Task 08 -->
+<div class="task" id="task-08">
+  <div class="task-header">
+    <span class="task-chevron">›</span>
+    <span class="task-number">08</span>
+    <span class="task-name">blind-judge</span>
+    <div class="task-meta"><span class="badge">Blocked by 07</span></div>
+  </div>
+  <div class="task-body">
+    <div class="task-info-row">
+      <div class="task-info-item"><strong>Blocked by:</strong> 07</div>
+      <div class="task-info-item"><strong>Creates:</strong> <code>blind_judge.py</code>, <code>tests/eval/test_blind_judge.py</code></div>
+    </div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);">Pairs run artifacts rep-wise (A/rep1 vs B/rep1). Judge sees prompt + the two final responses (from <code>result_event.result</code>), arm-identifying strings redacted, ≤1500 chars. <strong>No skill names</strong>, since they would unblind it. Neutral judge settings (no plugins/hooks/tools), via <code>guarded.sh</code>. Empty response or unparseable judgment = error, never a tie. Each pair judged twice with order swapped → position-bias control. 60 judge calls total. Disagreement = tie. Text-only, no tools.</p>
+    <ul class="steps-list">
+      <li class="step-item">
+        <div class="step-label">Step 1 — Write failing test</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_blind_judge.py -q</code>
+        <div class="step-expected">Expected: FAIL</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Steps 2–5 — Write blind_judge.py</div>
+        <div class="step-desc">Load artifacts; group by (hash, rep); build anonymized summary per artifact; issue 2 judge calls per pair (AB, BA); resolve position bias (disagreement → tie); write <code>judgments.jsonl</code> (60 rows) and <code>judgments-resolved.jsonl</code> (30 rows).</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 6 — Tests pass</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_blind_judge.py -q</code>
+        <div class="step-expected">Expected: PASS</div>
+      </li>
+    </ul>
+    <div class="task-dod">
+      <div class="task-dod-title">Definition of Done</div>
+      <div class="task-dod-item"><input type="checkbox"> 60 judge calls for 30 pairs (2 orderings each)</div>
+      <div class="task-dod-item"><input type="checkbox"> Position-bias: disagreement → tie in resolved judgments</div>
+      <div class="task-dod-item"><input type="checkbox"> Judge uses <code>--disallowedTools '*'</code> and <code>--no-session-persistence</code></div>
+      <div class="task-dod-item"><input type="checkbox"> Test passes: <code>/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_blind_judge.py -q</code></div>
+    </div>
+  </div>
+</div>
+
+<!-- Task 09 -->
+<div class="task" id="task-09">
+  <div class="task-header">
+    <span class="task-chevron">›</span>
+    <span class="task-number">09</span>
+    <span class="task-name">verdict-and-report</span>
+    <div class="task-meta"><span class="badge">Blocked by 08</span></div>
+  </div>
+  <div class="task-body">
+    <div class="task-info-row">
+      <div class="task-info-item"><strong>Blocked by:</strong> 08</div>
+      <div class="task-info-item"><strong>Creates:</strong> <code>verdict.py</code>, <code>tests/eval/test_verdict.py</code></div>
+    </div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);">Run count check is the first thing. If <code>ls runs/ | wc -l ≠ 60</code> → exit 2, verdict rejected (not a soft fail). Verdict rule: B paired win-rate ≥40% (ties split) AND B invokes a sir_albert skill on ≥4 of 5 happy-path prompts. Report filename namespaced <code>verdict-DATE-RUNID.md</code> — never plain <code>verdict.md</code>. Report must contain the superpowers-separation paragraph.</p>
+    <ul class="steps-list">
+      <li class="step-item">
+        <div class="step-label">Step 1 — Write failing test</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_verdict.py -q</code>
+        <div class="step-expected">Expected: FAIL</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Steps 2–6 — Write verdict.py</div>
+        <div class="step-desc">Run count gate (exit 2 on ≠60); win-rate computation (ties split); skill-invocation check on happy-path slice; namespaced report filename; explicit superpowers-separation paragraph in report.</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 7 — Tests pass</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_verdict.py -q</code>
+        <div class="step-expected">Expected: PASS</div>
+      </li>
+    </ul>
+    <div class="task-dod">
+      <div class="task-dod-title">Definition of Done</div>
+      <div class="task-dod-item"><input type="checkbox"> Exit 2 if run count ≠ 60 (verdict rejected)</div>
+      <div class="task-dod-item"><input type="checkbox"> Report namespaced <code>verdict-DATE-RUNID.md</code></div>
+      <div class="task-dod-item"><input type="checkbox"> Report contains explicit superpowers-separation paragraph</div>
+      <div class="task-dod-item"><input type="checkbox"> Test passes: <code>/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_verdict.py -q</code></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── M4 LABEL ── -->
+<div style="font-size:var(--text-body-sm);color:var(--color-yellow);font-weight:var(--weight-semibold);margin:var(--space-6) 0 var(--space-2);text-transform:uppercase;letter-spacing:0.05em;">M4 — Execution (SPEND, gated)</div>
+
+<!-- Task 10 -->
+<div class="task" id="task-10">
+  <div class="task-header">
+    <span class="task-chevron">›</span>
+    <span class="task-number">10</span>
+    <span class="task-name">p2-sample-selection</span>
+    <div class="task-meta"><span class="badge">Blocked by 03</span></div>
+  </div>
+  <div class="task-body">
+    <div class="task-info-row">
+      <div class="task-info-item"><strong>Blocked by:</strong> 03</div>
+      <div class="task-info-item"><strong>Creates:</strong> <code>sample.jsonl</code>, <code>tests/eval/test_p2_sample.py</code></div>
+    </div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);">Add <code>sample-p2</code> subcommand. Stratified N=15: 5 happy-path (B routes, label agrees), 5 B-silent (label says route but B silent), 5 control (none/ambiguous). Excludes path-containing prompts.</p>
+    <table>
+      <tr><th>Slice</th><th>n</th><th>p2_slice value</th></tr>
+      <tr><td>B routes, label agrees</td><td>5</td><td><code>happy_path</code></td></tr>
+      <tr><td>Label says route, B silent</td><td>5</td><td><code>b_silent</code></td></tr>
+      <tr><td><code>none</code> / <code>ambiguous</code></td><td>5</td><td><code>control</code></td></tr>
+    </table>
+    <ul class="steps-list">
+      <li class="step-item">
+        <div class="step-label">Step 1 — Write failing test</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_p2_sample.py -q</code>
+        <div class="step-expected">Expected: FAIL</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Steps 2–6 — Implement sample-p2</div>
+        <div class="step-desc">Three slices with fixed seeds (7, 8, 9); path-exclusion filter applied to all slices; warns but does not fail on thin slices; writes <code>sample.jsonl</code>.</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 7 — Tests pass</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_p2_sample.py -q</code>
+        <div class="step-expected">Expected: PASS</div>
+      </li>
+    </ul>
+    <div class="task-dod">
+      <div class="task-dod-title">Definition of Done</div>
+      <div class="task-dod-item"><input type="checkbox"> <code>sample.jsonl</code> with ≤15 rows, each tagged <code>p2_slice</code></div>
+      <div class="task-dod-item"><input type="checkbox"> Path-exclusion applied; count reported</div>
+      <div class="task-dod-item"><input type="checkbox"> Test passes: <code>/usr/local/bin/python3.13 -m pytest plugins/sir-albert/tests/eval/test_p2_sample.py -q</code></div>
+    </div>
+  </div>
+</div>
+
+<!-- Task 11 -->
+<div class="task" id="task-11">
+  <div class="task-header">
+    <span class="task-chevron">›</span>
+    <span class="task-number">11</span>
+    <span class="task-name">tranche-1-pilot</span>
+    <div class="task-meta"><span class="badge badge-red">CHECKPOINT</span><span class="badge badge-yellow">SPEND</span></div>
+  </div>
+  <div class="task-body">
+    <div class="task-info-row">
+      <div class="task-info-item"><strong>Blocked by:</strong> 03, 07, 10</div>
+      <div class="task-info-item"><strong>Creates:</strong> <code>run_tranche.sh</code>, 40 run artifacts</div>
+    </div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);">10 prompts × 2 arms × k=2 = <strong>40 runs</strong>. Per-run ceiling: <code>--max-budget-usd 2.00</code>. Abort if first 10 runs extrapolate past $40 for the full 60.</p>
+
+    <div class="checkpoint">
+      <div class="checkpoint-title">Hard Checkpoint — Do not proceed past prerequisites without Gal's explicit yes for this exact action</div>
+      <p><strong>Prerequisites to verify first:</strong> validate-labels exits 0 · p1-score exits 0 · sample.jsonl has 15 rows · run-manifest.json exists · canary_preflight.sh exits 0</p>
+      <p style="margin-top:var(--space-2)"><strong>What will run:</strong> 40 real API calls via <code>command claude</code>, strictly sequential, each wrapped in <code>guarded.sh</code> · model asserted == <code>claude-opus-5-5[1m]</code> · per-run ceiling $0.60 · hard abort if first 10 extrapolate &gt;$40 for 60 · calibrated cost: $0.094–$0.141/run from probe → ~$3.76–$5.64 for 40 runs</p>
+      <p style="margin-top:var(--space-2)"><strong>Side-effects:</strong> 40 artifact files in <code>docs/plans/2026-09-26-w4-eval/runs/</code> · <code>~/.claude/settings.json</code> NOT modified</p>
+    </div>
+
+    <ul class="steps-list">
+      <li class="step-item">
+        <div class="step-label">Steps 1–4 — Verify prerequisites + write run_tranche.sh</div>
+        <div class="step-desc">Verify all prereqs; write run_tranche.sh with tranche 1/2 selection, axcli usage delta, extrapolation abort rule; syntax check; write RUNLOG.md stub. Report prereq results to Gal.</div>
+        <code class="step-cmd">bash -n plugins/sir-albert/tools/eval/run_tranche.sh</code>
+        <div class="step-expected">Expected: no syntax errors</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 5 [AFTER yes] — Capture axcli usage BEFORE</div>
+        <code class="step-cmd">axcli usage</code>
+        <div class="step-expected">Save cost line to RUNLOG.md</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 6 [AFTER yes] — Execute tranche 1</div>
+        <code class="step-cmd">bash plugins/sir-albert/tools/eval/run_tranche.sh $RUNDIR docs/plans/2026-09-26-w4-eval/sample.jsonl 1</code>
+        <div class="step-expected">Expected: 40 artifacts created, no ABORT message, exit 0</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 7 [AFTER yes] — Verify count</div>
+        <code class="step-cmd">ls docs/plans/2026-09-26-w4-eval/runs/*.json | wc -l</code>
+        <div class="step-expected">Expected: 40</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 8 [AFTER yes] — Capture axcli usage AFTER</div>
+        <code class="step-cmd">axcli usage</code>
+        <div class="step-expected">Report delta to Gal</div>
+      </li>
+    </ul>
+    <div class="task-dod">
+      <div class="task-dod-title">Definition of Done</div>
+      <div class="task-dod-item"><input type="checkbox"> Prerequisites verified, Gal's explicit yes obtained</div>
+      <div class="task-dod-item"><input type="checkbox"> 40 artifacts in <code>runs/</code> confirmed by <code>ls | wc -l</code></div>
+      <div class="task-dod-item"><input type="checkbox"> axcli delta captured and reported</div>
+      <div class="task-dod-item"><input type="checkbox"> Extrapolation check passed (&lt;$40 for 60)</div>
+    </div>
+  </div>
+</div>
+
+<!-- Task 12 -->
+<div class="task" id="task-12">
+  <div class="task-header">
+    <span class="task-chevron">›</span>
+    <span class="task-number">12</span>
+    <span class="task-name">tranche-2</span>
+    <div class="task-meta"><span class="badge badge-red">CHECKPOINT</span><span class="badge badge-yellow">SPEND</span></div>
+  </div>
+  <div class="task-body">
+    <div class="task-info-row">
+      <div class="task-info-item"><strong>Blocked by:</strong> 11</div>
+      <div class="task-info-item"><strong>Creates:</strong> 20 more run artifacts (total 60)</div>
+    </div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);">5 remaining prompts × 2 arms × k=2 = 20 runs. Only if tranche 1's measured cost leaves total inside $40 cap. Gal's explicit yes required separately for this tranche.</p>
+
+    <div class="checkpoint">
+      <div class="checkpoint-title">Hard Checkpoint — Separate yes required from tranche 1</div>
+      <p>Report tranche 1 actual cost before asking. Confirm projected total ≤$40. Gal's tranche 1 approval does NOT cover tranche 2.</p>
+    </div>
+
+    <ul class="steps-list">
+      <li class="step-item">
+        <div class="step-label">Step 1 — Cost verification</div>
+        <div class="step-desc">Read RUNLOG.md delta; compute headroom; report to Gal and ask for go-ahead.</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 2 [AFTER yes] — Execute tranche 2</div>
+        <code class="step-cmd">bash plugins/sir-albert/tools/eval/run_tranche.sh $RUNDIR docs/plans/2026-09-26-w4-eval/sample.jsonl 2</code>
+        <div class="step-expected">Expected: 20 more artifacts, exit 0</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 3 — Verify final count</div>
+        <code class="step-cmd">ls docs/plans/2026-09-26-w4-eval/runs/*.json | wc -l</code>
+        <div class="step-expected">Expected: <strong>60</strong></div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 4 — Verify uniqueness</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 -c "import glob; names=[f.split('/')[-1] for f in glob.glob('docs/plans/2026-09-26-w4-eval/runs/*.json')]; assert len(names)==len(set(names)); print('all 60 unique')"</code>
+        <div class="step-expected">Expected: "all 60 unique"</div>
+      </li>
+    </ul>
+    <div class="task-dod">
+      <div class="task-dod-title">Definition of Done</div>
+      <div class="task-dod-item"><input type="checkbox"> Gal's explicit yes for tranche 2 specifically</div>
+      <div class="task-dod-item"><input type="checkbox"> 60 total artifacts, all unique</div>
+      <div class="task-dod-item"><input type="checkbox"> RUNLOG.md updated with tranche 2 delta and total cost</div>
+    </div>
+  </div>
+</div>
+
+<!-- Task 13 -->
+<div class="task" id="task-13">
+  <div class="task-header">
+    <span class="task-chevron">›</span>
+    <span class="task-number">13</span>
+    <span class="task-name">verdict-report</span>
+    <div class="task-meta"><span class="badge badge-green">Final</span><span class="badge">Blocked by 09,12</span></div>
+  </div>
+  <div class="task-body">
+    <div class="task-info-row">
+      <div class="task-info-item"><strong>Blocked by:</strong> 09, 12</div>
+      <div class="task-info-item"><strong>Creates:</strong> <code>judgments.jsonl</code>, <code>judgments-resolved.jsonl</code>, <code>verdict-DATE-ID.md</code></div>
+    </div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);">Run the blind judge, generate the verdict report, present to Gal. Report must explicitly state that uninstalling superpowers is a separate decision requiring Gal's explicit yes, never inferred from a passing score.</p>
+    <ul class="steps-list">
+      <li class="step-item">
+        <div class="step-label">Step 1 — Verify run count</div>
+        <code class="step-cmd">ls docs/plans/2026-09-26-w4-eval/runs/*.json | wc -l</code>
+        <div class="step-expected">Expected: 60. If not 60, stop and report. Do not proceed.</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 2 — Run blind judge</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 plugins/sir-albert/tools/eval/blind_judge.py --runs-dir docs/plans/2026-09-26-w4-eval/runs --out docs/plans/2026-09-26-w4-eval/judgments.jsonl</code>
+        <div class="step-expected">Expected: "judged 30 pairs, 60 judge calls", exits 0</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 3 — Verify judgment counts</div>
+        <code class="step-cmd">wc -l docs/plans/2026-09-26-w4-eval/judgments.jsonl docs/plans/2026-09-26-w4-eval/judgments-resolved.jsonl</code>
+        <div class="step-expected">Expected: 60 and 30 respectively</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 4 — Run verdict</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 plugins/sir-albert/tools/eval/verdict.py --runs-dir docs/plans/2026-09-26-w4-eval/runs --judgments docs/plans/2026-09-26-w4-eval/judgments-resolved.jsonl --sample docs/plans/2026-09-26-w4-eval/sample.jsonl --out-dir docs/plans/2026-09-26-w4-eval</code>
+        <div class="step-expected">Expected: exits 0 (PASS) or 1 (FAIL); writes verdict-DATE-ID.md</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 5 — Verify report and present to Gal</div>
+        <code class="step-cmd">grep -c "separate.*decision" docs/plans/2026-09-26-w4-eval/verdict-*.md</code>
+        <div class="step-expected">Expected: ≥1. Then present verdict, win-rate, skill count, total cost.</div>
+      </li>
+    </ul>
+    <div class="task-dod">
+      <div class="task-dod-title">Definition of Done</div>
+      <div class="task-dod-item"><input type="checkbox"> Run count confirmed 60 before judging</div>
+      <div class="task-dod-item"><input type="checkbox"> 60 judgments + 30 resolved judgments</div>
+      <div class="task-dod-item"><input type="checkbox"> Verdict report namespaced, contains superpowers-separation paragraph</div>
+      <div class="task-dod-item"><input type="checkbox"> Verdict presented to Gal with win-rate, skill count, total measured cost</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── M5 LABEL ── -->
+<div style="font-size:var(--text-body-sm);color:var(--color-green);font-weight:var(--weight-semibold);margin:var(--space-6) 0 var(--space-2);text-transform:uppercase;letter-spacing:0.05em;">M5 — T2 Discipline Skills</div>
+
+<!-- Task 14 -->
+<div class="task" id="task-14">
+  <div class="task-header">
+    <span class="task-chevron">›</span>
+    <span class="task-number">14</span>
+    <span class="task-name">t2-discipline-skills</span>
+    <div class="task-meta"><span class="badge badge-red">CHECKPOINT</span><span class="badge badge-yellow">SPEND</span><span class="badge">Blocked by 03,13</span></div>
+  </div>
+  <div class="task-body">
+    <div class="task-info-row">
+      <div class="task-info-item"><strong>Blocked by:</strong> 03, 13</div>
+      <div class="task-info-item"><strong>Creates:</strong> <code>select_t2_scenarios.py</code>, <code>run_t2.sh</code>, <code>t2_report.py</code>, <code>t2-scenarios.jsonl</code>, <code>t2-runs/</code></div>
+    </div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);">T2 real-agent scenarios for brainstorm/execute/debug/plan/build, drawn from the corpus, weighted toward routes P1 identified as weak. Real agent calls only — one artifact per rep in <code>t2-runs/</code> (separate from <code>runs/</code>). Run count auditable from filesystem: <code>ls t2-runs/ | wc -l == n_scenarios × K</code>.</p>
+
+    <div class="risk-callout">
+      <div class="risk-label">Faked-eval guard</div>
+      The documented recurrent failure mode is builders faking T2 by batching or role-playing reps. Every scenario must produce exactly one artifact file via a real <code>command claude</code> invocation. If an artifact file is absent, the run did not happen. No summarizing, no batching.
+    </div>
+
+    <ul class="steps-list">
+      <li class="step-item">
+        <div class="step-label">Step 1 — Read P1 scorecard</div>
+        <div class="step-desc">Note routes with highest FP count from <code>p1-scorecard-2026-09-26.md</code>. Weight T2 scenario selection toward those routes.</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 2 — Write select_t2_scenarios.py</div>
+        <div class="step-desc">Query corpus for 3 representative task-initiating prompts per discipline skill (brainstorm/execute/debug/plan/build). Emit <code>t2-scenarios.jsonl</code> with ≤15 rows.</div>
+        <code class="step-cmd">/usr/local/bin/python3.13 plugins/sir-albert/tools/eval/select_t2_scenarios.py</code>
+        <div class="step-expected">Expected: t2-scenarios.jsonl created, all 5 skills have ≥1 scenario</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 3 — Write run_t2.sh + t2_report.py</div>
+        <div class="step-desc">Write run_t2.sh (calls run_one.sh per scenario/rep, outputs to t2-runs/, verifies count at end); write t2_report.py (highlights empty skills_called; writes t2-report-DATE.md). Syntax check both.</div>
+        <code class="step-cmd">bash -n plugins/sir-albert/tools/eval/run_t2.sh</code>
+        <div class="step-expected">Expected: no syntax errors</div>
+      </li>
+      <li class="step-item">
+        <div class="step-label">Step 4 — T2 execution (CHECKPOINT — own explicit yes)</div>
+        <div class="step-desc">Ask Gal for explicit yes for T2 execution specifically (not covered by tranche 1/2 approval). Only proceed after yes.</div>
+      </li>
+    </ul>
+    <div class="task-dod">
+      <div class="task-dod-title">Definition of Done</div>
+      <div class="task-dod-item"><input type="checkbox"> Scenarios weighted toward P1 weak routes</div>
+      <div class="task-dod-item"><input type="checkbox"> Each rep produces one artifact in <code>t2-runs/</code>; count auditable from filesystem</div>
+      <div class="task-dod-item"><input type="checkbox"> T2 report highlights empty <code>skills_called</code></div>
+      <div class="task-dod-item"><input type="checkbox"> T2 execution gated by its own explicit Gal go-ahead</div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:var(--space-9);padding-top:var(--space-5);border-top:1px solid var(--color-border);font-size:var(--text-caption);color:var(--color-text-muted);text-align:center;">
+  W4 plan · 2026-09-26 · spec: <code>docs/specs/2026-09-26-w4-eval.md</code> · branch: <code>w4/eval</code>
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      primaryColor: '#6164ff',
+      primaryTextColor: '#ffffff',
+      primaryBorderColor: '#6164ff',
+      lineColor: '#c3ced8',
+      secondaryColor: '#232427',
+      tertiaryColor: '#2D3035',
+      fontFamily: 'Poppins, sans-serif',
+      fontSize: '14px',
+      nodeBorder: '#6164ff',
+      mainBkg: '#232427',
+      clusterBkg: '#2D3035',
+      edgeLabelBackground: '#232427',
+      actorBkg: '#6164ff',
+      actorTextColor: '#ffffff',
+      actorLineColor: '#c3ced8',
+      signalColor: '#c3ced8',
+      signalTextColor: '#ffffff',
+      activationBkgColor: '#2D3035',
+      sequenceNumberColor: '#ffffff'
+    }
+  });
+
+  // Collapsible tasks
+  document.querySelectorAll('.task-header').forEach(header => {
+    header.addEventListener('click', () => {
+      header.closest('.task').classList.toggle('open');
+    });
+  });
+
+  // Progress tracking via checkboxes
+  function updateProgress() {
+    const all = document.querySelectorAll('.task-dod-item input[type="checkbox"]');
+    const checked = document.querySelectorAll('.task-dod-item input[type="checkbox"]:checked');
+    const taskCount = document.querySelectorAll('.task').length;
+    // Count tasks where all checkboxes are checked
+    let completedTasks = 0;
+    document.querySelectorAll('.task').forEach(task => {
+      const boxes = task.querySelectorAll('.task-dod-item input[type="checkbox"]');
+      const checkedBoxes = task.querySelectorAll('.task-dod-item input[type="checkbox"]:checked');
+      if (boxes.length > 0 && boxes.length === checkedBoxes.length) completedTasks++;
+    });
+    const pct = taskCount > 0 ? Math.round(completedTasks / taskCount * 100) : 0;
+    document.getElementById('progress-label').textContent = completedTasks + ' of ' + taskCount + ' tasks complete';
+    document.getElementById('progress-fill').style.width = pct + '%';
+  }
+
+  document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', updateProgress);
+  });
+  updateProgress();
+</script>
+</body>
+</html>
