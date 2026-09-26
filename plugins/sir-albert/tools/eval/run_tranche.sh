@@ -20,7 +20,8 @@ SETTINGS_FILE="${W4_SETTINGS_FILE:-$HOME/.claude/settings.json}"
 ARTIFACT_DIR="${W4_ARTIFACT_DIR:-$REPO_ROOT/docs/plans/2026-09-26-w4-eval/runs}"
 BUDGET="${W4_BUDGET_USD:-40}"
 SESSIONS_FILE="${W4_SESSIONS_FILE:-$HOME/.claude/sir-albert-sessions.jsonl}"
-EXPECTED_MODEL="claude-opus-5-5[1m]"
+GAL_DEFAULT="${W4_GAL_DEFAULT:-claude-opus-5-5[1m]}"   # Gal's default: protected, never used for runs
+TEST_MODEL="${W4_TEST_MODEL:-claude-sonnet-5}"          # model under test (Gal, 2026-09-26)
 PY=/usr/local/bin/python3.13
 export W4_ARTIFACT_DIR="$ARTIFACT_DIR"
 mkdir -p "$ARTIFACT_DIR"
@@ -34,8 +35,8 @@ esac
 # ── Preconditions ─────────────────────────────────────────────────────────────
 MODEL_NOW=$($PY -c "import json,sys; print(json.load(open(sys.argv[1]))['model'])" "$SETTINGS_FILE")
 MODEL_SNAP=$(cat "$RUNDIR/model-snapshot.txt")
-if [ "$MODEL_NOW" != "$EXPECTED_MODEL" ] || [ "$MODEL_SNAP" != "$EXPECTED_MODEL" ]; then
-  echo "ABORT: model settings=$MODEL_NOW snapshot=$MODEL_SNAP, expected $EXPECTED_MODEL"; exit 2
+if [ "$MODEL_NOW" != "$GAL_DEFAULT" ] || [ "$MODEL_SNAP" != "$TEST_MODEL" ]; then
+  echo "ABORT: model settings=$MODEL_NOW (want $GAL_DEFAULT) snapshot=$MODEL_SNAP (want $TEST_MODEL)"; exit 2
 fi
 for a in a b; do
   [ -s "$RUNDIR/canary-$a.jsonl" ] || { echo "ABORT: canary for arm $a has not run (canary_preflight.sh)"; exit 2; }

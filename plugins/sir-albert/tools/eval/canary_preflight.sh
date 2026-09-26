@@ -11,16 +11,20 @@ SETTINGS_FILE="${W4_SETTINGS_FILE:-$HOME/.claude/settings.json}"
 CLAUDE_BIN="${W4_CLAUDE_BIN:-command claude}"
 EVAL_DIR="$(cd "$(dirname "$0")" && pwd)"   # absolute: we cd into the scratch repo below
 
-EXPECTED_MODEL="claude-opus-5-5[1m]"
+# Two different models — do not conflate them:
+#   GAL_DEFAULT  Gal's default in settings.json; the guard protects it, runs never use it.
+#   TEST_MODEL   the model both arms (and the judge) run on. Decided by Gal 2026-09-26.
+GAL_DEFAULT="${W4_GAL_DEFAULT:-claude-opus-5-5[1m]}"
+TEST_MODEL="${W4_TEST_MODEL:-claude-sonnet-5}"
 
 # ── Step A: Model assertion ────────────────────────────────────────────────────
 MODEL=$(/usr/local/bin/python3.13 -c "import json,sys; print(json.load(open(sys.argv[1]))['model'])" "$SETTINGS_FILE")
-if [ "$MODEL" != "$EXPECTED_MODEL" ]; then
-  echo "ABORT: model is $MODEL, expected $EXPECTED_MODEL"
+if [ "$MODEL" != "$GAL_DEFAULT" ]; then
+  echo "ABORT: default model in settings is $MODEL, expected $GAL_DEFAULT (drift from an earlier spawn?)"
   exit 1
 fi
-echo "$MODEL" > "$RUNDIR/model-snapshot.txt"
-echo "Model snapshot written: $MODEL"
+echo "$TEST_MODEL" > "$RUNDIR/model-snapshot.txt"
+echo "Model under test: $TEST_MODEL (Gal's default $MODEL is left alone)"
 
 # ── Load manifest ─────────────────────────────────────────────────────────────
 manifest() { /usr/local/bin/python3.13 -c "import json,sys; print(json.load(open(sys.argv[1]))[sys.argv[2]])" "$RUNDIR/run-manifest.json" "$1"; }
@@ -36,7 +40,7 @@ run_canary() {
       --setting-sources project,local \
       --settings "$settings" \
       --plugin-dir "$CLONE_PATH/plugins" \
-      --model "$EXPECTED_MODEL" \
+      --model "$TEST_MODEL" \
       --max-turns 1 \
       --no-session-persistence \
       --output-format stream-json \
@@ -47,10 +51,10 @@ run_canary() {
 }
 
 check_arm() {
-  /usr/local/bin/python3.13 - "$1" "$2" <<'PY'
+  /usr/local/bin/python3.13 - "$1" "$2" "$TEST_MODEL" <<'PY'
 import json, sys
 
-arm, path = sys.argv[1], sys.argv[2]
+arm, path, test_model = sys.argv[1], sys.argv[2], sys.argv[3]
 events = []
 for line in open(path, encoding="utf-8"):
     try:
@@ -70,6 +74,8 @@ has_sa, has_sp = "## sir_albert" in hooks, "using-superpowers" in hooks
 
 want_sp = arm == "a"   # arm A = today (both plugins); arm B = today minus superpowers
 problems = []
+if init_ev.get("model") != test_model:
+    problems.append(f"init model {init_ev.get('model')!r}, expected {test_model!r}")
 if (sp > 0) != want_sp:
     problems.append(f"{sp} superpowers skills (expected {'>0' if want_sp else '0'})")
 if sa == 0:

@@ -65,6 +65,7 @@ def _setup(tmp_path, n_rows=10, cost=0.05):
         "W4_CLAUDE_BIN": str(stub),
         "W4_ARTIFACT_DIR": str(tmp_path / "runs"),
         "W4_SESSIONS_FILE": str(sessions),
+        "W4_TEST_MODEL": MODEL,
     })
     return rundir, sample, env, calls, sessions
 

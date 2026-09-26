@@ -82,6 +82,7 @@ def _run_canary(fake_manifest, fake_settings, env_overrides=None):
     """Run canary_preflight.sh with a stub W4_CLAUDE_BIN."""
     env = os.environ.copy()
     env["W4_SETTINGS_FILE"] = str(fake_settings)
+    env["W4_TEST_MODEL"] = EXPECTED_MODEL   # the probe fixtures were recorded on this model
     if env_overrides:
         env.update(env_overrides)
     result = subprocess.run(
@@ -189,3 +190,12 @@ def test_syntax_check():
         capture_output=True, text=True,
     )
     assert result.returncode == 0, f"Syntax error: {result.stderr}"
+
+
+def test_canary_aborts_when_arms_run_on_wrong_model(fake_manifest, fake_settings):
+    """The init event's model must be the model under test, not whatever the CLI picked."""
+    stub = _sequenced_stub(fake_manifest, FIXTURES / "arm-b.jsonl", FIXTURES / "arm-a2.jsonl")
+    result = _run_canary(fake_manifest, fake_settings,
+                         {"W4_CLAUDE_BIN": str(stub), "W4_TEST_MODEL": "claude-sonnet-5"})
+    assert result.returncode != 0
+    assert "expected 'claude-sonnet-5'" in result.stdout + result.stderr
