@@ -415,6 +415,13 @@ def _get_valid_labels():
 
 # ── label-set ──────────────────────────────────────────────────────────────────
 _PATH_REF_RE = re.compile(r'[/\\][a-zA-Z0-9_.-]+\.[a-zA-Z]{2,5}')
+
+# ── P2 path exclusion (broader, review correction 3 — 2026-09-26) ──────────────
+# Matches: @file refs, bare slug/path.ext, docs/ dirs, .claude/ dirs, /file.ext
+_P2_PATH_RE = re.compile(
+    r'(@[\w./-]+|\b[\w-]+/[\w./-]+\.(md|py|json|ts|tsx|js|yaml|yml|sql|html)\b'
+    r'|docs/|\.claude/|[/\\][\w.-]+\.[a-zA-Z]{2,5})'
+)
 _TRAP_RE1 = re.compile(r'^(continue|resume|yes|ok|go|1|done)\b', re.IGNORECASE)
 _TRAP_RE2 = re.compile(r'yes open pr|open pr|merge', re.IGNORECASE)
 
@@ -1089,6 +1096,189 @@ def cmd_p1_score(args):
         sys.exit(2)
 
 
+# ── sample-p2 ─────────────────────────────────────────────────────────────────
+
+def cmd_sample_p2(args):
+    """Select N=15 rows from the labeled set for P2 replay and write sample.jsonl.
+
+    Three slices:
+      happy_path  — router_match rows where label == predicted_route (seed 7)
+      b_silent    — task_initiating (router silent) + negative_control rows
+                    both labelled with a route (seed 8)
+      control     — router_match labelled none (wrong_fire, priority)
+                    then task_initiating labelled none (no_route_task) (seed 9)
+    negative_control rows labelled none are excluded from every pool.
+    ambiguous rows are excluded from P2 entirely.
+    """
+    file_path = args.file
+    patterns = _compile_patterns()
+
+    path_excl = {"happy_path": 0, "b_silent": 0, "control": 0}
+
+    all_rows = list(load_jsonl(file_path))
+
+    def _has_path(text: str) -> bool:
+        return bool(_P2_PATH_RE.search(text))
+
+    # ── Happy-path pool ───────────────────────────────────────────────────────
+    # router_match rows where label == predicted_route (neither none nor ambiguous)
+    happy_pool = []
+    for row in all_rows:
+        if row.get("slice") != "router_match":
+            continue
+        label = row.get("label")
+        if label is None or label in ("none", "ambiguous"):
+            continue
+        if row.get("predicted_route") != label:
+            continue
+        text = row.get("text", "")
+        if _has_path(text):
+            path_excl["happy_path"] += 1
+            continue
+        happy_pool.append(row)
+
+    # ── B-silent pool ─────────────────────────────────────────────────────────
+    # (1) task_initiating: non-none/non-ambiguous label AND router fires nothing
+    # (2) negative_control: labelled with a route (router missed by construction)
+    b_silent_pool = []
+    for row in all_rows:
+        s = row.get("slice")
+        label = row.get("label")
+        if label is None or label in ("none", "ambiguous"):
+            continue
+        text = row.get("text", "")
+        if s == "task_initiating":
+            if _route(text, patterns) is not None:
+                continue  # router fires → not b_silent
+            if _has_path(text):
+                path_excl["b_silent"] += 1
+                continue
+            b_silent_pool.append(row)
+        elif s == "negative_control":
+            if _has_path(text):
+                path_excl["b_silent"] += 1
+                continue
+            b_silent_pool.append(row)
+
+    # ── Control pool ──────────────────────────────────────────────────────────
+    # (a) router_match labelled none → wrong_fire (priority)
+    # (b) task_initiating labelled none → no_route_task (fill)
+    # negative_control is excluded entirely; ambiguous is excluded
+    control_a_pool: list[dict] = []  # wrong_fire
+    control_b_pool: list[dict] = []  # no_route_task
+    for row in all_rows:
+        s = row.get("slice")
+        label = row.get("label")
+        if label is None or label != "none":
+            continue
+        if s not in ("router_match", "task_initiating"):
+            continue  # excludes negative_control
+        text = row.get("text", "")
+        if _has_path(text):
+            path_excl["control"] += 1
+            continue
+        if s == "router_match":
+            control_a_pool.append(row)
+        else:
+            control_b_pool.append(row)
+
+    control_total = len(control_a_pool) + len(control_b_pool)
+
+    # ── Guard: INSUFFICIENT (0 candidates in any slice) ───────────────────────
+    insufficient = []
+    if len(happy_pool) == 0:
+        insufficient.append("happy_path")
+    if len(b_silent_pool) == 0:
+        insufficient.append("b_silent")
+    if control_total == 0:
+        insufficient.append("control")
+
+    if insufficient:
+        for sl in insufficient:
+            print(f"INSUFFICIENT: {sl} has 0 candidates")
+        sys.exit(2)
+
+    # ── WARN for <5 candidates ────────────────────────────────────────────────
+    if len(happy_pool) < 5:
+        print(f"WARN: happy_path only {len(happy_pool)} candidates")
+    if len(b_silent_pool) < 5:
+        print(f"WARN: b_silent only {len(b_silent_pool)} candidates")
+    if control_total < 5:
+        print(f"WARN: control only {control_total} candidates")
+
+    # ── Sample ────────────────────────────────────────────────────────────────
+    random.seed(7)
+    happy_sample = random.sample(happy_pool, min(5, len(happy_pool)))
+
+    random.seed(8)
+    b_silent_sample = random.sample(b_silent_pool, min(5, len(b_silent_pool)))
+
+    # Control: seed 9, drain (a) first, fill from (b)
+    random.seed(9)
+    n_a = min(5, len(control_a_pool))
+    control_a_sample = random.sample(control_a_pool, n_a)
+    remaining = 5 - n_a
+    control_b_sample = (
+        random.sample(control_b_pool, min(remaining, len(control_b_pool)))
+        if remaining > 0 and control_b_pool
+        else []
+    )
+    control_sample = control_a_sample + control_b_sample
+
+    # ── Tag slices ────────────────────────────────────────────────────────────
+    for r in happy_sample:
+        r["p2_slice"] = "happy_path"
+    for r in b_silent_sample:
+        r["p2_slice"] = "b_silent"
+    for r in control_a_sample:
+        r["p2_slice"] = "control"
+        r["p2_control_kind"] = "wrong_fire"
+    for r in control_b_sample:
+        r["p2_slice"] = "control"
+        r["p2_control_kind"] = "no_route_task"
+
+    # ── Interleave: rotate h, b, c (tranche-friendly ordering) ───────────────
+    output_rows: list[dict] = []
+    max_n = max(len(happy_sample), len(b_silent_sample), len(control_sample))
+    for i in range(max_n):
+        if i < len(happy_sample):
+            output_rows.append(happy_sample[i])
+        if i < len(b_silent_sample):
+            output_rows.append(b_silent_sample[i])
+        if i < len(control_sample):
+            output_rows.append(control_sample[i])
+
+    # ── Format and write ──────────────────────────────────────────────────────
+    def _fmt(r: dict) -> dict:
+        out: dict = {
+            "_hash": r.get("_hash"),
+            "text": r.get("text"),
+            "slice": r.get("slice"),
+            "label": r.get("label"),
+            "predicted_route": r.get("predicted_route"),
+            "p2_slice": r.get("p2_slice"),
+        }
+        if r.get("p2_slice") == "control":
+            out["p2_control_kind"] = r.get("p2_control_kind")
+        return out
+
+    EVAL_DIR.mkdir(parents=True, exist_ok=True)
+    sample_path = EVAL_DIR / "sample.jsonl"
+    sample_path.write_text(
+        "\n".join(json.dumps(_fmt(r), ensure_ascii=False) for r in output_rows) + "\n",
+        encoding="utf-8",
+    )
+
+    total_excl = sum(path_excl.values())
+    print(
+        f"sample: happy_path={len(happy_sample)} b_silent={len(b_silent_sample)} "
+        f"control={len(control_sample)} "
+        f"path_excluded={total_excl} "
+        f"(happy_path={path_excl['happy_path']} b_silent={path_excl['b_silent']} "
+        f"control={path_excl['control']})"
+    )
+
+
 # ── CLI ────────────────────────────────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser(description="sir_albert prompt corpus tool")
@@ -1116,6 +1306,9 @@ def main():
     p_p1 = sub.add_parser("p1-score")
     p_p1.add_argument("--file", default=str(EVAL_DIR / "labeled-set.jsonl"))
 
+    p_sample_p2 = sub.add_parser("sample-p2")
+    p_sample_p2.add_argument("--file", default=str(EVAL_DIR / "labeled-set.jsonl"))
+
     args = parser.parse_args()
     if args.cmd == "extract":
         cmd_extract(args)
@@ -1134,6 +1327,8 @@ def main():
         cmd_import_labels(args)
     elif args.cmd == "p1-score":
         cmd_p1_score(args)
+    elif args.cmd == "sample-p2":
+        cmd_sample_p2(args)
     else:
         parser.print_help()
 
