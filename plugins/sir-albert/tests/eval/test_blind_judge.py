@@ -221,3 +221,19 @@ def test_judge_input_has_no_skill_names():
     assert "sir-albert" not in prompt
     assert "superpowers" not in prompt
     assert "sir_albert" not in prompt
+
+
+def test_redaction_removes_namespaced_and_bare_hyphenated_skill_names():
+    """Regression: an earlier regex used [\\\\w-] inside a raw string (a literal
+    backslash), so 'superpowers:brainstorming' leaked as '[skill]:brainstorming'."""
+    summarize = bj.summarize
+    art = {
+        "arm": "a", "prompt_hash": "x", "rep": 1,
+        "skills_loaded": ["superpowers:writing-plans", "superpowers:brainstorming", "sir-albert:plan"],
+        "result_event": {"result": "Using superpowers:brainstorming, then writing-plans; "
+                                   "sir-albert:plan and kb:wiki-query. We plan the rollout."},
+    }
+    text = summarize(art)
+    for leak in ("superpowers", "sir-albert", "brainstorming", "writing-plans", "wiki-query", "kb:"):
+        assert leak not in text.lower(), f"{leak!r} leaked: {text!r}"
+    assert "We plan the rollout." in text, "ordinary prose must survive redaction"

@@ -47,11 +47,21 @@ def _make_manifest(tmp_path, clone=None, scratch=None, arm_a=None, arm_b=None):
     return tmp_path
 
 
-def _run_stub(stub_stream_path, arm, prompt_hash, rep, prompt_text, rundir, artifact_dir):
-    """Run run_one.sh with a stub that emits a pre-canned stream."""
+def _run_stub(stub_stream_path, arm, prompt_hash, rep, prompt_text, rundir, artifact_dir, stub_exit=0):
+    """Run run_one.sh with a stub that emits a pre-canned stream.
+
+    The stub behaves like the real CLI where it matters: it rejects --cwd (not a
+    claude flag) and requires being run from the manifest's scratch_cwd.
+    """
+    scratch = json.loads((rundir / "run-manifest.json").read_text())["scratch_cwd"]
     stub = rundir / "stub_claude.sh"
-    # Stub ignores all args and just emits the fixture stream to stdout
-    stub.write_text(f"#!/bin/bash\nexec cat {stub_stream_path}\n")
+    stub.write_text(
+        "#!/bin/bash\n"
+        'for a in "$@"; do [ "$a" = "--cwd" ] && { echo "stub: --cwd is not a claude flag" >&2; exit 2; }; done\n'
+        f'[ "$(pwd -P)" = "$(cd {scratch!r} && pwd -P)" ] || {{ echo "stub: wrong cwd $(pwd)" >&2; exit 3; }}\n'
+        f"cat {str(stub_stream_path)!r}\n"
+        f"exit {stub_exit}\n"
+    )
     stub.chmod(0o755)
 
     # Fake settings file for guarded.sh (needs a valid JSON with 'model' key)
@@ -172,3 +182,15 @@ def test_no_backgrounding_in_run_one():
         if line.strip() and not line.strip().startswith("#") and line.rstrip().endswith(" &")
     ]
     assert not suspicious, f"Found backgrounded commands in run_one.sh: {suspicious}"
+
+
+def test_nonzero_claude_exit_still_writes_artifact(tmp_path):
+    """A budget-capped or failed run exits non-zero. It must still leave exactly one
+    artifact recording the exit code; otherwise the 60-run audit ABORTs the verdict."""
+    rundir = _make_manifest(tmp_path)
+    art_dir = tmp_path / "runs"
+    art_dir.mkdir()
+    result = _run_stub(FIXTURES_DIR / "arm-b.jsonl", "b", "capped1", 1, "p", rundir, art_dir, stub_exit=1)
+    artifact = json.loads((art_dir / "b-capped1-rep1.json").read_text())
+    assert artifact["exit_code"] == 1, result.stderr
+    assert artifact["cost_usd"] == pytest.approx(0.140838)

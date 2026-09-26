@@ -110,33 +110,75 @@ def test_model_assertion_aborts_wrong_model(fake_manifest, fake_settings):
     assert "claude-opus-5-5" in combined
 
 
-def test_model_snapshot_written(fake_manifest, fake_settings):
-    """Model snapshot must be written to rundir/model-snapshot.txt."""
-    # Stub: make W4_CLAUDE_BIN emit arm-b stream then arm-a stream
-    stub = fake_manifest / "stub_claude.sh"
+FIXTURES = Path(__file__).parent / "fixtures"
+
+
+def _sequenced_stub(rundir, first, second):
+    """A fake claude that emits `first` on call 1 and `second` on call 2.
+
+    It fails if passed --cwd (not a real claude flag) or if not run from the
+    manifest's scratch_cwd, since the real harness must cd there instead.
+    """
+    scratch = json.loads((rundir / "run-manifest.json").read_text())["scratch_cwd"]
+    counter = rundir / "stub-calls.txt"
+    counter.write_text("0")
+    stub = rundir / "stub_claude.sh"
     stub.write_text(
-        "#!/bin/bash\ncat '" + str(fake_manifest / "stream_output.txt") + "'\n"
+        "#!/bin/bash\n"
+        'for a in "$@"; do [ "$a" = "--cwd" ] && { echo "stub: --cwd is not a claude flag" >&2; exit 2; }; done\n'
+        f'[ "$(pwd -P)" = "$(cd {scratch!r} && pwd -P)" ] || {{ echo "stub: wrong cwd $(pwd)" >&2; exit 3; }}\n'
+        f"n=$(( $(cat {str(counter)!r}) + 1 )); echo $n > {str(counter)!r}\n"
+        f'if [ $n -eq 1 ]; then cat {str(first)!r}; else cat {str(second)!r}; fi\n'
     )
     stub.chmod(0o755)
+    return stub
 
-    # Pre-write the stream file (used by stub)
-    (fake_manifest / "stream_output.txt").write_text(ARM_B_STREAM + "\n" + ARM_A_STREAM)
 
-    # Write a sequence file so stub returns B then A
-    call_file = fake_manifest / "call_count.txt"
-    call_file.write_text("0")
-
-    stub_b = fake_manifest / "stub_b.sh"
-    stub_b.write_text("#!/bin/bash\necho '" + ARM_B_STREAM.replace("'", "'\\''") + "'\n")
-    stub_b.chmod(0o755)
-
-    # Just test that model-snapshot.txt is written by checking the canary exits 1
-    # (because stub emits nothing useful, but the model assertion runs first)
-    result = _run_canary(fake_manifest, fake_settings)
-    # Model is correct, so it should proceed past model check
+def test_model_snapshot_written(fake_manifest, fake_settings):
+    """Model snapshot must be written to rundir/model-snapshot.txt."""
+    stub = _sequenced_stub(fake_manifest, FIXTURES / "arm-b.jsonl", FIXTURES / "arm-a2.jsonl")
+    _run_canary(fake_manifest, fake_settings, {"W4_CLAUDE_BIN": str(stub)})
     snap = fake_manifest / "model-snapshot.txt"
     assert snap.exists(), "model-snapshot.txt not written"
     assert snap.read_text().strip() == EXPECTED_MODEL
+
+
+def test_canary_passes_on_real_probe_streams(fake_manifest, fake_settings):
+    """The real probe output must pass. Its hook lines carry JSON '\\n' escapes, which
+    broke an earlier parser that interpolated the stream into a Python string."""
+    stub = _sequenced_stub(fake_manifest, FIXTURES / "arm-b.jsonl", FIXTURES / "arm-a2.jsonl")
+    result = _run_canary(fake_manifest, fake_settings, {"W4_CLAUDE_BIN": str(stub)})
+    out = result.stdout + result.stderr
+    assert result.returncode == 0, out
+    assert "Canary B PASS: 0 superpowers" in out
+    assert "Canary A PASS" in out
+    assert (fake_manifest / "stub-calls.txt").read_text().strip() == "2"
+
+
+def test_canary_aborts_when_arm_a_lacks_superpowers(fake_manifest, fake_settings):
+    stub = _sequenced_stub(fake_manifest, FIXTURES / "arm-b.jsonl", FIXTURES / "arm-b.jsonl")
+    result = _run_canary(fake_manifest, fake_settings, {"W4_CLAUDE_BIN": str(stub)})
+    assert result.returncode != 0
+    assert "ABORT: arm A" in result.stdout + result.stderr
+
+
+def test_canary_aborts_when_arm_b_has_superpowers(fake_manifest, fake_settings):
+    stub = _sequenced_stub(fake_manifest, FIXTURES / "arm-a2.jsonl", FIXTURES / "arm-a2.jsonl")
+    result = _run_canary(fake_manifest, fake_settings, {"W4_CLAUDE_BIN": str(stub)})
+    assert result.returncode != 0
+    assert "ABORT: arm B" in result.stdout + result.stderr
+    assert (fake_manifest / "stub-calls.txt").read_text().strip() == "1", "must stop before arm A"
+
+
+def test_canary_aborts_when_router_injection_missing(fake_manifest, fake_settings, tmp_path):
+    """Arm B with its SessionStart hook dead is the documented failure mode."""
+    dead = tmp_path / "arm-b-dead-router.jsonl"
+    lines = [l for l in (FIXTURES / "arm-b.jsonl").read_text().splitlines() if "## sir_albert" not in l]
+    dead.write_text("\n".join(lines) + "\n")
+    stub = _sequenced_stub(fake_manifest, dead, FIXTURES / "arm-a2.jsonl")
+    result = _run_canary(fake_manifest, fake_settings, {"W4_CLAUDE_BIN": str(stub)})
+    assert result.returncode != 0
+    assert "SessionStart injection missing" in result.stdout + result.stderr
 
 
 def test_syntax_check():

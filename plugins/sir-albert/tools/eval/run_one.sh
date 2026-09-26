@@ -16,7 +16,7 @@ RUNDIR="${5:?}"
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 ARTIFACT_DIR="${W4_ARTIFACT_DIR:-$REPO_ROOT/docs/plans/2026-09-26-w4-eval/runs}"
 CLAUDE_BIN="${W4_CLAUDE_BIN:-command claude}"
-EVAL_DIR="$(dirname "$0")"
+EVAL_DIR="$(cd "$(dirname "$0")" && pwd)"   # absolute: the spawn runs from the scratch repo
 
 mkdir -p "$ARTIFACT_DIR"
 OUT="$ARTIFACT_DIR/$ARM-$HASH-rep$REP.json"
@@ -38,11 +38,15 @@ else
   ARM_SETTINGS=$(echo "$MANIFEST" | /usr/local/bin/python3.13 -c "import sys,json; print(json.load(sys.stdin)['arm_b_settings'])")
 fi
 
-# Execute run — wrapped in guarded.sh, strictly sequential (no &)
+# Execute run — wrapped in guarded.sh, strictly sequential (no &).
+# claude has no --cwd flag, so the spawn runs from the scratch repo. A non-zero exit
+# (e.g. budget cap) must still produce an artifact, so it is captured rather than
+# allowed to trip `set -e`.
 RAW_FILE=$(mktemp -t w4-run-XXXX.jsonl)
 trap "rm -f $RAW_FILE" EXIT
 
-bash "$EVAL_DIR/guarded.sh" \
+EXIT_CODE=0
+(cd "$SCRATCH_CWD" && bash "$EVAL_DIR/guarded.sh" \
   $CLAUDE_BIN --print \
     --setting-sources project,local \
     --settings "$ARM_SETTINGS" \
@@ -55,9 +59,7 @@ bash "$EVAL_DIR/guarded.sh" \
     --include-hook-events \
     --max-budget-usd 0.60 \
     --disallowedTools Write,Edit,NotebookEdit \
-    --cwd "$SCRATCH_CWD" \
-    "$PROMPT" > "$RAW_FILE"
-EXIT_CODE=$?
+    "$PROMPT") > "$RAW_FILE" || EXIT_CODE=$?
 
 # Parse stream-json and build artifact
 /usr/local/bin/python3.13 - "$ARM" "$HASH" "$REP" "$PROMPT" "$MODEL" "$EXIT_CODE" "$OUT" "$RAW_FILE" <<'PY'

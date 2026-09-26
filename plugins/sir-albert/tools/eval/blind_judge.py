@@ -41,8 +41,17 @@ def summarize(artifact: dict) -> str:
         raise ValueError(
             f"empty response in {artifact['arm']}-{artifact['prompt_hash']}-rep{artifact['rep']}"
         )
-    # Redact arm-identifying strings BEFORE truncating.
-    final_text = re.sub(r"\b(superpowers|sir[-_]albert|kb)(:[\\w-]+)?", "[skill]", final_text, flags=re.I)
+    # Redact arm-identifying strings BEFORE truncating. Namespaced names first
+    # ("superpowers:writing-plans"), then bare hyphenated skill names the arm had loaded
+    # ("writing-plans") — those only appear in the arm that loaded them. Bare single
+    # words like "plan" are left alone: they are ordinary prose in both arms.
+    final_text = re.sub(r"\b(superpowers|sir[-_]albert|kb)(:[\w-]+)?", "[skill]", final_text, flags=re.I)
+    bare = {
+        (s if isinstance(s, str) else s.get("name", "")).split(":")[-1]
+        for s in artifact.get("skills_loaded") or []
+    }
+    for name in sorted((n for n in bare if "-" in n), key=len, reverse=True):
+        final_text = re.sub(rf"(?<![\w-]){re.escape(name)}(?![\w-])", "[skill]", final_text, flags=re.I)
     return final_text[:1500]
 
 
