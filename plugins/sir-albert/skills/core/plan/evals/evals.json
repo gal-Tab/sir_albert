@@ -55,6 +55,27 @@
       "prompt": "Move the config file from the tmp folder to the project folder.",
       "deterministic_check": "sir-albert:plan NOT in skills_called",
       "rubric": "PASS if sir-albert:plan is NOT invoked (it is a direct execution task). FAIL if plan is incorrectly triggered."
+    },
+    {
+      "id": "plan-alias-pos-html-plan",
+      "angle": "discoverability",
+      "prompt": "Make me an html plan for the HubSpot to monday.com contact sync we discussed.",
+      "deterministic_check": "sir-albert:plan in skills_called",
+      "rubric": "PASS if the model invokes sir-albert:plan. FAIL if it does not. This scenario tests the 'html plan' legacy alias."
+    },
+    {
+      "id": "plan-alias-pos-share-plan",
+      "angle": "discoverability",
+      "prompt": "share-plan this rollout for the new UTM tagging schema across all paid channels.",
+      "deterministic_check": "sir-albert:plan in skills_called",
+      "rubric": "PASS if the model invokes sir-albert:plan. FAIL if it does not. This scenario tests the 'share-plan' legacy alias."
+    },
+    {
+      "id": "plan-alias-neg-share-slack",
+      "angle": "red-team",
+      "prompt": "Share the plan doc with the team on Slack so everyone can see the rollout timeline.",
+      "deterministic_check": "sir-albert:plan NOT in skills_called",
+      "rubric": "PASS if sir-albert:plan is NOT invoked (it is a Slack sharing request, not a plan generation request). FAIL if plan is incorrectly triggered."
     }
   ]
 }

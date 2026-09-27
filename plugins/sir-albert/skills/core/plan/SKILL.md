@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Use when asked to write a plan, break down a task, create implementation steps, or turn a spec into agent-executable tickets. Also triggers on affirmative plan confirmations. Triggers on: "write a plan", "plan this", "plan it", "break this down", "break this down into tickets", "implementation steps", "vertical slices", "write a plan for", "plan a feature", "create a brief plan", "how do we roll this out", "steps to migrate", "yes go ahead and plan".
+description: Use when asked to write a plan, break down a task, create implementation steps, or turn a spec into agent-executable tickets. Also triggers on affirmative plan confirmations. Triggers on: "write a plan", "plan this", "plan it", "break this down", "break this down into tickets", "implementation steps", "vertical slices", "write a plan for", "plan a feature", "create a brief plan", "how do we roll this out", "steps to migrate", "yes go ahead and plan", "html plan", "html-plans", "share-plan".
 ---
 
 # plan
