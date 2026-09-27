@@ -28,3 +28,6 @@ Judge v2 verdicts for B-vs-S and B-vs-A, and `verdict_p3.py` computing G1–G4 e
 - [ ] Real-schema fixtures; every new test fails on missing or old code and passes on the new code
 - [ ] Both judge passes complete with judge_error ≤ 5%; bias checks recorded
 - [ ] Verdict report written, sensitivity range included
+
+## Status — DEFERRED (Gal, 2026-09-27)
+P3 skipped: uninstalling superpowers is reversible (one `enabledPlugins` toggle), so a real-use trial replaces the headless eval. Tooling is ready and frozen at tag `w5-freeze` (`bde3566`). Ticket 12 steps 1–6 are done (arm S, audit_runs, 3/3 canaries PASS in `~/.claude/sir-albert-w5-p3`). Resume at step 7 if a citable result is ever needed.

@@ -22,3 +22,6 @@ Every gate in the P3 verdict is independently recomputed from raw artifacts and 
 
 ## CHECKPOINT
 No push or PR (Gal is moving the repo to `dapulse` first). Uninstalling superpowers is Gal's separate decision and is never inferred from OUTPERFORM.
+
+## Status — DEFERRED (Gal, 2026-09-27)
+P3 skipped: uninstalling superpowers is reversible (one `enabledPlugins` toggle), so a real-use trial replaces the headless eval. Tooling is ready and frozen at tag `w5-freeze` (`bde3566`). Ticket 12 steps 1–6 are done (arm S, audit_runs, 3/3 canaries PASS in `~/.claude/sir-albert-w5-p3`). Resume at step 7 if a citable result is ever needed.
