@@ -126,6 +126,10 @@ def main():
     # ── Per-slice win-rate ────────────────────────────────────────────────────
     # Load sample to get slice per prompt_hash
     sample_rows = load_jsonl(sample_path) if sample_path.exists() else []
+    # sample.jsonl keys prompts by "_hash"; artifacts and judgments use "prompt_hash".
+    for r in sample_rows:
+        if "_hash" in r:
+            r["prompt_hash"] = r["_hash"]
     slice_map = {r["prompt_hash"]: r.get("p2_slice", "unknown") for r in sample_rows if "prompt_hash" in r}
 
     slice_stats = defaultdict(lambda: {"B_wins": 0, "A_wins": 0, "tie": 0, "total": 0})

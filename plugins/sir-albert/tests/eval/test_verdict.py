@@ -70,7 +70,7 @@ def _make_sample(sample_path, prompts, happy_hashes, none_hashes, b_silent_hashe
         else:
             slice_val = "control"
             label = "none"
-        rows.append({"prompt_hash": ph, "p2_slice": slice_val, "label": label})
+        rows.append({"_hash": ph, "p2_slice": slice_val, "label": label})  # real sample.jsonl schema
     sample_path.write_text("\n".join(json.dumps(r) for r in rows))
 
 
