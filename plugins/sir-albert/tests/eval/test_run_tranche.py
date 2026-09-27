@@ -231,3 +231,113 @@ def test_settings_change_during_tranche_is_flagged(tmp_path):
     r = _run(rundir, sample, env)
     assert r.returncode == 6, r.stdout
     assert "settings.json keys changed" in r.stdout
+
+
+# ── New-form tests (ticket 11) ────────────────────────────────────────────────
+
+def _run_new(rundir, sample, env, arms="b", rows="all", reps=1, expected=None, **extra_env):
+    """Call run_tranche.py with the new --arms/--rows/--reps/--expected flags."""
+    e = dict(env, **extra_env)
+    cmd = [
+        "/usr/local/bin/python3.13", str(RUN_TRANCHE),
+        str(rundir), str(sample),
+        "--arms", arms,
+        "--rows", rows,
+        "--reps", str(reps),
+    ]
+    if expected is not None:
+        cmd += ["--expected", str(expected)]
+    return subprocess.run(cmd, capture_output=True, text=True, env=e)
+
+
+def test_arms_flag_b_only(tmp_path):
+    """--arms b --rows all --reps 1 schedules exactly 15 jobs, all arm b."""
+    rundir, sample, env, calls, _ = _setup(tmp_path, n_rows=15)
+    r = _run_new(rundir, sample, env, arms="b", rows="all", reps=1, expected=15)
+    assert r.returncode == 0, r.stdout + r.stderr
+    artifacts = list((tmp_path / "runs").glob("*.json"))
+    assert len(artifacts) == 15, f"expected 15 artifacts, got {len(artifacts)}: {r.stdout}"
+    assert all(p.name.startswith("b-") for p in artifacts), "all artifacts must be arm b"
+    assert _arms(calls) == ["b"] * 15
+
+
+def test_context_passed(tmp_path):
+    """rows with preceding_turns produce context_turns > 0 in the artifact (arg 6 to run_one.sh)."""
+    rundir, _, env, calls, _ = _setup(tmp_path)
+    sample = tmp_path / "ctx_sample.jsonl"
+    turns = [{"role": "user", "text": "earlier msg for context"}]
+    sample.write_text(json.dumps({
+        "_hash": "ctxhash01000000",
+        "text": "context test prompt please",
+        "p2_slice": "happy_path",
+        "preceding_turns": turns,
+    }) + "\n")
+    ctx_dir = tmp_path / "ctx"
+    ctx_dir.mkdir()
+    r = _run_new(rundir, sample, env, arms="b", rows="all", reps=1, expected=1,
+                 W4_CONTEXT_DIR=str(ctx_dir))
+    assert r.returncode == 0, r.stdout + r.stderr
+    ctx_file = ctx_dir / "ctxhash01000000.json"
+    assert ctx_file.exists(), "context file should be written for row with preceding_turns"
+    assert json.loads(ctx_file.read_text()) == turns
+    # Artifact must record context_turns > 0
+    artifacts = list((tmp_path / "runs").glob("b-ctxhash01000000-rep1.json"))
+    assert artifacts, "artifact must exist"
+    art = json.loads(artifacts[0].read_text())
+    assert art["context_turns"] > 0, f"context_turns={art['context_turns']}, expected >0"
+
+
+def test_context_from_corpus_when_row_lacks_it(tmp_path):
+    """W4 sample rows carry no preceding_turns; runner looks them up by _hash in corpus.jsonl."""
+    rundir, _, env, calls, _ = _setup(tmp_path)
+    # Row without preceding_turns (W4-era format)
+    sample = tmp_path / "corpus_sample.jsonl"
+    sample.write_text(json.dumps({
+        "_hash": "corpushash10000",
+        "text": "corpus lookup test prompt",
+        "p2_slice": "happy_path",
+        # no preceding_turns key
+    }) + "\n")
+    # Corpus entry WITH preceding_turns for the same hash
+    corpus_turns = [{"role": "user", "text": "context from corpus lookup"}]
+    corpus = tmp_path / "corpus.jsonl"
+    corpus.write_text(json.dumps({
+        "_hash": "corpushash10000",
+        "text": "corpus lookup test prompt",
+        "preceding_turns": corpus_turns,
+    }) + "\n")
+    ctx_dir = tmp_path / "ctx2"
+    ctx_dir.mkdir()
+    r = _run_new(rundir, sample, env, arms="b", rows="all", reps=1, expected=1,
+                 W4_CORPUS_FILE=str(corpus), W4_CONTEXT_DIR=str(ctx_dir))
+    assert r.returncode == 0, r.stdout + r.stderr
+    ctx_file = ctx_dir / "corpushash10000.json"
+    assert ctx_file.exists(), "context file should be written from corpus lookup"
+    assert json.loads(ctx_file.read_text()) == corpus_turns
+    # Artifact must record context_turns > 0
+    artifacts = list((tmp_path / "runs").glob("b-corpushash10000-rep1.json"))
+    assert artifacts, "artifact must exist"
+    art = json.loads(artifacts[0].read_text())
+    assert art["context_turns"] > 0, f"context_turns={art['context_turns']}, expected >0"
+
+
+def test_legacy_positional_unchanged(tmp_path):
+    """run_tranche.py RUNDIR SAMPLE 2 still schedules W4 tranche 2 (rows 11-15, both arms, 2 reps)."""
+    rundir, sample, env, calls, _ = _setup(tmp_path, n_rows=15)
+    r = _run(rundir, sample, env, tranche="2")
+    assert r.returncode == 0, r.stdout + r.stderr
+    # Tranche 2: rows 10-14, both arms, 2 reps → 5 * 2 * 2 = 20 runs
+    artifacts = list((tmp_path / "runs").glob("*.json"))
+    assert len(artifacts) == 20, f"expected 20 artifacts, got {len(artifacts)}: {r.stdout}"
+    hashes = {p.name.split("-")[1] for p in artifacts}
+    assert hashes == {f"h{i:02d}" for i in range(10, 15)}
+    assert _arms(calls).count("a") == _arms(calls).count("b") == 10
+
+
+def test_canary_precondition_b_only(tmp_path):
+    """--arms b skips the canary-a check; a missing canary-a.jsonl is not an abort."""
+    rundir, sample, env, calls, _ = _setup(tmp_path, n_rows=15)
+    (rundir / "canary-a.jsonl").unlink()
+    r = _run_new(rundir, sample, env, arms="b", rows="all", reps=1, expected=15)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert len(list((tmp_path / "runs").glob("*.json"))) == 15
