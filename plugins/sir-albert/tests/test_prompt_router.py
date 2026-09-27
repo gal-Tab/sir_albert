@@ -109,6 +109,52 @@ class TestImperativeDirective:
         assert len(out) <= 300, f"output length {len(out)} > 300"
 
 
+class TestRouterRecallW5:
+    """New patterns from ticket 08: brainstorm/plan phrasing and build vocabulary."""
+
+    # ── brainstorm-context-explore ────────────────────────────────────────────
+    def test_brainstorm_help_see_going_on(self):
+        assert "/sir-albert:brainstorm" in _nudge("help me see what's going on with this pipeline")
+
+    def test_brainstorm_look_at_situation_advise(self):
+        assert "/sir-albert:brainstorm" in _nudge("look at this situation and advise me on what to do")
+
+    # near-miss: no "going on" or no "advise/help me" complement
+    def test_brainstorm_help_see_diff_no_match(self):
+        assert _nudge("help me see the diff") == ""
+
+    def test_brainstorm_look_at_context_menu_no_match(self):
+        assert _nudge("look at this context menu please") == ""
+
+    # ── plan-imperative ───────────────────────────────────────────────────────
+    def test_plan_it_out(self):
+        assert "/sir-albert:plan" in _nudge("plan it out before we start building")
+
+    def test_plan_break_into_steps(self):
+        assert "/sir-albert:plan" in _nudge("break this into steps and validate each")
+
+    # near-miss: bare "plan it" with no qualifier, and "break down" not "into steps"
+    def test_plan_bare_plan_it_no_match(self):
+        assert _nudge("plan it") == ""
+
+    def test_plan_break_down_sections_no_match(self):
+        assert _nudge("break this down into sections") == ""
+
+    # ── build-open-pr ─────────────────────────────────────────────────────────
+    def test_build_open_a_pr(self):
+        assert "/sir-albert:build" in _nudge("open a pr for this change")
+
+    def test_build_push_the_feature(self):
+        assert "/sir-albert:build" in _nudge("push the feature to main")
+
+    # near-miss: "pr" without "open", "push" without feature/branch/change/code
+    def test_build_pr_ready_no_match(self):
+        assert _nudge("the pr is ready for review") == ""
+
+    def test_build_push_to_production_no_match(self):
+        assert _nudge("push to production") == ""
+
+
 class TestNoMatch:
     """False-positive phrases — must all produce empty stdout."""
 

@@ -1,99 +1,145 @@
 {
   "pack_signals": [
-    {"pack": "gtm",        "signal_type": "glob",    "pattern": "apply-*.ts"},
-    {"pack": "n8n",        "signal_type": "glob",    "pattern": "*.workflow.json"},
-    {"pack": "hubspot",    "signal_type": "glob",    "pattern": "hs*.js"},
-    {"pack": "hubspot",    "signal_type": "dir",     "pattern": ".hubspot"},
-    {"pack": "kb",         "signal_type": "dir_pair","pattern": "raw+wiki"},
-    {"pack": "z2h",        "signal_type": "file",    "pattern": ".z2h"},
-    {"pack": "code",       "signal_type": "dir_pair","pattern": ".git+tests"}
+    {
+      "pack": "gtm",
+      "signal_type": "glob",
+      "pattern": "apply-*.ts"
+    },
+    {
+      "pack": "n8n",
+      "signal_type": "glob",
+      "pattern": "*.workflow.json"
+    },
+    {
+      "pack": "hubspot",
+      "signal_type": "glob",
+      "pattern": "hs*.js"
+    },
+    {
+      "pack": "hubspot",
+      "signal_type": "dir",
+      "pattern": ".hubspot"
+    },
+    {
+      "pack": "kb",
+      "signal_type": "dir_pair",
+      "pattern": "raw+wiki"
+    },
+    {
+      "pack": "z2h",
+      "signal_type": "file",
+      "pattern": ".z2h"
+    },
+    {
+      "pack": "code",
+      "signal_type": "dir_pair",
+      "pattern": ".git+tests"
+    }
   ],
   "keyword_patterns": [
     {
       "order": 10,
       "intent": "attack",
-      "pattern": "\\b(devil['\u2019]s advocate|stress.?test (my|this)|find (the\\s)?holes in|attack (my|this))\\b",
-      "nudge": "\u2192 /sir-albert:brainstorm attack"
+      "pattern": "\\b(devil['’]s advocate|stress.?test (my|this)|find (the\\s)?holes in|attack (my|this))\\b",
+      "nudge": "→ /sir-albert:brainstorm attack"
     },
     {
       "order": 20,
       "intent": "grill",
       "pattern": "\\b(grill me|interview me (about|on))\\b",
-      "nudge": "\u2192 /sir-albert:brainstorm grill"
+      "nudge": "→ /sir-albert:brainstorm grill"
     },
     {
       "order": 25,
       "intent": "slack",
       "pattern": "\\bslack in my voice\\b",
-      "nudge": "\u2192 /sir-albert:slack-in-my-voice"
+      "nudge": "→ /sir-albert:slack-in-my-voice"
     },
     {
       "order": 30,
       "intent": "zoom-out",
       "pattern": "\\b(zoom out|bigger picture|how does this fit into)\\b",
-      "nudge": "\u2192 /sir-albert:brainstorm zoom-out"
+      "nudge": "→ /sir-albert:brainstorm zoom-out"
     },
     {
       "order": 40,
       "intent": "design",
-      "pattern": "\\b(let['\u2019]s design|design (a|the|this)|i want to build)\\b",
-      "nudge": "\u2192 /sir-albert:brainstorm design"
+      "pattern": "\\b(let['’]s design|design (a|the|this)|i want to build)\\b",
+      "nudge": "→ /sir-albert:brainstorm design"
     },
     {
       "order": 50,
       "intent": "brainstorm",
-      "pattern": "\\blet['\u2019]s (brainstorm|explore|think through)\\b|fresh perspective on|\\bhelp me think (through|about)\\b|\\b(wdyt|what do you think|what['\\u2019]s your take|how should i approach)\\b",
-      "nudge": "\u2192 /sir-albert:brainstorm (explore mode)"
+      "pattern": "\\blet['’]s (brainstorm|explore|think through)\\b|fresh perspective on|\\bhelp me think (through|about)\\b|\\b(wdyt|what do you think|what['\\u2019]s your take|how should i approach)\\b",
+      "nudge": "→ /sir-albert:brainstorm (explore mode)"
+    },
+    {
+      "order": 55,
+      "intent": "brainstorm",
+      "pattern": "\\bhelp me (see|understand) what.{0,15}going on\\b|\\blook at this (situation|context) and (advise|help) me\\b",
+      "nudge": "→ /sir-albert:brainstorm (explore mode)"
     },
     {
       "order": 60,
       "intent": "plan",
       "pattern": "\\b(make (a |me a )?plan|write (a |me a )?plan|create (a |me a )?plan|turn (this|the) spec into a plan)\\b",
-      "nudge": "\u2192 /sir-albert:plan"
+      "nudge": "→ /sir-albert:plan"
+    },
+    {
+      "order": 62,
+      "intent": "plan",
+      "pattern": "\\bplan (it|this) (out|first)\\b|\\bbreak (this|it) into steps\\b",
+      "nudge": "→ /sir-albert:plan"
     },
     {
       "order": 70,
       "intent": "execute",
       "pattern": "\\b(run the plan|execute the plan|implement (the|this) plan)\\b",
-      "nudge": "\u2192 /sir-albert:execute"
+      "nudge": "→ /sir-albert:execute"
     },
     {
       "order": 80,
       "intent": "debug",
-      "pattern": "\\b(help me debug|let['\u2019]s debug|why is (this|it) (broken|failing|not working)|it['\u2019]s (broken|not working)|something['\u2019]s (broken|wrong)|error (in|with)|fails (with|on))\\b",
-      "nudge": "\u2192 /sir-albert:debug"
+      "pattern": "\\b(help me debug|let['’]s debug|why is (this|it) (broken|failing|not working)|it['’]s (broken|not working)|something['’]s (broken|wrong)|error (in|with)|fails (with|on))\\b",
+      "nudge": "→ /sir-albert:debug"
     },
     {
       "order": 90,
       "intent": "build",
-      "pattern": "\\b(finish (the\\s)?branch|ship (this\\s)?(feature|change|branch)|let['\u2019]s (ship|build and ship))\\b",
-      "nudge": "\u2192 /sir-albert:build"
+      "pattern": "\\b(finish (the\\s)?branch|ship (this\\s)?(feature|change|branch)|let['’]s (ship|build and ship))\\b",
+      "nudge": "→ /sir-albert:build"
+    },
+    {
+      "order": 92,
+      "intent": "build",
+      "pattern": "\\bopen (a|the) pr\\b|\\bpush (this |the )?(feature|change|branch|code)\\b",
+      "nudge": "→ /sir-albert:build"
     },
     {
       "order": 100,
       "intent": "handoff",
       "pattern": "\\b(end of session|write (a\\s)?handoff|create (a\\s)?handoff|wrap (up )?this session|start (a |the )?new session|write (a )?handoff)\\b",
-      "nudge": "\u2192 /sir-albert:handoff"
+      "nudge": "→ /sir-albert:handoff"
     },
     {
       "order": 110,
       "intent": "resume",
       "pattern": "\\b(reload (my\\s)?context|where were we|continue (the\\s)?session)\\b",
-      "nudge": "\u2192 /sir-albert:resume"
+      "nudge": "→ /sir-albert:resume"
     }
   ],
   "hebrew_patterns": [
     {
       "order": 200,
       "intent": "slack-hebrew",
-      "pattern": "(?=.*(?:\u05db\u05ea\u05d5\u05d1|\u05e0\u05e1\u05d7))(?=.*\u05e1\u05dc\u05d0\u05e7)",
-      "nudge": "\u2192 /sir-albert:slack-in-my-voice"
+      "pattern": "(?=.*(?:כתוב|נסח))(?=.*סלאק)",
+      "nudge": "→ /sir-albert:slack-in-my-voice"
     },
     {
       "order": 210,
       "intent": "linkedin-hebrew",
-      "pattern": "(?=.*(?:\u05db\u05ea\u05d5\u05d1|\u05e0\u05e1\u05d7))(?=.*\u05e4\u05d5\u05e1\u05d8)(?=.*\u05dc\u05d9\u05e0\u05e7\u05d3\u05d0\u05d9\u05df)",
-      "nudge": "\u2192 /sir-albert:linkedin-in-my-voice"
+      "pattern": "(?=.*(?:כתוב|נסח))(?=.*פוסט)(?=.*לינקדאין)",
+      "nudge": "→ /sir-albert:linkedin-in-my-voice"
     }
   ]
 }
