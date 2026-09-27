@@ -92,6 +92,23 @@ class TestMatches:
         assert "/sir-albert:resume" in _nudge("where were we")
 
 
+class TestImperativeDirective:
+    def test_nudge_is_imperative(self):
+        out = _nudge("write me a plan for the rollout")
+        assert "Invoke the Skill tool" in out
+        assert 'skill="sir-albert:plan"' in out
+
+    def test_nudge_keeps_mode(self):
+        out = _nudge("attack my plan")
+        assert "sir-albert:brainstorm" in out
+        assert "attack" in out
+
+    def test_nudge_single_line_short(self):
+        out = _nudge("write me a plan for the rollout")
+        assert "\n" not in out, "output must be a single line"
+        assert len(out) <= 300, f"output length {len(out)} > 300"
+
+
 class TestNoMatch:
     """False-positive phrases — must all produce empty stdout."""
 
