@@ -44,6 +44,8 @@ git -C "$SCRATCH_CWD" init -q && git -C "$SCRATCH_CWD" commit -q --allow-empty -
 
 if [ "$ARM" = "a" ]; then
   ARM_SETTINGS=$(echo "$MANIFEST" | /usr/local/bin/python3.13 -c "import sys,json; print(json.load(sys.stdin)['arm_a_settings'])")
+elif [ "$ARM" = "s" ]; then
+  ARM_SETTINGS=$(echo "$MANIFEST" | /usr/local/bin/python3.13 -c "import sys,json; print(json.load(sys.stdin)['arm_s_settings'])")
 else
   ARM_SETTINGS=$(echo "$MANIFEST" | /usr/local/bin/python3.13 -c "import sys,json; print(json.load(sys.stdin)['arm_b_settings'])")
 fi
@@ -80,7 +82,6 @@ CMD_ARGS=(
   "${CLAUDE_WORDS[@]}" --print
     --setting-sources project,local
     --settings "$ARM_SETTINGS"
-    --plugin-dir "$CLONE_PATH/plugins"
     --model "$MODEL"
     --max-turns 12
     --no-session-persistence
@@ -90,6 +91,10 @@ CMD_ARGS=(
     --max-budget-usd 0.60
     --disallowedTools Write,Edit,NotebookEdit
 )
+# Arm S is sir_albert-free: no --plugin-dir. Arms A and B load the frozen clone.
+if [ "$ARM" != "s" ]; then
+  CMD_ARGS+=(--plugin-dir "$CLONE_PATH/plugins")
+fi
 if [ -n "$CTX_BLOCK" ]; then
   CMD_ARGS+=(--append-system-prompt "$CTX_BLOCK")
 fi

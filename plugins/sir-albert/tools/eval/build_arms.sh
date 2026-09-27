@@ -36,6 +36,28 @@ s.setdefault('enabledPlugins',{})['superpowers@claude-plugins-official']=val
 json.dump(s,open(dst,'w'),indent=2)
 PY
 
+# ── Arm S: superpowers=true, sir_albert-free (no --plugin-dir; SessionStart hooks
+#    that inject sir_albert context are stripped so the arm is fully isolated) ─────
+/usr/local/bin/python3.13 - "$SRC_SETTINGS" "$RUNDIR/arm-s-settings.json" <<'PY'
+import json, sys
+src, dst = sys.argv[1], sys.argv[2]
+s = json.load(open(src))
+s.setdefault('enabledPlugins', {})['superpowers@claude-plugins-official'] = True
+# Strip SessionStart hooks whose command references sir_albert so arm S gets no
+# sir_albert context injection (skills are excluded by omitting --plugin-dir).
+hooks = s.get('hooks', {})
+if 'SessionStart' in hooks:
+    cleaned = []
+    for entry in hooks['SessionStart']:
+        inner = [h for h in (entry.get('hooks') or [])
+                 if 'sir' not in (h.get('command') or '').lower()]
+        if inner:
+            cleaned.append(dict(entry, hooks=inner))
+    hooks['SessionStart'] = cleaned
+json.dump(s, open(dst, 'w'), indent=2)
+PY
+echo "arm-s-settings.json written"
+
 # Verify hooks block preserved
 /usr/local/bin/python3.13 -c "import json; s=json.load(open('$RUNDIR/arm-b-settings.json')); assert s.get('hooks') is not None, 'hooks block missing'"
 echo "hooks preserved"
@@ -57,14 +79,15 @@ fi
 echo "scratch cwd ok: $SCRATCH_CWD"
 
 # ── Write run-manifest.json ───────────────────────────────────────────────────
-/usr/local/bin/python3.13 - "$PIN_SHA" "$CLONE_PATH" "$RUNDIR/arm-a-settings.json" "$RUNDIR/arm-b-settings.json" "$SCRATCH_CWD" "$RUNDIR" <<'PY'
+/usr/local/bin/python3.13 - "$PIN_SHA" "$CLONE_PATH" "$RUNDIR/arm-a-settings.json" "$RUNDIR/arm-b-settings.json" "$RUNDIR/arm-s-settings.json" "$SCRATCH_CWD" "$RUNDIR" <<'PY'
 import json,sys
-pin_sha,clone_path,arm_a,arm_b,scratch,rundir=sys.argv[1:]
+pin_sha,clone_path,arm_a,arm_b,arm_s,scratch,rundir=sys.argv[1:]
 manifest={
     "pin_sha":pin_sha,
     "clone_path":clone_path,
     "arm_a_settings":arm_a,
     "arm_b_settings":arm_b,
+    "arm_s_settings":arm_s,
     "scratch_cwd":scratch,
     "rundir":rundir,
 }

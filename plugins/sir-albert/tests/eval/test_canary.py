@@ -183,6 +183,78 @@ def test_canary_aborts_when_router_injection_missing(fake_manifest, fake_setting
     assert "SessionStart injection missing" in result.stdout + result.stderr
 
 
+ARM_S_SKILLS = ["superpowers:brainstorming", "superpowers:systematic-debugging"]
+# Arm S stream: superpowers hook text, NO "## sir_albert" injection, no sir-albert skills.
+ARM_S_STREAM = "\n".join([
+    json.dumps(_hook_response(json.dumps({"hookSpecificOutput": {"additionalContext": "using-superpowers content here"}}))),
+    json.dumps(_init_event(ARM_S_SKILLS)),
+    json.dumps(_result_event()),
+])
+
+
+def _three_arm_stub(rundir, first, second, third):
+    """A fake claude that emits first/second/third on calls 1/2/3."""
+    scratch = json.loads((rundir / "run-manifest.json").read_text())["scratch_cwd"]
+    counter = rundir / "stub-calls-3.txt"
+    counter.write_text("0")
+    stub = rundir / "stub_claude_3.sh"
+    stub.write_text(
+        "#!/bin/bash\n"
+        'for a in "$@"; do [ "$a" = "--cwd" ] && { echo "stub: --cwd is not a claude flag" >&2; exit 2; }; done\n'
+        f'[ "$(pwd -P)" = "$(cd {scratch!r} && pwd -P)" ] || {{ echo "stub: wrong cwd $(pwd)" >&2; exit 3; }}\n'
+        '[ "$(cat)" = "write handoff" ] || { echo "stub: prompt not on stdin" >&2; exit 6; }\n'
+        f"n=$(( $(cat {str(counter)!r}) + 1 )); echo $n > {str(counter)!r}\n"
+        f'if [ $n -eq 1 ]; then cat {str(first)!r}; elif [ $n -eq 2 ]; then cat {str(second)!r}; else cat {str(third)!r}; fi\n'
+    )
+    stub.chmod(0o755)
+    return stub
+
+
+@pytest.fixture()
+def fake_manifest_s(tmp_path, fake_settings):
+    """Like fake_manifest but includes arm_s_settings and a scratch dir for 3-arm canary."""
+    clone = tmp_path / "clone"
+    clone.mkdir()
+    scratch = tmp_path / "scratch"
+    scratch.mkdir()
+    arm_a = tmp_path / "arm-a.json"
+    arm_b = tmp_path / "arm-b.json"
+    arm_s = tmp_path / "arm-s.json"
+    for f in (arm_a, arm_b):
+        f.write_text(fake_settings.read_text())
+    # arm S: superpowers=true, no sir_albert SessionStart hooks
+    s_settings = json.loads(fake_settings.read_text())
+    s_settings.setdefault("enabledPlugins", {})["superpowers@claude-plugins-official"] = True
+    arm_s.write_text(json.dumps(s_settings))
+    manifest = {
+        "pin_sha": "abc123",
+        "clone_path": str(clone),
+        "arm_a_settings": str(arm_a),
+        "arm_b_settings": str(arm_b),
+        "arm_s_settings": str(arm_s),
+        "scratch_cwd": str(scratch),
+        "rundir": str(tmp_path),
+    }
+    mf = tmp_path / "run-manifest.json"
+    mf.write_text(json.dumps(manifest, indent=2))
+    (tmp_path / "model-snapshot.txt").write_text(EXPECTED_MODEL)
+    return tmp_path
+
+
+def test_canary_arm_s(fake_manifest_s, fake_settings, tmp_path):
+    """Canary for arm S must assert superpowers skills loaded and 0 sir-albert: skills."""
+    # Write ARM_S_STREAM to a temp file so _three_arm_stub can cat it
+    s_stream_file = tmp_path / "arm-s-stream.jsonl"
+    s_stream_file.write_text(ARM_S_STREAM)
+
+    stub = _three_arm_stub(fake_manifest_s, FIXTURES / "arm-b.jsonl", FIXTURES / "arm-a2.jsonl", s_stream_file)
+    result = _run_canary(fake_manifest_s, fake_settings, {"W4_CLAUDE_BIN": str(stub)})
+    out = result.stdout + result.stderr
+    assert result.returncode == 0, f"canary_preflight.sh failed:\n{out}"
+    assert "Canary S PASS" in out, f"Expected 'Canary S PASS' in output:\n{out}"
+    assert (fake_manifest_s / "stub-calls-3.txt").read_text().strip() == "3"
+
+
 def test_syntax_check():
     """canary_preflight.sh must pass bash -n."""
     result = subprocess.run(

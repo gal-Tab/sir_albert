@@ -464,6 +464,49 @@ def test_single_result_unchanged_except_result_count(tmp_path):
     assert artifact["truncated"] is False
 
 
+def test_arm_s_has_no_plugin_dir(tmp_path):
+    """For arm s, --plugin-dir must NOT appear in argv. For a and b, it must."""
+    stream_file = _minimal_stream(tmp_path)
+    rundir = _make_manifest(tmp_path)
+
+    # Extend manifest with arm_s_settings
+    arm_s = tmp_path / "arm-s.json"
+    arm_s.write_text(json.dumps({"model": EXPECTED_MODEL, "hooks": {}, "enabledPlugins": {
+        "superpowers@claude-plugins-official": True
+    }}))
+    manifest = json.loads((rundir / "run-manifest.json").read_text())
+    manifest["arm_s_settings"] = str(arm_s)
+    (rundir / "run-manifest.json").write_text(json.dumps(manifest, indent=2))
+
+    art_dir = tmp_path / "runs"
+    art_dir.mkdir()
+    guard_settings = rundir / "guard-settings.json"
+    guard_settings.write_text(json.dumps({"model": EXPECTED_MODEL, "hooks": {}}))
+
+    for arm in ("s", "a", "b"):
+        args_file = tmp_path / f"args_{arm}.json"
+        stdin_file = tmp_path / f"stdin_{arm}.txt"
+        stub = _make_recording_stub(rundir, args_file, stdin_file, stream_file)
+        env = os.environ.copy()
+        env["W4_CLAUDE_BIN"] = str(stub)
+        env["W4_SETTINGS_FILE"] = str(guard_settings)
+        env["W4_ARTIFACT_DIR"] = str(art_dir)
+
+        result = subprocess.run(
+            ["bash", str(RUN_ONE_SH), arm, f"hash_{arm}001", "1", "test prompt", str(rundir)],
+            capture_output=True, text=True, env=env,
+        )
+        assert result.returncode == 0, \
+            f"run_one.sh failed for arm {arm}:\n{result.stderr}\n{result.stdout}"
+        recorded_args = json.loads(args_file.read_text())
+        if arm == "s":
+            assert "--plugin-dir" not in recorded_args, \
+                f"arm s must NOT have --plugin-dir; got: {recorded_args}"
+        else:
+            assert "--plugin-dir" in recorded_args, \
+                f"arm {arm} must have --plugin-dir; got: {recorded_args}"
+
+
 def test_final_text_joins_all_result_texts(tmp_path):
     # Probe C (real stream): the last result can be a meta-reply ("Already reported…"),
     # so the judge must see every result message in order, as the user would.

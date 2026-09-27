@@ -33,21 +33,38 @@ SCRATCH_CWD=$(manifest scratch_cwd)
 
 # ── One canary spawn per arm. claude has no --cwd flag: run from the scratch repo.
 # Output goes to a file and is parsed from the file — never interpolated into code.
+# Arm S is sir_albert-free: no --plugin-dir. Two separate code paths to avoid
+# bash 3.2 (macOS system bash) empty-array issues with set -u.
 run_canary() {
-  local settings="$1" out="$2"
-  (cd "$SCRATCH_CWD" && printf '%s' "write handoff" | bash "$EVAL_DIR/guarded.sh" \
-    $CLAUDE_BIN --print \
-      --setting-sources project,local \
-      --settings "$settings" \
-      --plugin-dir "$CLONE_PATH/plugins" \
-      --model "$TEST_MODEL" \
-      --max-turns 1 \
-      --no-session-persistence \
-      --output-format stream-json \
-      --verbose \
-      --include-hook-events \
-      --max-budget-usd 0.25 \
-      --disallowedTools Write,Edit,NotebookEdit) > "$out" 2> "$out.stderr" || true
+  local arm="$1" settings="$2" out="$3"
+  if [ "$arm" = "s" ]; then
+    (cd "$SCRATCH_CWD" && printf '%s' "write handoff" | bash "$EVAL_DIR/guarded.sh" \
+      $CLAUDE_BIN --print \
+        --setting-sources project,local \
+        --settings "$settings" \
+        --model "$TEST_MODEL" \
+        --max-turns 1 \
+        --no-session-persistence \
+        --output-format stream-json \
+        --verbose \
+        --include-hook-events \
+        --max-budget-usd 0.25 \
+        --disallowedTools Write,Edit,NotebookEdit) > "$out" 2> "$out.stderr" || true
+  else
+    (cd "$SCRATCH_CWD" && printf '%s' "write handoff" | bash "$EVAL_DIR/guarded.sh" \
+      $CLAUDE_BIN --print \
+        --setting-sources project,local \
+        --settings "$settings" \
+        --plugin-dir "$CLONE_PATH/plugins" \
+        --model "$TEST_MODEL" \
+        --max-turns 1 \
+        --no-session-persistence \
+        --output-format stream-json \
+        --verbose \
+        --include-hook-events \
+        --max-budget-usd 0.25 \
+        --disallowedTools Write,Edit,NotebookEdit) > "$out" 2> "$out.stderr" || true
+  fi
 }
 
 check_arm() {
@@ -72,16 +89,25 @@ sa = sum(1 for s in skills if s.startswith("sir-albert:"))
 hooks = " ".join(str(e.get("output", "")) for e in events if e.get("subtype") == "hook_response")
 has_sa, has_sp = "## sir_albert" in hooks, "using-superpowers" in hooks
 
-want_sp = arm == "a"   # arm A = today (both plugins); arm B = today minus superpowers
+# arm A: superpowers=true, sir_albert via --plugin-dir
+# arm B: superpowers=false, sir_albert via --plugin-dir
+# arm S: superpowers=true, NO sir_albert (no --plugin-dir, no SessionStart injection)
+want_sp = arm in ("a", "s")
+want_sa = arm != "s"   # S must have 0 sir-albert skills
+
 problems = []
 if init_ev.get("model") != test_model:
     problems.append(f"init model {init_ev.get('model')!r}, expected {test_model!r}")
 if (sp > 0) != want_sp:
     problems.append(f"{sp} superpowers skills (expected {'>0' if want_sp else '0'})")
-if sa == 0:
+if want_sa and sa == 0:
     problems.append("no sir-albert skills")
-if not has_sa:
+if not want_sa and sa > 0:
+    problems.append(f"{sa} sir-albert skills (expected 0 for arm S)")
+if want_sa and not has_sa:
     problems.append("'## sir_albert' SessionStart injection missing")
+if not want_sa and has_sa:
+    problems.append("'## sir_albert' SessionStart injection present (arm S must be sir_albert-free)")
 if has_sp != want_sp:
     problems.append(f"using-superpowers injection {'missing' if want_sp else 'present'}")
 if problems:
@@ -90,13 +116,21 @@ print(f"Canary {arm.upper()} PASS: {sp} superpowers, {sa} sir-albert skills")
 PY
 }
 
-# Strictly sequential: B, then A.
+# Strictly sequential: B, then A, then S.
 echo "Running arm B canary..."
-run_canary "$(manifest arm_b_settings)" "$RUNDIR/canary-b.jsonl"
+run_canary b "$(manifest arm_b_settings)" "$RUNDIR/canary-b.jsonl"
 check_arm b "$RUNDIR/canary-b.jsonl"
 
 echo "Running arm A canary..."
-run_canary "$(manifest arm_a_settings)" "$RUNDIR/canary-a.jsonl"
+run_canary a "$(manifest arm_a_settings)" "$RUNDIR/canary-a.jsonl"
 check_arm a "$RUNDIR/canary-a.jsonl"
 
-echo "Both canaries PASS. Ready for scored runs."
+# Arm S canary: only runs when arm_s_settings is present in the manifest.
+ARM_S_SETTINGS=$(/usr/local/bin/python3.13 -c "import json,sys; print(json.load(open(sys.argv[1])).get('arm_s_settings',''))" "$RUNDIR/run-manifest.json")
+if [ -n "$ARM_S_SETTINGS" ]; then
+  echo "Running arm S canary..."
+  run_canary s "$ARM_S_SETTINGS" "$RUNDIR/canary-s.jsonl"
+  check_arm s "$RUNDIR/canary-s.jsonl"
+fi
+
+echo "All canaries PASS. Ready for scored runs."

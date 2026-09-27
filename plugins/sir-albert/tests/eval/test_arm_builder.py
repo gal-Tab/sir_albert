@@ -145,3 +145,22 @@ def test_guarded_sh_exists():
     guarded = TOOLS_EVAL / "guarded.sh"
     assert guarded.exists(), "guarded.sh not found"
     assert os.access(guarded, os.X_OK), "guarded.sh not executable"
+
+
+def test_arm_s_settings(fake_settings, fake_repo, tmp_path):
+    """build_arms.sh must write arm-s-settings.json (superpowers=true) and include
+    arm_s_settings key in run-manifest.json."""
+    result, rundir, _, _ = run_build_arms(fake_settings, fake_repo, tmp_path)
+    assert result.returncode == 0, f"build_arms.sh failed:\n{result.stderr}"
+
+    arm_s_path = rundir / "arm-s-settings.json"
+    assert arm_s_path.exists(), "arm-s-settings.json not written"
+
+    arm_s = json.loads(arm_s_path.read_text())
+    assert arm_s["enabledPlugins"]["superpowers@claude-plugins-official"] is True, \
+        "arm S must have superpowers=true"
+
+    manifest = json.loads((rundir / "run-manifest.json").read_text())
+    assert "arm_s_settings" in manifest, "manifest missing arm_s_settings key"
+    assert manifest["arm_s_settings"] == str(arm_s_path), \
+        f"arm_s_settings path mismatch: {manifest['arm_s_settings']!r}"
