@@ -76,7 +76,7 @@ def make_resolved_row(call_ab: dict, call_ba: dict, left_arm: str = "a", right_a
     return {"final_verdict": verdict, "left_arm": left_arm, "right_arm": right_arm}
 
 
-def summarize(artifact: dict, max_chars: int = 1500) -> str:
+def summarize(artifact: dict, max_chars: int = 1500, mark_cutoff: bool = False) -> str:
     """Extract and anonymize the final response text from an artifact."""
     # Final response text lives in the result event (verified against the probe stream).
     # A run cut off by --max-turns / budget has no result; fall back to its assistant text.
@@ -97,7 +97,7 @@ def summarize(artifact: dict, max_chars: int = 1500) -> str:
     for name in sorted((n for n in bare if "-" in n), key=len, reverse=True):
         final_text = re.sub(rf"(?<![\w-]){re.escape(name)}(?![\w-])", "[skill]", final_text, flags=re.I)
     text = final_text[:max_chars]
-    if artifact.get("truncated"):
+    if mark_cutoff and artifact.get("truncated"):
         text += CUTOFF_MARKER
     return text
 
@@ -257,7 +257,7 @@ def main():
         for arm_id in (left_arm, right_arm):
             art = arms[arm_id]
             try:
-                summarize(art, max_chars=max_chars)
+                summarize(art, max_chars=max_chars, mark_cutoff=args.rubric)
             except ValueError as e:
                 empty.append(str(e))
     if empty:
@@ -279,8 +279,8 @@ def main():
             prompt = art_left["prompt_text"]
 
             try:
-                text_left = summarize(art_left, max_chars=max_chars)
-                text_right = summarize(art_right, max_chars=max_chars)
+                text_left = summarize(art_left, max_chars=max_chars, mark_cutoff=args.rubric)
+                text_right = summarize(art_right, max_chars=max_chars, mark_cutoff=args.rubric)
             except ValueError as e:
                 print(f"ABORT: {e}", file=sys.stderr)
                 sys.exit(1)

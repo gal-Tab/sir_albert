@@ -349,13 +349,13 @@ def test_cutoff_marker_symmetric():
     # Truncated artifact: marker must appear at the end
     art_truncated = _make_artifact("a", "h1", 1, result_text="Partial work done.")
     art_truncated["truncated"] = True
-    summary_trunc = bj.summarize(art_truncated)
+    summary_trunc = bj.summarize(art_truncated, mark_cutoff=True)
     assert summary_trunc.endswith(marker), f"expected cutoff marker at end, got: {summary_trunc!r}"
 
     # Non-truncated artifact: marker must NOT appear
     art_ok = _make_artifact("a", "h1", 1, result_text="Complete answer.")
     art_ok["truncated"] = False
-    summary_ok = bj.summarize(art_ok)
+    summary_ok = bj.summarize(art_ok, mark_cutoff=True)
     assert marker not in summary_ok, f"unexpected cutoff marker in non-truncated: {summary_ok!r}"
 
 
@@ -379,3 +379,10 @@ def test_resolved_rows_name_arms():
 
     row_s_wins = bj.make_resolved_row({"winner": "right"}, {"winner": "left"}, left_arm="b", right_arm="s")
     assert row_s_wins["final_verdict"] == "S_wins"
+
+
+def test_default_summarize_never_marks_cutoff():
+    # W4 invocations (no --rubric) must feed the judge byte-identical text to W4.
+    art = _make_artifact("a", "h1", 1, result_text="Partial work done.")
+    art["truncated"] = True
+    assert bj.summarize(art) == "Partial work done."
