@@ -190,6 +190,37 @@ def test_persistent_infra_errors_abort(tmp_path):
     assert not list((tmp_path / "runs").glob("*.json"))
 
 
+# ── is_infra_error unit tests (ticket 03) ────────────────────────────────────
+import importlib.util as _ilu
+
+_spec = _ilu.spec_from_file_location("run_tranche", RUN_TRANCHE)
+_mod = _ilu.module_from_spec(_spec)
+_spec.loader.exec_module(_mod)
+_is_infra_error = _mod.is_infra_error
+
+
+def test_paid_api_error_is_infra():
+    artifact = json.loads((FIXTURES / "api-error-paid.json").read_text())
+    assert _is_infra_error(artifact) is True
+
+
+def test_budget_cap_is_not_infra():
+    artifact = {
+        "arm": "a",
+        "cost_usd": 0.61,
+        "result_subtype": "error_max_budget_usd",
+        "budget_capped": True,
+        "assistant_text": "Here is the analysis of your GTM setup.",
+        "result_event": {
+            "is_error": True,
+            "subtype": "error_max_budget_usd",
+            "result": None,
+            "terminal_reason": "budget_exhausted",
+        },
+    }
+    assert _is_infra_error(artifact) is False
+
+
 def test_settings_change_during_tranche_is_flagged(tmp_path):
     """If anything other than a guarded model drift changes settings.json, say so loudly."""
     rundir, sample, env, calls, _ = _setup(tmp_path, n_rows=10)

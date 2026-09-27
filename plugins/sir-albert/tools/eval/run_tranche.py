@@ -42,9 +42,17 @@ def load_json(path):
 
 
 def is_infra_error(artifact):
-    """The model never answered: an error result that cost nothing."""
+    """The model never answered usefully: a $0 error OR a paid run that ended
+    with an 'API Error: …' message (the model crashed mid-reply)."""
     result = artifact.get("result_event") or {}
-    return bool(result.get("is_error")) and not (artifact.get("cost_usd") or 0)
+    # Classic zero-cost errors (connection failures, Bedrock 502s, etc.)
+    if bool(result.get("is_error")) and not (artifact.get("cost_usd") or 0):
+        return True
+    # Paid API errors: run cost money but ended with an API Error message
+    result_text = (result.get("result") or artifact.get("assistant_text") or "").strip()
+    if result_text.startswith("API Error:"):
+        return True
+    return False
 
 
 def main(argv):

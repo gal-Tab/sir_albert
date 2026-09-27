@@ -1,0 +1,13 @@
+{
+  "arm": "b",
+  "cost_usd": 0.51,
+  "result_subtype": "success",
+  "budget_capped": false,
+  "assistant_text": "",
+  "result_event": {
+    "is_error": true,
+    "subtype": "success",
+    "result": "API Error: The system encountered an unexpected error during processing. Try your request again.",
+    "terminal_reason": "api_error"
+  }
+}
