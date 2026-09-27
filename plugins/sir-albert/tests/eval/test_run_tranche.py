@@ -1,4 +1,4 @@
-"""Tests for run_tranche.sh — the script that spends the P2 budget.
+"""Tests for run_tranche.py — the runner that spends the P2 budget.
 
 A stub claude stands in for the real binary (conftest.py makes the real one a
 tripwire). Each stub call logs which arm's settings file it was given, so the
@@ -13,11 +13,11 @@ import pytest
 
 TESTS_EVAL = Path(__file__).parent
 FIXTURES = TESTS_EVAL / "fixtures"
-RUN_TRANCHE = TESTS_EVAL.parent.parent / "tools" / "eval" / "run_tranche.sh"
+RUN_TRANCHE = TESTS_EVAL.parent.parent / "tools" / "eval" / "run_tranche.py"
 MODEL = "claude-opus-5-5[1m]"
 
 
-def _setup(tmp_path, n_rows=10, cost=0.05):
+def _setup(tmp_path, n_rows=10, cost=0.05, infra_errors_first=0):
     rundir = tmp_path / "rundir"
     rundir.mkdir()
     scratch = tmp_path / "scratch"
@@ -48,12 +48,16 @@ def _setup(tmp_path, n_rows=10, cost=0.05):
     stream.write_text("".join(json.dumps(e) + "\n" for e in events))
 
     calls = tmp_path / "calls.log"
+    infra = tmp_path / "infra.jsonl"
+    infra.write_text(json.dumps({"type": "result", "subtype": "success", "is_error": True,
+                                 "result": "API Error: 502 upstream request failed", "total_cost_usd": 0}) + "\n")
     stub = tmp_path / "stub_claude.sh"
     stub.write_text(
         "#!/bin/bash\n"
         'IN=$(cat); [ -n "$IN" ] || exit 6\n'
         'prev=""; for a in "$@"; do [ "$prev" = "--settings" ] && echo "$a" >> ' + repr(str(calls)) + '; prev="$a"; done\n'
-        "cat " + repr(str(stream)) + "\n"
+        'n=$(wc -l < ' + repr(str(calls)) + ')\n'
+        'if [ "$n" -le ' + str(infra_errors_first) + ' ]; then cat ' + repr(str(infra)) + '; else cat ' + repr(str(stream)) + '; fi\n'
     )
     stub.chmod(0o755)
 
@@ -66,13 +70,17 @@ def _setup(tmp_path, n_rows=10, cost=0.05):
         "W4_ARTIFACT_DIR": str(tmp_path / "runs"),
         "W4_SESSIONS_FILE": str(sessions),
         "W4_TEST_MODEL": MODEL,
+        "W4_NO_CAFFEINATE": "1",
+        "W4_STAGGER": "0",
+        "W4_RETRY_WAIT": "0",
+        "W4_PARALLEL": "1",
     })
     return rundir, sample, env, calls, sessions
 
 
 def _run(rundir, sample, env, tranche="1", **extra_env):
     e = dict(env, **extra_env)
-    return subprocess.run(["bash", str(RUN_TRANCHE), str(rundir), str(sample), tranche],
+    return subprocess.run(["/usr/local/bin/python3.13", str(RUN_TRANCHE), str(rundir), str(sample), tranche],
                           capture_output=True, text=True, env=e)
 
 
@@ -145,3 +153,50 @@ def test_harness_session_rows_stripped_at_end(tmp_path):
     assert _run(rundir, sample, env).returncode == 0
     rows = [json.loads(l) for l in sessions.read_text().splitlines() if l.strip()]
     assert rows == [{"cwd": "/somewhere/else"}]
+
+
+def test_parallel_runs_all_40_and_keeps_arm_balance(tmp_path):
+    rundir, sample, env, calls, _ = _setup(tmp_path)
+    r = _run(rundir, sample, env, W4_PARALLEL="4")
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert len(list((tmp_path / "runs").glob("*.json"))) == 40
+    assert _arms(calls).count("a") == _arms(calls).count("b") == 20
+
+
+def test_parallel_never_overshoots_budget(tmp_path):
+    """Submission reserves the per-run cap for every in-flight run."""
+    rundir, sample, env, calls, _ = _setup(tmp_path, cost=0.60)
+    r = _run(rundir, sample, env, W4_PARALLEL="4", W4_BUDGET_USD="3")
+    assert r.returncode == 3, r.stdout
+    spent = sum(json.loads(p.read_text())["cost_usd"] for p in (tmp_path / "runs").glob("*.json"))
+    assert spent <= 3 + 1e-9, spent
+
+
+def test_infra_error_is_quarantined_and_retried(tmp_path):
+    rundir, sample, env, calls, _ = _setup(tmp_path, infra_errors_first=1)
+    r = _run(rundir, sample, env)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "retry 1/2" in r.stdout
+    assert len(list((tmp_path / "runs").glob("*.json"))) == 40
+    assert len(list((tmp_path / "runs" / "invalid").glob("*.json"))) == 1
+    assert len(calls.read_text().splitlines()) == 41
+
+
+def test_persistent_infra_errors_abort(tmp_path):
+    rundir, sample, env, calls, _ = _setup(tmp_path, infra_errors_first=999)
+    r = _run(rundir, sample, env)
+    assert r.returncode == 5, r.stdout
+    assert len(list((tmp_path / "runs" / "invalid").glob("*.json"))) == 3   # 1 try + 2 retries
+    assert not list((tmp_path / "runs").glob("*.json"))
+
+
+def test_settings_change_during_tranche_is_flagged(tmp_path):
+    """If anything other than a guarded model drift changes settings.json, say so loudly."""
+    rundir, sample, env, calls, _ = _setup(tmp_path, n_rows=10)
+    settings = Path(env["W4_SETTINGS_FILE"])
+    stub = Path(calls).parent / "stub_claude.sh"
+    stub.write_text(stub.read_text().replace("#!/bin/bash\n",
+        "#!/bin/bash\n/usr/local/bin/python3.13 -c \"import json,sys; p=sys.argv[1]; d=json.load(open(p)); d['hooks']={'x':1}; json.dump(d,open(p,'w'))\" " + repr(str(settings)) + "\n", 1))
+    r = _run(rundir, sample, env)
+    assert r.returncode == 6, r.stdout
+    assert "settings.json keys changed" in r.stdout
