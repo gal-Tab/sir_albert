@@ -283,3 +283,99 @@ def test_judge_prompt_tells_judge_redaction_is_neutral():
     prompt = bj.JUDGE_PROMPT.format(prompt="p", left="l", right="r")
     assert "[skill]" in prompt
     assert "redact" in prompt.lower()
+
+
+# ── Ticket 02 (judge-v2) new tests ───────────────────────────────────────────
+
+def test_max_chars_flag():
+    """summarize(art, max_chars=6000) keeps a 5000-char answer whole; default is 1500."""
+    long_text = "x" * 5000
+    art = _make_artifact("a", "h1", 1, result_text=long_text)
+    # With explicit max_chars=6000, the full 5000-char text must survive
+    summary_6k = bj.summarize(art, max_chars=6000)
+    assert len(summary_6k) == 5000, f"expected 5000 chars, got {len(summary_6k)}"
+    # Default (1500) must still truncate to 1500
+    summary_default = bj.summarize(art)
+    assert len(summary_default) == 1500, f"expected 1500-char default, got {len(summary_default)}"
+
+
+def test_pair_flag_selects_arms(tmp_path):
+    """--pair b:s pairs b-* with s-* artifacts and ignores a-*."""
+    rd = tmp_path / "runs"
+    rd.mkdir()
+    for arm in ("a", "b", "s"):
+        art = _make_artifact(arm, "ph1", 1, result_text=f"Response from {arm}")
+        (rd / f"{arm}-ph1-rep1.json").write_text(json.dumps(art))
+
+    # parse_pair_flag must be present and parse correctly
+    parsed = bj.parse_pair_flag("b:s")
+    assert parsed == ("b", "s"), f"parse_pair_flag returned {parsed!r}"
+
+    # Load artifacts and filter for pair b:s
+    artifacts = {}
+    for f in rd.glob("*.json"):
+        a = json.loads(f.read_text())
+        key = (a["prompt_hash"], a["rep"])
+        artifacts.setdefault(key, {})[a["arm"]] = a
+
+    left_arm, right_arm = "b", "s"
+    pairs = [(k, v) for k, v in artifacts.items() if left_arm in v and right_arm in v]
+    # Should find 1 pair (b+s)
+    assert len(pairs) == 1, f"expected 1 b+s pair, got {len(pairs)}"
+    _, arms_in_pair = pairs[0]
+    assert left_arm in arms_in_pair
+    assert right_arm in arms_in_pair
+    # a must NOT determine pairing (even if present in the run dir)
+    # The pair only uses b and s for judging
+    assert "b" in arms_in_pair and "s" in arms_in_pair
+
+
+def test_rubric_prompt():
+    """--rubric makes the prompt contain the 4 criteria and the [skill] redaction note."""
+    prompt = bj.RUBRIC_PROMPT.format(prompt="p", left="l", right="r")
+    # The 4 criteria must appear
+    assert "progress" in prompt.lower(), "criterion 1 (progress) missing"
+    assert ("correctness" in prompt.lower() or "grounding" in prompt.lower()), "criterion 2 (correctness/grounding) missing"
+    assert ("acting" in prompt.lower() or "asking" in prompt.lower()), "criterion 3 (acting/asking) missing"
+    assert "incomplete" in prompt.lower(), "criterion 4 (incomplete) missing"
+    # The [skill] redaction note must still be present
+    assert "[skill]" in prompt, "[skill] redaction note missing from RUBRIC_PROMPT"
+    assert "redact" in prompt.lower(), "redaction explanation missing from RUBRIC_PROMPT"
+
+
+def test_cutoff_marker_symmetric():
+    """truncated=True adds cutoff marker; truncated=False/missing does not."""
+    marker = "[Response cut off by the evaluation's turn/budget cap.]"
+    # Truncated artifact: marker must appear at the end
+    art_truncated = _make_artifact("a", "h1", 1, result_text="Partial work done.")
+    art_truncated["truncated"] = True
+    summary_trunc = bj.summarize(art_truncated)
+    assert summary_trunc.endswith(marker), f"expected cutoff marker at end, got: {summary_trunc!r}"
+
+    # Non-truncated artifact: marker must NOT appear
+    art_ok = _make_artifact("a", "h1", 1, result_text="Complete answer.")
+    art_ok["truncated"] = False
+    summary_ok = bj.summarize(art_ok)
+    assert marker not in summary_ok, f"unexpected cutoff marker in non-truncated: {summary_ok!r}"
+
+
+def test_resolved_rows_name_arms():
+    """make_resolved_row records left_arm/right_arm; final_verdict uses arm letters."""
+    # For pair a:b → backward-compat labels A_wins/B_wins
+    row_a_wins = bj.make_resolved_row({"winner": "left"}, {"winner": "right"}, left_arm="a", right_arm="b")
+    assert row_a_wins["left_arm"] == "a"
+    assert row_a_wins["right_arm"] == "b"
+    assert row_a_wins["final_verdict"] == "A_wins"
+
+    row_b_wins = bj.make_resolved_row({"winner": "right"}, {"winner": "left"}, left_arm="a", right_arm="b")
+    assert row_b_wins["final_verdict"] == "B_wins"
+
+    row_tie = bj.make_resolved_row({"winner": "tie"}, {"winner": "left"}, left_arm="a", right_arm="b")
+    assert row_tie["final_verdict"] == "tie"
+
+    # For pair b:s → verdict uses b/s letters
+    row_b_wins_bs = bj.make_resolved_row({"winner": "left"}, {"winner": "right"}, left_arm="b", right_arm="s")
+    assert row_b_wins_bs["final_verdict"] == "B_wins"
+
+    row_s_wins = bj.make_resolved_row({"winner": "right"}, {"winner": "left"}, left_arm="b", right_arm="s")
+    assert row_s_wins["final_verdict"] == "S_wins"
