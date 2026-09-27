@@ -12,7 +12,7 @@ The harness captured `result_event` from `result_index=0` (a background-agent st
 
 ## W4 verdict impact
 
-The W4 overall verdict does **not change**. Arm B failed the skill gate regardless: the judge saw the full `assistant_text` (which includes all text blocks, emitted correctly), but the brainstorm skill quality gate requires the response to demonstrate structured synthesis. The misjudged pair `b-600120ad468a3201-rep2` went to A; reverting it would still leave B below the gate threshold.
+The W4 verdict (FAIL) does **not change**, because its failing gate is the skill-invocation gate: B invoked the labelled skill on 2/5 happy-path prompts, against a bar of ≥4. That gate reads `skills_called` and is independent of the judge. What the bug did distort is the **quality** comparison. The judge's input comes from `result_event.result`, so it saw only B's status line for this pair and resolved it `A_wins`. With B's actual synthesis, that pair could flip, which would raise B's 56.7% win-rate. It wasn't re-judged. (Coordinator correction, 2026-09-27: an earlier draft of this note said the judge saw the full `assistant_text`, which is wrong.)
 
 ## W4 files modified
 
