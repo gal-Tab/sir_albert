@@ -1,6 +1,6 @@
 ---
 name: brainstorm
-description: Use when exploring angles, sharpening thinking, attacking a plan, running a panel of advisors, drilling an idea with relentless questions, zooming out on context, designing a solution, or receiving a context dump asking for analysis or advice. Triggers on: "brainstorm this", "grill this", "attack this", "zoom out", "play devil's advocate", "let's design this", "board of advisors", "sharpen this", "stress test this", "find holes in this", "fresh perspective", "4 perspectives", "want to build X", "want to understand what's happening", "look at this and advise", "there's a discrepancy between", "what's really going on here", "align this across systems", "something feels off", "here's the situation", "colleague flagged this concern".
+description: Use when exploring angles, sharpening thinking, attacking a plan, running a panel of advisors, drilling an idea with relentless questions, zooming out on context, designing a solution, or receiving a context dump asking for your opinion or a recommendation. Triggers on: "brainstorm this", "grill this", "attack this", "zoom out", "play devil's advocate", "let's design this", "board of advisors", "sharpen this", "stress test this", "find holes in this", "fresh perspective", "4 perspectives", "want to build X", "want to understand what's happening", "look at this and advise", "what's really going on here", "here's the situation".
 ---
 
 # brainstorm
