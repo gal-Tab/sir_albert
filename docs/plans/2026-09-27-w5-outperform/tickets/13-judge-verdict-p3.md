@@ -11,7 +11,8 @@ Judge v2 verdicts for B-vs-S and B-vs-A, and `verdict_p3.py` computing G1–G4 e
    - G3 counts a `sir-albert:create-skill` call on a control as a fire (the W4 A case).
    - G4 bootstrap is deterministic with seed 0; the lower bound on a known fixture matches a hand-computed value.
    - Exit codes 0/1/2/3; the UNINSTALL-SAFE line is independent of OUTPERFORM.
-   - ABORT when the run count ≠ 180 or judge_error > 5%.
+   - ABORT when the run count ∉ {90 (rep 1 only), 180} or judge_error > 5%.
+   - `--rep-1-only` mode emits a `REP2_NEEDED` line listing every Amendment 2 trigger that fired, with margins. Exit code 4 means rep 2 is needed.
 2. Run: `/usr/local/bin/python3.13 -m pytest -q plugins/sir-albert/tests/eval/test_verdict_p3.py`. Expected: FAIL (module missing).
 3. Implement `plugins/sir-albert/tools/eval/verdict_p3.py`, reusing `_skill_to_route` from `prompt_corpus.py`. Report: gates table, per-slice rates per arm, win-rates with CI for both comparisons, cut-offs per arm, "describes Sonnet 5", and the fixed "uninstall is Gal's decision" paragraph.
 4. Run the step 2 command again. Expected: PASS. Full suite green.

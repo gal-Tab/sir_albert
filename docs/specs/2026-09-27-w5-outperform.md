@@ -51,3 +51,21 @@ owner: Gal
 The 93 unlabelled W4 labeled-set rows (77 router-match, 16 task-initiating) never informed any W5 tuning decision, so they are eligible. The corpus was re-extracted on 2026-09-27: 1,938 → 1,992 rows, with 0 harness or agent prompts in the new rows (audited). A backup is at `~/.claude/sir-albert-corpus/corpus.jsonl.bak-20260927-pre-w5`.
 
 The gates G1–G4 are unchanged.
+
+## Amendment 2 — sequential reps and a 2-round dev cap (Gal, 2026-09-27, before any P3 or dev-loop result)
+
+**Why:** cost. Live eval runs are a minor part of the spend, but P3 rep 2 is ~$16 that a clear rep-1 result makes unnecessary.
+
+**P3 runs in two stages:**
+1. **Rep 1:** 30 prompts × 3 arms = 90 runs. Compute G1–G4 on rep 1 alone, with the same definitions (the G4 bootstrap is still clustered by prompt).
+2. **Rep 2 runs if and only if** any of these holds on rep 1:
+   - a gate is within **10 percentage points** of its threshold. This covers G1 B vs 80% and B−S, B−A vs 0; G2 B−S, B−A vs 0; G3 B vs 10% and B−S, B−A vs 0; G4 the lower bound vs 45% and the point estimate vs 50%, for both comparisons
+   - either comparison is INCONCLUSIVE (ties > 50%)
+   - judge_error > 5%
+
+   Otherwise the rep-1 verdict is final.
+3. After rep 2, the verdict is computed on all 180 runs. ABORT's run-count rule becomes: 90 when stopping at rep 1, 180 after rep 2.
+
+**Known cost of this design:** one interim look slightly raises the chance of a false decision near a threshold. The ±10 pp band is chosen to send exactly those cases to rep 2.
+
+**Dev loop (ticket 11):** capped at **2 rounds**, down from 3. After round 2, stop and report to Gal whatever the outcome.
