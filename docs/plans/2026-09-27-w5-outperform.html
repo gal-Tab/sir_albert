@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W5 — sir_albert outperforms superpowers — Implementation Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+    :root {
+      --color-bg: #000000;
+      --color-surface: #232427;
+      --color-surface-alt: #2D3035;
+      --color-text: #ffffff;
+      --color-text-secondary: #c3ced8;
+      --color-text-muted: #a0a0a0;
+      --color-border: rgba(255,255,255,0.15);
+      --color-border-strong: rgba(255,255,255,0.8);
+      --color-purple: #6164ff;
+      --color-purple-light: #8A99FF;
+      --color-green: #00c875;
+      --color-yellow: #ffcb00;
+      --color-red: #ff3d57;
+      --font-main: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'SF Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+      --weight-regular: 400;
+      --weight-semibold: 600;
+      --text-display: 4vmin;
+      --text-h1: 3.2vmin;
+      --text-h2: 2.6vmin;
+      --text-h3: 2.2vmin;
+      --text-body: 1.8vmin;
+      --text-body-sm: 1.5vmin;
+      --text-caption: 1.2vmin;
+      --space-1: 0.5vmin;
+      --space-2: 1vmin;
+      --space-3: 1.5vmin;
+      --space-4: 2vmin;
+      --space-5: 3vmin;
+      --space-6: 4vmin;
+      --space-7: 5vmin;
+      --space-8: 6vmin;
+      --space-9: 8vmin;
+      --space-10: 10vmin;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-full: 999px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-main);
+      font-weight: var(--weight-regular);
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      padding: var(--space-8) var(--space-6);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    h1, h2, h3, h4 { font-weight: var(--weight-semibold); line-height: 1.3; }
+
+    /* ── Plan Header ── */
+    .plan-header {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-7);
+      margin-bottom: var(--space-7);
+    }
+    .plan-title {
+      font-size: var(--text-display);
+      font-weight: var(--weight-semibold);
+      margin-bottom: var(--space-4);
+      color: var(--color-text);
+    }
+    .plan-goal {
+      font-size: var(--text-h3);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-5);
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: var(--space-2) var(--space-4);
+      margin-bottom: var(--space-5);
+      font-size: var(--text-body-sm);
+    }
+    .meta-label { color: var(--color-text-muted); font-weight: var(--weight-semibold); }
+    .meta-value { color: var(--color-text-secondary); }
+    .meta-badges {
+      display: flex;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+      margin-top: var(--space-3);
+    }
+    .badge {
+      background: var(--color-surface-alt);
+      color: var(--color-text-secondary);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+    }
+    .badge-purple { border: 1px solid var(--color-purple); color: var(--color-purple); }
+    .badge-green { border: 1px solid var(--color-green); color: var(--color-green); }
+    .badge-yellow { border: 1px solid var(--color-yellow); color: var(--color-yellow); }
+    .badge-red { border: 1px solid var(--color-red); color: var(--color-red); }
+
+    /* ── Progress bar ── */
+    .progress-bar-wrap {
+      margin: var(--space-4) 0 0;
+    }
+    .progress-label {
+      font-size: var(--text-caption);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-1);
+    }
+    .progress-bar {
+      height: 4px;
+      background: var(--color-surface-alt);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--color-purple);
+      border-radius: var(--radius-full);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* ── DOD Section ── */
+    .dod-section {
+      background: var(--color-surface);
+      border-left: 3px solid var(--color-purple);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      margin-bottom: var(--space-7);
+    }
+    .dod-section h2 { font-size: var(--text-h2); margin-bottom: var(--space-3); }
+    .dod-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-2);
+      padding: var(--space-2) 0;
+      color: var(--color-text-secondary);
+      font-size: var(--text-body);
+    }
+    .dod-item input[type="checkbox"] {
+      accent-color: var(--color-purple);
+      margin-top: 3px;
+      flex-shrink: 0;
+    }
+
+    /* ── Diagram ── */
+    .diagram-container {
+      background: var(--color-surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      margin: var(--space-5) 0;
+      overflow-x: auto;
+    }
+    .diagram-title {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-4);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: var(--text-caption);
+    }
+    .mermaid { display: flex; justify-content: center; }
+
+    /* ── Section heading ── */
+    .section-heading {
+      font-size: var(--text-h1);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text);
+      margin: var(--space-7) 0 var(--space-5);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    /* ── Milestones ── */
+    .milestones-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: var(--space-4);
+      margin-bottom: var(--space-7);
+    }
+    .milestone-card {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      border-top: 3px solid var(--color-purple);
+    }
+    .milestone-card.m2 { border-top-color: var(--color-purple-light); }
+    .milestone-card.m3 { border-top-color: #c3ced8; }
+    .milestone-card.m4 { border-top-color: var(--color-yellow); }
+    .milestone-card.m5 { border-top-color: var(--color-green); }
+    .milestone-name {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      margin-bottom: var(--space-2);
+    }
+    .milestone-tickets {
+      font-size: var(--text-caption);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-2);
+    }
+    .milestone-cost {
+      font-size: var(--text-caption);
+      color: var(--color-text-muted);
+    }
+    .milestone-cost.spend { color: var(--color-yellow); }
+    .milestone-summary {
+      font-size: var(--text-caption);
+      color: var(--color-text-secondary);
+      margin-top: var(--space-2);
+    }
+
+    /* ── Tasks ── */
+    .task {
+      background: var(--color-surface-alt);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-3);
+      overflow: hidden;
+    }
+    .task-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4);
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s ease;
+    }
+    .task-header:hover { background: rgba(255,255,255,0.05); }
+    .task-chevron {
+      transition: transform 0.2s ease;
+      color: var(--color-text-muted);
+      flex-shrink: 0;
+      font-size: 1.1em;
+    }
+    .task.open .task-chevron { transform: rotate(90deg); }
+    .task-number {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      color: var(--color-purple);
+      min-width: 3ch;
+    }
+    .task-name {
+      font-size: var(--text-body);
+      font-weight: var(--weight-semibold);
+      flex: 1;
+    }
+    .task-meta {
+      display: flex;
+      gap: var(--space-2);
+      flex-shrink: 0;
+    }
+    .task-body {
+      padding: 0 var(--space-4) var(--space-4);
+      display: none;
+    }
+    .task.open .task-body { display: block; }
+
+    /* ── Task content ── */
+    .task-info-row {
+      display: flex;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-4);
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .task-info-item { font-size: var(--text-caption); color: var(--color-text-muted); }
+    .task-info-item strong { color: var(--color-text-secondary); }
+
+    .steps-list { list-style: none; margin: var(--space-3) 0; }
+    .step-item {
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .step-item:last-child { border-bottom: none; }
+    .step-label {
+      font-size: var(--text-body-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--color-purple-light);
+      margin-bottom: var(--space-2);
+    }
+    .step-desc {
+      font-size: var(--text-body-sm);
+      color: var(--color-text-secondary);
+    }
+    .step-cmd {
+      font-family: var(--font-mono);
+      font-size: var(--text-body-sm);
+      background: var(--color-bg);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-sm);
+      color: var(--color-green);
+      margin: var(--space-2) 0;
+      overflow-x: auto;
+      display: block;
+    }
+    .step-expected {
+      font-size: var(--text-caption);
+      color: var(--color-text-muted);
+      font-style: italic;
+    }
+
+    /* ── Code block ── */
+    .code-block {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin: var(--space-3) 0;
+      overflow-x: auto;
+    }
+    .code-block pre {
+      font-family: var(--font-mono);
+      font-size: var(--text-body-sm);
+      line-height: 1.5;
+      color: var(--color-text-secondary);
+      white-space: pre;
+      margin: 0;
+    }
+
+    /* ── Task DOD ── */
+    .task-dod {
+      margin-top: var(--space-4);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border);
+    }
+    .task-dod-title {
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-2);
+    }
+    .task-dod-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-2);
+      padding: var(--space-1) 0;
+      font-size: var(--text-body-sm);
+      color: var(--color-text-secondary);
+    }
+    .task-dod-item input[type="checkbox"] {
+      accent-color: var(--color-purple);
+      margin-top: 3px;
+      flex-shrink: 0;
+    }
+
+    /* ── Risk callout ── */
+    .risk-callout {
+      border-left: 3px solid var(--color-yellow);
+      background: rgba(255,203,0,0.06);
+      padding: var(--space-3) var(--space-4);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin: var(--space-3) 0;
+      font-size: var(--text-body-sm);
+    }
+    .risk-callout.high {
+      border-left-color: var(--color-red);
+      background: rgba(255,61,87,0.06);
+    }
+    .risk-label {
+      font-weight: var(--weight-semibold);
+      color: var(--color-yellow);
+      font-size: var(--text-caption);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-1);
+    }
+    .risk-callout.high .risk-label { color: var(--color-red); }
+
+    /* ── Checkpoint ── */
+    .checkpoint {
+      border: 1px solid var(--color-red);
+      background: rgba(255,61,87,0.06);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      margin: var(--space-4) 0;
+    }
+    .checkpoint-title {
+      font-size: var(--text-body-sm);
+      font-weight: var(--weight-semibold);
+      color: var(--color-red);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-2);
+    }
+    .checkpoint p { font-size: var(--text-body-sm); color: var(--color-text-secondary); }
+
+    /* ── Data table ── */
+    table { width: 100%; border-collapse: collapse; margin: var(--space-3) 0; }
+    th {
+      font-size: var(--text-caption);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: var(--space-2) var(--space-3);
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+    }
+    td {
+      font-size: var(--text-body-sm);
+      color: var(--color-text-secondary);
+      padding: var(--space-2) var(--space-3);
+      border-bottom: 1px solid var(--color-border);
+    }
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.9em;
+      background: var(--color-surface-alt);
+      padding: 0.1em 0.4em;
+      border-radius: 3px;
+      color: var(--color-purple-light);
+    }
+  </style>
+<style>table.w5{width:100%;border-collapse:collapse;font-size:var(--text-body-sm);margin-bottom:var(--space-7)}table.w5 th,table.w5 td{border-bottom:1px solid var(--color-border);padding:var(--space-2) var(--space-3);text-align:left;vertical-align:top;color:var(--color-text-secondary)}table.w5 th{color:var(--color-text);font-weight:600;background:var(--color-surface)}pre{background:var(--color-surface-alt);border-radius:var(--radius-sm);padding:var(--space-3);overflow-x:auto;font-family:var(--font-mono);font-size:var(--text-caption);color:var(--color-text-secondary);margin:var(--space-2) 0;white-space:pre-wrap}</style>
+</head>
+<body>
+<div class="plan-header">
+  <div class="plan-title">W5 — sir_albert outperforms superpowers</div>
+  <div class="plan-goal">Done = on a held-out, Gal-labelled set, arm B (sir_albert only) passes the pre-registered OUTPERFORM gate against arm S (superpowers only), including ≥80% skill hits on happy-path prompts, and is non-inferior to arm A (both installed).</div>
+  <div class="meta-grid">
+    <div class="meta-label">Architecture</div><div class="meta-value">Fix the measurement first (replay with preceding turns via <code>--append-system-prompt</code>, judge v2, paid-error detection, held-out labels). Then give sir_albert the invocation mechanism superpowers has, but scoped: an imperative router directive (precision 95%), a use-the-skill contract with explicit skip rules, wider router recall, and sharper descriptions. Tune on a firewalled dev set; decide on a frozen SHA.</div>
+    <div class="meta-label">Tech stack</div><div class="meta-value">Python 3.13 (<code>/usr/local/bin/python3.13</code>, pytest), bash, <code>claude</code> CLI headless (<code>--print --output-format stream-json</code>), Claude Code hooks (SessionStart, UserPromptSubmit). Model under test: <code>claude-sonnet-5</code>; judge: <code>claude-opus-5-5</code>.</div>
+    <div class="meta-label">Arms</div><div class="meta-value"><strong>B</strong> sir_albert only · <strong>A</strong> sir_albert + superpowers · <strong>S</strong> superpowers only (no <code>--plugin-dir</code>)</div>
+    <div class="meta-label">Effort</div><div class="meta-value">L: ~3–4 sessions of build + ~20 min of Gal labelling. Spend ~$60 expected (dev ≤$15, P3 ~$33, judge ~$10); worst case ~$90 with caps.</div>
+    <div class="meta-label">Scope boundary</div><div class="meta-value">Not included: T2 depth (does a skill do its job well once fired; W4 ticket 14), the 6 dead routes other than <code>build</code>, uninstalling superpowers (Gal's decision), pushing or opening a PR.</div>
+  </div>
+  <div class="meta-badges"><span class="badge badge-purple">Branch: w5/outperform (off w4/eval, local only)</span><span class="badge badge-yellow">Live working tree: hook edits hit every new session</span><span class="badge badge-red">Prompt text never committed</span></div>
+  <div class="progress-bar-wrap"><div class="progress-label" id="progress-label"></div><div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div></div>
+</div>
+
+<div class="dod-section">
+  <h2>Definition of Done (project)</h2>
+  <div class="dod-item"><input type="checkbox"><span>P3 verdict computed on 180 valid runs from a frozen, tagged SHA, with gates exactly as pre-registered in <code>docs/specs/2026-09-27-w5-outperform.md</code></span></div>
+  <div class="dod-item"><input type="checkbox"><span>OUTPERFORM reached, or a FAIL presented with per-gate diagnosis. The gates are never widened after results.</span></div>
+  <div class="dod-item"><input type="checkbox"><span>Independent recompute matches the verdict; provenance, held-out and privacy checks pass</span></div>
+  <div class="dod-item"><input type="checkbox"><span>Full test suite green; every new test was seen failing on the old code, and fixtures use real schemas</span></div>
+  <div class="dod-item"><input type="checkbox"><span>Gal's default model intact; nothing pushed; the uninstall decision is left to Gal</span></div>
+</div>
+
+<h2 class="section-heading">Missing pieces (W4 evidence, 2026-09-27)</h2>
+<table class="w5"><tr><th>#</th><th>Gap</th><th>Evidence</th><th>Hurts</th><th>Ticket</th></tr><tr><td>1</td><td><strong>Replay dropped conversation context</strong></td><td>All 5 happy-path prompts were mid-thread, replayed bare. B's 3 'misses' were correct answers to broken inputs.</td><td>Measurement</td><td>01</td></tr><tr><td>2</td><td><strong>Router nudge is a bare arrow</strong></td><td>Router fired 5/5 on happy-path; B ignored <code>→ /sir-albert:plan</code> 3 times.</td><td>B</td><td>06</td></tr><tr><td>3</td><td><strong>No use-the-skill contract</strong></td><td>sir_albert injects a 623-char table; superpowers injects 3.2k chars of 'MUST invoke before ANY response'. That text is A's whole lead.</td><td>B</td><td>07</td></tr><tr><td>4</td><td><strong>Router recall</strong></td><td>P1 missed 8/14 task prompts. On router-missed prompts neither arm fired the labeled skill (0/5 each). 131/138 standalone prompts get no route.</td><td>Both — B's opening</td><td>08 09</td></tr><tr><td>5</td><td><strong>Superpowers over-fires</strong></td><td>A fired <code>create-skill</code> on a control prompt, both reps.</td><td>A — B's edge</td><td>07 (skip rules)</td></tr><tr><td>6</td><td><strong>Headless fan-out never returns</strong></td><td>Panel mode and the GTM task dispatch background agents, then end with 'I'll synthesize once back'. Judged as losses.</td><td>Both</td><td>04 10</td></tr><tr><td>7</td><td><strong>Judge can't resolve a lead</strong></td><td>1,500-char truncation, Sonnet judging Sonnet, no rubric; one paid API-error run scored valid.</td><td>Measurement</td><td>02 03</td></tr><tr><td>8</td><td><strong>Too few prompts, no held-out set</strong></td><td>30 pairs → 95% range 47–67%; the prompts were tuned on.</td><td>Measurement</td><td>05 12</td></tr></table>
+
+<h2 class="section-heading">Pre-registered gates</h2>
+<table class="w5"><tr><th>Gate</th><th>Condition</th><th>Note</th></tr><tr><td><strong>G1 happy-path</strong></td><td>B hit-rate ≥ 80% of runs <em>and</em> B ≥ S <em>and</em> B ≥ A</td><td>Gal's '&gt;4/5'</td></tr><tr><td><strong>G2 router-silent</strong></td><td>B hit-rate &gt; S <em>and</em> B ≥ A</td><td>Where the win comes from</td></tr><tr><td><strong>G3 control</strong></td><td>B fire-rate ≤ 10% <em>and</em> B ≤ S <em>and</em> B ≤ A</td><td>Guards against buying hits with false fires</td></tr><tr><td><strong>G4 quality</strong></td><td>B-vs-S win-rate &gt; 50%, bootstrap 95% lower bound ≥ 45%; B-vs-A lower bound ≥ 45%</td><td>Judge v2 (Opus 5.5, rubric, 6k chars)</td></tr><tr><td><strong>OUTPERFORM</strong></td><td>G1–G4 all pass</td><td>Headline</td></tr><tr><td><strong>UNINSTALL-SAFE</strong></td><td>Every B-vs-A clause passes</td><td>Reported separately; decision is Gal's</td></tr></table>
+<p style="font-size:var(--text-body-sm);color:var(--color-text-muted);margin:-3vmin 0 var(--space-7)">Per run: <code>hit</code> = a Skill call whose route equals the prompt's label; <code>fire</code> = any <code>sir-albert:</code>/<code>superpowers:</code>/<code>kb:</code> Skill call. Slices use the <strong>baseline router at 1b88127</strong>, so M2's router changes can't move prompts between slices. Honest limit: at n=30 prompts a statistically significant quality win isn't guaranteed; G1–G3 carry the outperform claim.</p>
+
+<h2 class="section-heading">Architecture</h2>
+<div class="diagram-container"><div class="diagram-title">Where the lift comes from (arm B)</div>
+<pre class="mermaid">
+flowchart LR
+  P[User prompt] --> R{prompt_router.py<br/>regex, precision 95%}
+  R -- match --> D[Directive: invoke skill=sir-albert:X<br/>before responding · 06]
+  R -- silent --> M[Model routes itself]
+  S[SessionStart contract · 07<br/>use-the-skill + skip rules] --> M
+  S --> D
+  DS[Widened descriptions · 09] --> M
+  RR[Recall patterns · 08] --> R
+  D --> K[Skill tool call]
+  M --> K
+  K --> F[Skill runs; fan-out synthesizes in-turn · 10]
+</pre></div>
+<div class="diagram-container"><div class="diagram-title">Ticket dependencies</div>
+<pre class="mermaid">
+flowchart LR
+  T01[01 context] --> T05[05 gates+held-out]
+  T04[04 probe] --> T10[10 fan-out]
+  T06[06 directive] --> T08[08 recall]
+  T01 --> T11[11 dev loop]
+  T03[03 infra err] --> T11
+  T05 --> T11
+  T06 --> T11
+  T07[07 contract] --> T11
+  T08 --> T11
+  T09[09 descriptions] --> T11
+  T10 --> T11
+  T05 --> T12[12 freeze+P3]
+  T11 --> T12
+  T02[02 judge v2] --> T13[13 verdict]
+  T12 --> T13
+  T13 --> T14[14 verify]
+</pre></div>
+
+<h2 class="section-heading">Milestones</h2>
+<div class="milestones-grid"><div class="milestone-card m1"><div class="milestone-name">M1 — Fix the ruler</div><div class="milestone-tickets">Tickets 01 02 03 04 05</div><div class="milestone-summary">Replay carries context, judge can resolve a lead, infra errors are caught, gates pre-registered, held-out set labelled by Gal.</div><div class="milestone-cost">~$1 + Gal labelling</div></div><div class="milestone-card m2"><div class="milestone-name">M2 — Make sir_albert fire</div><div class="milestone-tickets">Tickets 06 07 08 09 10</div><div class="milestone-summary">Router emits a directive, session start carries a scoped use-the-skill contract, router recall up with P1 precision ≥90%, descriptions widened, brainstorm synthesizes in-turn.</div><div class="milestone-cost">~$0.40</div></div><div class="milestone-card m3"><div class="milestone-name">M3 — Dev loop</div><div class="milestone-tickets">Tickets 11</div><div class="milestone-summary">Arm-B-only replay on the 15 tuning prompts hits 5/5 happy, ≥3/5 silent, 0 control fires in ≤3 rounds.</div><div class="milestone-cost spend">≤$15</div></div><div class="milestone-card m4"><div class="milestone-name">M4 — Held-out head-to-head</div><div class="milestone-tickets">Tickets 12 13 14</div><div class="milestone-summary">180 runs B/A/S on a frozen SHA, judge v2, pre-registered verdict independently recomputed and presented.</div><div class="milestone-cost spend">~$43 (cap $70)</div></div></div>
+
+<h2 class="section-heading">Tasks</h2>
+
+<div class="task open" id="task-01">
+  <div class="task-header"><span class="task-chevron">›</span><span class="task-number">01</span><span class="task-name">replay-with-context</span><div class="task-meta"><span class='badge badge-purple'>First slice</span></div></div>
+  <div class="task-body">
+    <div class="task-info-row"><div class="task-info-item"><strong>Blocked by:</strong> —</div><div class="task-info-item"><strong>Ticket:</strong> <code>docs/plans/2026-09-27-w5-outperform/tickets/01-replay-with-context.md</code></div><div class='task-info-item'><strong>Spec:</strong> <code>docs/specs/2026-09-27-w5-outperform.md §Replay</code> (written in 05; this plan's header is the interim source)</div></div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);"><strong>Goal:</strong> A mid-thread prompt is replayed with its preceding turns as context, identically for every arm, and the router hook still sees only the prompt itself. Proven end-to-end on one live arm-B run of prompt <code>aef6880dbd5903c4</code> (a W4 happy-path miss).</p>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);"><strong>Why:</strong> All 5 W4 happy-path prompts had <code>preceding_turns</code> in the corpus but were replayed bare. B's "nothing has been shared yet" answers were correct on broken inputs. The W4 skill-gate result is not evidence about sir_albert.</p>
+    <ul class="steps-list">
+<li class='step-item'><div class='step-label'>Step 0</div><div class='step-desc'>Confirm you're on local branch <code>w5/outperform</code> (created off <code>w4/eval</code> with the plan commit; never pushed): <code>git branch --show-current</code>.</div></li>
+<li class='step-item'><div class='step-label'>Step 1</div><div class='step-desc'>Probe the flag (≤$0, no model call): <code>bash plugins/sir-albert/tools/eval/guarded.sh command claude --help | grep -n -- '--append-system-prompt'</code>, then <code>grep '"model"' ~/.claude/settings.json</code> (expect <code>claude-opus-5-5[1m]</code>). Expected: the flag is listed. If it is absent, stop and report. The fallback (a context block prepended to stdin) would put the context in front of the router, which is a confound. That design change is Gal's call.</div></li>
+<li class='step-item'><div class='step-label'>Step 2</div><div class='step-desc'><code>.gitignore</code>: append <code>docs/plans/2026-09-27-w5-outperform/runs*/</code>, <code>docs/plans/2026-09-27-w5-outperform/*sample*.jsonl</code>, <code>docs/plans/2026-09-27-w5-outperform/labeled-set-p3*</code>, <code>docs/plans/2026-09-27-w5-outperform/judgments*.jsonl</code>, <code>docs/plans/2026-09-27-w5-outperform/context/</code>. Run <code>git check-ignore -v docs/plans/2026-09-27-w5-outperform/runs-dev/x.json</code>. Expected: matched.</div></li>
+<li class='step-item'><div class='step-label'>Step 3</div><div class='step-desc'>Write the failing test in <code>plugins/sir-albert/tests/eval/test_run_executor.py</code>: <code>test_context_goes_to_system_prompt_not_stdin</code>. Call <code>run_one.sh</code> with a 6th arg (a JSON file of <code>[{"role":"user","text":"earlier Q"},{"role":"assistant","text":"earlier A"}]</code>) and a stub claude that dumps argv and stdin to files. Assert that argv contains <code>--append-system-prompt</code> followed by a string containing <code>User: earlier Q</code> and <code>Assistant: earlier A</code>, and that stdin equals the bare prompt exactly.</div></li>
+<li class='step-item'><div class='step-label'>Step 4</div><div class='step-desc'>Write the failing test <code>test_no_context_arg_is_unchanged</code>: with 5 args, argv has no <code>--append-system-prompt</code>. This keeps W4 reproducible.</div></li>
+<li class='step-item'><div class='step-label'>Step 5</div><div class='step-desc'>Run: <code>/usr/local/bin/python3.13 -m pytest -q plugins/sir-albert/tests/eval/test_run_executor.py -k context</code>. Expected: FAIL (the first test).</div></li>
+<li class='step-item'><div class='step-label'>Step 6</div><div class='step-desc'>Implement in <code>plugins/sir-albert/tools/eval/run_one.sh</code>. Add an optional <code>CONTEXT_FILE="${6:-}"</code>. When it's set, render it with python3.13 into:</div><pre><code>This message continues an earlier conversation. The earlier turns (replayed for evaluation; each truncated to 500 chars) were:
+User: …
+Assistant: …</code></pre><div class='step-desc'>Then pass it as <code>--append-system-prompt "$CTX"</code> inside the existing command array, built so the value is quoted and never word-split. Record <code>'context_turns': N</code> in the artifact JSON.</div></li>
+<li class='step-item'><div class='step-label'>Step 7</div><div class='step-desc'>Run the step 5 command again. Expected: PASS. Then run the full suite: <code>/usr/local/bin/python3.13 -m pytest -q plugins/sir-albert/tests/</code>. Expected: all pass.</div></li>
+<li class='step-item'><div class='step-label'>Step 8</div><div class='step-desc'><code>plugins/sir-albert/tools/prompt_corpus.py</code> <code>_fmt</code> (in <code>cmd_sample_p2</code>, ~line 1252): add <code>"preceding_turns": r.get("preceding_turns", [])</code>. Add the same to the row builder that <code>cmd_label_set</code> uses, so labelled rows carry context forward. Test in <code>plugins/sir-albert/tests/eval/test_p2_sample.py</code>: <code>test_sample_rows_carry_preceding_turns</code>, fixture row with 1 preceding turn. Confirm it FAILS on the old code, then PASSES.</div></li>
+<li class='step-item'><div class='step-label'>Step 9</div><div class='step-desc'>Build a dev rundir: <code>W4_RUNDIR=~/.claude/sir-albert-w5-rundir bash plugins/sir-albert/tools/eval/build_arms.sh</code>, then <code>bash plugins/sir-albert/tools/eval/canary_preflight.sh ~/.claude/sir-albert-w5-rundir</code>. Then <code>grep '"model"' ~/.claude/settings.json</code>.</div></li>
+<li class='step-item'><div class='step-label'>Step 10</div><div class='step-desc'>Live vertical slice (~$0.10, AUTO: under $1). Write that prompt's <code>preceding_turns</code> from <code>~/.claude/sir-albert-corpus/corpus.jsonl</code> to <code>docs/plans/2026-09-27-w5-outperform/context/aef6880dbd5903c4.json</code>. Then run <code>W4_ARTIFACT_DIR=docs/plans/2026-09-27-w5-outperform/runs-dev W4_RESTORE_MODEL='claude-opus-5-5[1m]' bash plugins/sir-albert/tools/eval/run_one.sh b aef6880dbd5903c4 1 "&lt;text&gt;" ~/.claude/sir-albert-w5-rundir &lt;ctxfile&gt;</code>. Drive it from a python3.13 one-liner that reads the text from the corpus, so prompt text never goes on the shell history line.</div></li>
+<li class='step-item'><div class='step-label'>Step 11</div><div class='step-desc'>Verify: the artifact's <code>context_turns</code> is ≥1, and <code>assistant_text</code> no longer says "nothing has been shared" / "no doc…". Record the result, text-free, in <code>docs/plans/2026-09-27-w5-outperform/01-slice-result.md</code>.</div></li>
+<li class='step-item'><div class='step-label'>Step 12</div><div class='step-desc'>Commit: <code>git add .gitignore plugins/sir-albert/tools/eval/run_one.sh plugins/sir-albert/tools/prompt_corpus.py plugins/sir-albert/tests/ docs/plans/2026-09-27-w5-outperform/01-slice-result.md &amp;&amp; git commit -m "feat(w5): replay mid-thread prompts with preceding turns via system prompt"</code></div></li>
+</ul>
+    <div class='risk-callout'><span class='risk-label'>Risk</span> <code>preceding_turns</code> holds at most 2 turns of 500 chars each. That's lossy, but it's identical across arms. Record the cap in the spec as a known limitation.</div>
+    <div class="task-dod"><div class="task-dod-title">Definition of Done</div><div class='task-dod-item'><input type='checkbox'><span>Both new tests fail on the old code and pass on the new code; the full suite is green</span></div><div class='task-dod-item'><input type='checkbox'><span>Router hook input is unchanged (stdin = bare prompt), proven by a test</span></div><div class='task-dod-item'><input type='checkbox'><span>Live arm-B run of <code>aef6880dbd5903c4</code> engages with the earlier context</span></div><div class='task-dod-item'><input type='checkbox'><span><code>git ls-files docs/plans/2026-09-27-w5-outperform</code> shows no text-bearing files</span></div></div>
+  </div>
+</div>
+<div class="task" id="task-02">
+  <div class="task-header"><span class="task-chevron">›</span><span class="task-number">02</span><span class="task-name">judge-v2</span><div class="task-meta"></div></div>
+  <div class="task-body">
+    <div class="task-info-row"><div class="task-info-item"><strong>Blocked by:</strong> —</div><div class="task-info-item"><strong>Ticket:</strong> <code>docs/plans/2026-09-27-w5-outperform/tickets/02-judge-v2.md</code></div><div class='task-info-item'><strong>Spec:</strong> <code>docs/specs/2026-09-27-w5-outperform.md §Judge</code></div></div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);"><strong>Goal:</strong> <code>blind_judge.py</code> can judge any arm pair (B vs S, B vs A). It uses a rubric on up to 6,000 chars of each final answer, runs on a judge model that differs from the model under test, and marks cut-off runs identically on both sides. W4 defaults stay unchanged.</p>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);"><strong>Why:</strong> W4 judge: 1,500-char truncation, Sonnet judging Sonnet, no rubric, arms hard-coded to <code>a</code>/<code>b</code>. It can't resolve a quality lead, and it can't pair B with the new arm S.</p>
+    <ul class="steps-list">
+<li class='step-item'><div class='step-label'>Step 1</div><div class='step-desc'>Write the failing tests in <code>plugins/sir-albert/tests/eval/test_blind_judge.py</code>:</div><ul style='margin:var(--space-2) 0 0 var(--space-5)'><li class='step-desc'><code>test_max_chars_flag</code>: <code>summarize(art, max_chars=6000)</code> keeps a 5,000-char answer whole. The default is still 1500.</li><li class='step-desc'><code>test_pair_flag_selects_arms</code>: <code>--pair b:s</code> pairs <code>b-*</code> with <code>s-*</code> artifacts and ignores <code>a-*</code>. Left/right are still randomized by AB/BA order.</li><li class='step-desc'><code>test_rubric_prompt</code>: with <code>--rubric</code>, the prompt contains the 4 criteria (below) and still contains the <code>[skill]</code> redaction note.</li><li class='step-desc'><code>test_cutoff_marker_symmetric</code>: a <code>truncated: true</code> artifact's text ends with <code>[Response cut off by the evaluation's turn/budget cap.]</code>. A non-truncated artifact doesn't get the marker.</li><li class='step-desc'><code>test_resolved_rows_name_arms</code>: resolved rows record <code>left_arm</code>/<code>right_arm</code>, and <code>final_verdict</code> ∈ {<code>&lt;x&gt;_wins</code>, <code>&lt;y&gt;_wins</code>, <code>tie</code>}, using the arm letters.</li></ul></li>
+<li class='step-item'><div class='step-label'>Step 2</div><div class='step-desc'>Run: <code>/usr/local/bin/python3.13 -m pytest -q plugins/sir-albert/tests/eval/test_blind_judge.py</code>. Expected: 5 FAIL.</div></li>
+<li class='step-item'><div class='step-label'>Step 3</div><div class='step-desc'>Implement in <code>plugins/sir-albert/tools/eval/blind_judge.py</code>:</div><ul style='margin:var(--space-2) 0 0 var(--space-5)'><li class='step-desc'>Add <code>--max-chars</code> (default 1500), <code>--pair</code> (default <code>a:b</code>), and <code>--rubric</code> (flag).</li><li class='step-desc'>Add <code>RUBRIC_PROMPT</code>: "Judge which response better serves the user, on: (1) progress on what was asked; (2) correctness and grounding, with no invented facts, files, or IDs; (3) the right call between acting and asking; (4) honesty about incomplete work: a response that only announces work in progress or background tasks, without delivering, counts as incomplete."</li><li class='step-desc'>Output file per pair: <code>--out</code> is unchanged; resolved goes to <code>&lt;out-stem&gt;-resolved.jsonl</code>.</li><li class='step-desc'>Keep W4's <code>a:b</code> resolution labels <code>A_wins</code>/<code>B_wins</code> so <code>verdict.py</code> still works.</li></ul></li>
+<li class='step-item'><div class='step-label'>Step 4</div><div class='step-desc'>Run the step 2 command again. Expected: PASS. Full suite: <code>/usr/local/bin/python3.13 -m pytest -q plugins/sir-albert/tests/</code>. Expected: all pass.</div></li>
+<li class='step-item'><div class='step-label'>Step 5</div><div class='step-desc'>Live check (~$0.10, AUTO). Rejudge one W4 pair (<code>600120ad468a3201</code> rep 2) with <code>--model claude-opus-5-5 --rubric --max-chars 6000 --pair a:b</code> in a <code>mktemp -d</code> symlinked runs dir (the same method as the 2026-09-27 smoke test). Then <code>grep '"model"' ~/.claude/settings.json</code>. Expected: both calls parse, the reasons cite rubric criteria, and the model is restored.</div></li>
+<li class='step-item'><div class='step-label'>Step 6</div><div class='step-desc'>Commit: <code>git commit -m "feat(w5): judge v2 — any arm pair, rubric, 6k chars, symmetric cut-off marker"</code></div></li>
+</ul>
+    <div class='risk-callout'><span class='risk-label'>Risk</span> Opus-judging-Sonnet still has model-family self-preference. It is symmetric across arms, since every arm runs on Sonnet 5. Note it in the spec.</div>
+    <div class="task-dod"><div class="task-dod-title">Definition of Done</div><div class='task-dod-item'><input type='checkbox'><span>5 new tests fail on the old code and pass on the new code; the suite is green</span></div><div class='task-dod-item'><input type='checkbox'><span>W4 invocation (no new flags) produces byte-identical prompts to today</span></div><div class='task-dod-item'><input type='checkbox'><span>Live Opus judge call parses, cites the rubric, and costs &lt; $0.10</span></div></div>
+  </div>
+</div>
+<div class="task" id="task-03">
+  <div class="task-header"><span class="task-chevron">›</span><span class="task-number">03</span><span class="task-name">infra-error-text</span><div class="task-meta"></div></div>
+  <div class="task-body">
+    <div class="task-info-row"><div class="task-info-item"><strong>Blocked by:</strong> —</div><div class="task-info-item"><strong>Ticket:</strong> <code>docs/plans/2026-09-27-w5-outperform/tickets/03-infra-error-text.md</code></div></div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);"><strong>Goal:</strong> A run whose final answer is an <code>API Error: …</code> message is treated as an infra error (quarantined to <code>invalid/</code> and retried), even when it cost money.</p>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);"><strong>Why:</strong> W4 artifact <code>b-0c4bbdadad6f78d8-rep1</code> cost $0.51, ended with <code>API Error: The system encountered an unexpected error…</code>, and was scored as a valid run (judge split → tie). <code>is_infra_error</code> only catches $0 errors.</p>
+    <ul class="steps-list">
+<li class='step-item'><div class='step-label'>Step 1</div><div class='step-desc'>Add a text-free fixture <code>plugins/sir-albert/tests/eval/fixtures/api-error-paid.json</code>: arm b, <code>cost_usd</code> 0.51, <code>result_event.is_error</code> true, <code>result_event.subtype</code> <code>success</code>, <code>result_event.result</code> <code>"API Error: The system encountered an unexpected error during processing. Try your request again."</code></div></li>
+<li class='step-item'><div class='step-label'>Step 2</div><div class='step-desc'>Write the failing tests in <code>plugins/sir-albert/tests/eval/test_run_tranche.py</code>:</div><ul style='margin:var(--space-2) 0 0 var(--space-5)'><li class='step-desc'><code>test_paid_api_error_is_infra</code>: <code>is_infra_error(fixture)</code> is True.</li><li class='step-desc'><code>test_budget_cap_is_not_infra</code>: an <code>error_max_budget_usd</code> artifact with ordinary assistant text is False (cut-offs stay valid by design).</li></ul></li>
+<li class='step-item'><div class='step-label'>Step 3</div><div class='step-desc'>Run: <code>/usr/local/bin/python3.13 -m pytest -q plugins/sir-albert/tests/eval/test_run_tranche.py -k infra</code>. Expected: the first FAILs.</div></li>
+<li class='step-item'><div class='step-label'>Step 4</div><div class='step-desc'>Implement in <code>plugins/sir-albert/tools/eval/run_tranche.py</code> <code>is_infra_error</code>: also return True when <code>(result.get("result") or artifact.get("assistant_text") or "").strip().startswith("API Error:")</code>.</div></li>
+<li class='step-item'><div class='step-label'>Step 5</div><div class='step-desc'>Run the step 3 command again. Expected: PASS. Full suite green.</div></li>
+<li class='step-item'><div class='step-label'>Step 6</div><div class='step-desc'>Retro-check (no spend): <code>/usr/local/bin/python3.13 -c</code> over <code>docs/plans/2026-09-26-w4-eval/runs/*.json</code> using the new function. Expected: exactly 1 hit (<code>b-0c4bbdadad6f78d8-rep1</code>). Record it in the commit message. Do not move W4 artifacts; the W4 verdict is already reported.</div></li>
+<li class='step-item'><div class='step-label'>Step 7</div><div class='step-desc'>Commit: <code>git commit -m "fix(w5): paid API-error runs are infra errors, not valid runs"</code></div></li>
+</ul>
+    
+    <div class="task-dod"><div class="task-dod-title">Definition of Done</div><div class='task-dod-item'><input type='checkbox'><span>New tests fail on the old code and pass on the new code; the suite is green</span></div><div class='task-dod-item'><input type='checkbox'><span>Retro-check finds exactly the known W4 case</span></div></div>
+  </div>
+</div>
+<div class="task" id="task-04">
+  <div class="task-header"><span class="task-chevron">›</span><span class="task-number">04</span><span class="task-name">headless-fanout-probe</span><div class="task-meta"></div></div>
+  <div class="task-body">
+    <div class="task-info-row"><div class="task-info-item"><strong>Blocked by:</strong> —</div><div class="task-info-item"><strong>Ticket:</strong> <code>docs/plans/2026-09-27-w5-outperform/tickets/04-headless-fanout-probe.md</code></div></div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);"><strong>Goal:</strong> A recorded answer to "in <code>claude -p</code>, do background Agent results come back before the run exits? If not, is there a foreground way to wait?", with raw evidence.</p>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);"><strong>Why:</strong> W4: brainstorm's panel (<code>600120ad</code> B rep2) and the GTM task (<code>0c4bbdadad6f78d8</code>, both arms) dispatched background agents and ended with "I'll synthesize once they're back". The judge scored those as losses. That penalizes using skills, and it's a real bug for any headless/automated use.</p>
+    <ul class="steps-list">
+<li class='step-item'><div class='step-label'>Step 1</div><div class='step-desc'>Scratch: <code>T=$(mktemp -d)</code>; <code>git -C $T init -q &amp;&amp; git -C $T commit -q --allow-empty -m s</code>.</div></li>
+<li class='step-item'><div class='step-label'>Step 2</div><div class='step-desc'>Probe A, default (~$0.10). From <code>$T</code>, run through <code>guarded.sh</code>: <code>claude --print --model claude-sonnet-5 --max-turns 6 --max-budget-usd 0.25 --output-format stream-json --verbose --no-session-persistence</code> with the stdin prompt <code>Use the Agent tool to dispatch one subagent that replies with the word PINEAPPLE. Then tell me what it replied.</code> Save to <code>$T/probe-a.jsonl</code>.</div></li>
+<li class='step-item'><div class='step-label'>Step 3</div><div class='step-desc'>Probe B, explicit wait (~$0.10). Same, but the prompt adds: <code>Wait for the subagent's result before you reply; do not end your turn until you have it.</code> Save to <code>$T/probe-b.jsonl</code>.</div></li>
+<li class='step-item'><div class='step-label'>Step 4</div><div class='step-desc'>Inspect both: the Agent <code>tool_use</code> input keys (look for any <code>run_in_background</code>-style parameter), whether a <code>tool_result</code> containing <code>PINEAPPLE</code> appears before the <code>result</code> event, and the final <code>result</code> text. After each spawn: <code>grep '"model"' ~/.claude/settings.json</code>.</div></li>
+<li class='step-item'><div class='step-label'>Step 5</div><div class='step-desc'>Write <code>docs/plans/2026-09-27-w5-outperform/04-probe-results.md</code>: the tool input schema observed, the ordering of events per probe, and a verdict (one of: <code>returns</code> / <code>returns-only-when-told-to-wait</code> / <code>never-returns</code>), plus the exact wording ticket 10 should use.</div></li>
+<li class='step-item'><div class='step-label'>Step 6</div><div class='step-desc'>Commit: <code>git add docs/plans/2026-09-27-w5-outperform/04-probe-results.md &amp;&amp; git commit -m "docs(w5): headless fan-out probe results"</code></div></li>
+</ul>
+    
+    <div class="task-dod"><div class="task-dod-title">Definition of Done</div><div class='task-dod-item'><input type='checkbox'><span>Both probes ran live; the stream files were inspected, not assumed</span></div><div class='task-dod-item'><input type='checkbox'><span>The results doc states one of the 3 verdicts, with event-order evidence</span></div><div class='task-dod-item'><input type='checkbox'><span>Gal's default model is intact after the probes</span></div></div>
+  </div>
+</div>
+<div class="task" id="task-05">
+  <div class="task-header"><span class="task-chevron">›</span><span class="task-number">05</span><span class="task-name">p3-gate-and-heldout</span><div class="task-meta"><span class='badge badge-red'>CHECKPOINT · Gal labels</span></div></div>
+  <div class="task-body">
+    <div class="task-info-row"><div class="task-info-item"><strong>Blocked by:</strong> 01</div><div class="task-info-item"><strong>Ticket:</strong> <code>docs/plans/2026-09-27-w5-outperform/tickets/05-p3-gate-and-heldout.md</code></div><div class='task-info-item'><strong>Spec:</strong> creates <code>docs/specs/2026-09-27-w5-outperform.md</code></div></div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);"><strong>Goal:</strong> The P3 gates are pre-registered in a committed spec before any tuning result exists, and a held-out test sample of 30 prompts (10 happy / 10 router-silent / 10 control) exists. It is labelled by Gal, disjoint from everything used for tuning, and carries preceding turns.</p>
+    
+    <ul class="steps-list">
+<li class='step-item'><div class='step-label'>Step 1</div><div class='step-desc'>Write <code>docs/specs/2026-09-27-w5-outperform.md</code> (status: approved-by-plan 2026-09-27). Copy these gates verbatim:</div><ul style='margin:var(--space-2) 0 0 var(--space-5)'><li class='step-desc'><strong>Arms (Sonnet 5, frozen SHA):</strong> B = sir_albert only · A = sir_albert + superpowers · S = superpowers only (no <code>--plugin-dir</code>; this also drops <code>kb</code>, which ships in the sir_albert repo).</li><li class='step-desc'><strong>Per run:</strong> <code>hit</code> = any Skill call whose <code>_skill_to_route</code> equals the prompt's label. <code>fire</code> = any Skill call in the <code>sir-albert:</code>, <code>superpowers:</code> or <code>kb:</code> namespaces.</li><li class='step-desc'><strong>G1 happy-path:</strong> B hit-rate over runs ≥ 80%, and B ≥ S, and B ≥ A.</li><li class='step-desc'><strong>G2 router-silent:</strong> B hit-rate &gt; S, and B ≥ A.</li><li class='step-desc'><strong>G3 control:</strong> B fire-rate ≤ 10%, and B ≤ S, and B ≤ A.</li><li class='step-desc'><strong>G4 quality (judge v2, Opus 5.5, rubric):</strong> B-vs-S win-rate (ties ½) &gt; 50% with a cluster-bootstrap 95% lower bound ≥ 45% (by prompt, 20,000 resamples, seed 0). B-vs-A lower bound ≥ 45%.</li><li class='step-desc'><strong>OUTPERFORM</strong> = G1–G4 all pass. <strong>UNINSTALL-SAFE</strong> = every B-vs-A clause passes (reported separately; the decision stays Gal's).</li><li class='step-desc'><strong>ABORT:</strong> run count ≠ 180, unresolved infra errors, or judge_error &gt; 5% of calls. <strong>INCONCLUSIVE:</strong> ties &gt; 50% in either comparison.</li><li class='step-desc'><strong>Known limits:</strong> preceding turns capped at 2×500 chars; <code>--max-turns 12</code> / $0.60 per-run cap (cut-offs marked to the judge); Opus judging Sonnet; n = 30 prompts.</li><li class='step-desc'><strong>Tuning firewall:</strong> tickets 06–11 may read only the W4 <code>sample.jsonl</code> (15), <code>labels.jsonl</code> (50), and synthetic phrases. Any file matching <code>*p3*</code> is off-limits until ticket 12.</li></ul></li>
+<li class='step-item'><div class='step-label'>Step 2</div><div class='step-desc'>Commit the spec alone: <code>git add docs/specs/2026-09-27-w5-outperform.md &amp;&amp; git commit -m "docs(w5): pre-register P3 outperform gates"</code>. This commit must predate ticket 11's first dev result.</div></li>
+<li class='step-item'><div class='step-label'>Step 3</div><div class='step-desc'>Write the failing test in <code>plugins/sir-albert/tests/eval/test_label_set.py</code>: <code>test_label_set_p3_excludes_prior_rows</code>. Given a corpus fixture and an exclude list, the new subcommand emits no excluded <code>_hash</code>. The output also has candidates in all 3 strata, with <code>preceding_turns</code> present.</div></li>
+<li class='step-item'><div class='step-label'>Step 4</div><div class='step-desc'>Implement <code>prompt_corpus.py label-set-p3 --exclude &lt;files…&gt; --seed 7</code>. Exclude every <code>_hash</code> in <code>docs/plans/2026-09-26-w4-eval/labeled-set.jsonl</code> (all 143, labelled or not) and in <code>sample.jsonl</code>. Slice with the <strong>baseline router at 1b88127</strong>, loaded via <code>git show 1b88127:plugins/sir-albert/hooks/router_data.json</code>, not the live file (06/08 change it). Emit about 50 candidates: 15 router-match, 25 task-initiating router-silent (reuse the <code>task_initiating</code> heuristic), 10 negative-control. Write <code>docs/plans/2026-09-27-w5-outperform/labeled-set-p3.jsonl</code> and <code>labeled-set-p3-checklist.md</code>, both gitignored (ticket 01).</div></li>
+<li class='step-item'><div class='step-label'>Step 5</div><div class='step-desc'>Run the step 3 test. Expected: PASS. Full suite green. <code>git check-ignore</code> both output files. Expected: ignored.</div></li>
+<li class='step-item'><div class='step-label'>CHECKPOINT</div><div class='step-desc'><strong>CHECKPOINT: Gal labels.</strong> Hand Gal <code>labeled-set-p3-checklist.md</code> (valid labels: <code>brainstorm</code>, <code>plan</code>, <code>execute</code>, <code>debug</code>, <code>build</code>, <code>handoff</code>, <code>none</code>, <code>ambiguous</code>). Stop until Gal returns it.</div></li>
+<li class='step-item'><div class='step-label'>Step 7</div><div class='step-desc'><code>prompt_corpus.py import-labels</code> into a separate text-free <code>docs/plans/2026-09-27-w5-outperform/labels-p3.jsonl</code> (committed, hashes plus labels only).</div></li>
+<li class='step-item'><div class='step-label'>Step 8</div><div class='step-desc'><code>prompt_corpus.py sample-p3 --seed 7</code>: 10 happy (baseline router matched, and the label equals its route), 10 router-silent (baseline router silent, label a task route), and 10 control (label <code>none</code>). Rotated h-s-c. Write <code>sample-p3.jsonl</code>, gitignored, carrying <code>preceding_turns</code>. If any stratum has fewer than 10, report the shortfall and ask Gal to label more. Don't pad from tuning data.</div></li>
+<li class='step-item'><div class='step-label'>Step 9</div><div class='step-desc'>Commit: <code>git add plugins/sir-albert/tools/prompt_corpus.py plugins/sir-albert/tests/ docs/plans/2026-09-27-w5-outperform/labels-p3.jsonl &amp;&amp; git commit -m "feat(w5): held-out P3 sample, labelled by Gal, baseline-router slices"</code></div></li>
+</ul>
+    <div class='checkpoint'><div class='checkpoint-title'>CHECKPOINT</div>Step 6 needs Gal's labelling time (~50 prompts, ~20 min).</div>
+    <div class="task-dod"><div class="task-dod-title">Definition of Done</div><div class='task-dod-item'><input type='checkbox'><span>Spec commit predates any dev-loop result (check with <code>git log --format='%h %ci %s'</code>)</span></div><div class='task-dod-item'><input type='checkbox'><span><code>sample-p3.jsonl</code> has 30 rows, 10 per stratum, 0 overlap with the W4 labeled set or sample</span></div><div class='task-dod-item'><input type='checkbox'><span>Only hash-and-label files are committed; no prompt text is tracked</span></div></div>
+  </div>
+</div>
+<div class="task" id="task-06">
+  <div class="task-header"><span class="task-chevron">›</span><span class="task-number">06</span><span class="task-name">imperative-nudge</span><div class="task-meta"></div></div>
+  <div class="task-body">
+    <div class="task-info-row"><div class="task-info-item"><strong>Blocked by:</strong> —</div><div class="task-info-item"><strong>Ticket:</strong> <code>docs/plans/2026-09-27-w5-outperform/tickets/06-imperative-nudge.md</code></div></div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);"><strong>Goal:</strong> When the router matches, its output is an explicit instruction to invoke the named skill via the Skill tool before responding, not a bare <code>→ /sir-albert:plan</code> arrow.</p>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);"><strong>Why:</strong> In W4 the router fired on 5/5 happy-path prompts, and arm B still skipped the skill on 3 of them. Router precision is 95.2% (P1), which is high enough to justify a directive.</p>
+    <ul class="steps-list">
+<li class='step-item'><div class='step-label'>Step 0</div><div class='step-desc'><code>p1-score</code> writes to a hard-coded <code>docs/plans/2026-09-26-w4-eval/p1-scorecard-2026-09-26.md</code> (<code>prompt_corpus.py:1084</code>), so any re-run overwrites the committed W4 record. Add <code>--out</code> (default: the current path) with the test <code>plugins/sir-albert/tests/eval/test_p1_scorer.py::test_out_flag_writes_elsewhere</code>. Confirm it fails first, then passes. Commit: <code>fix(w5): p1-score --out so re-runs don't overwrite the W4 scorecard</code>.</div></li>
+<li class='step-item'><div class='step-label'>Step 1</div><div class='step-desc'>Write the failing tests in <code>plugins/sir-albert/tests/test_prompt_router.py</code>:</div><ul style='margin:var(--space-2) 0 0 var(--space-5)'><li class='step-desc'><code>test_nudge_is_imperative</code>: <code>_nudge("write me a plan for the rollout")</code> contains <code>Invoke the Skill tool</code> and <code>skill="sir-albert:plan"</code>.</li><li class='step-desc'><code>test_nudge_keeps_mode</code>: <code>_nudge("attack my plan")</code> contains <code>sir-albert:brainstorm</code> and <code>attack</code>.</li><li class='step-desc'><code>test_nudge_single_line_short</code>: output is a single line of ≤ 300 chars.</li><li class='step-desc'>The existing substring tests (<code>"/sir-albert:brainstorm" in …</code>) must keep passing. Keep the <code>/sir-albert:&lt;skill&gt;</code> token in the text.</li></ul></li>
+<li class='step-item'><div class='step-label'>Step 2</div><div class='step-desc'>Run: <code>/usr/local/bin/python3.13 -m pytest -q plugins/sir-albert/tests/test_prompt_router.py</code>. Expected: 3 new FAIL.</div></li>
+<li class='step-item'><div class='step-label'>Step 3</div><div class='step-desc'>Implement in <code>plugins/sir-albert/hooks/prompt_router.py</code>. Leave <code>router_data.json</code> nudges untouched, because <code>prompt_corpus._compile_patterns</code> parses them into intents. Add <code>format_directive(nudge)</code>: parse <code>→ /sir-albert:&lt;skill&gt;[ &lt;mode&gt;]</code> and print</div><div class='step-desc'><code>sir-albert router: this prompt matches /sir-albert:&lt;skill&gt;[ (&lt;mode&gt;)]. Invoke the Skill tool with skill="sir-albert:&lt;skill&gt;" before responding, including before any clarifying question. Skip only if the prompt is clearly not this kind of request.</code></div><div class='step-desc'>Pass any nudge that doesn't parse through unchanged.</div></li>
+<li class='step-item'><div class='step-label'>Step 4</div><div class='step-desc'>Run the step 2 command again. Expected: PASS. Full suite: <code>/usr/local/bin/python3.13 -m pytest -q plugins/sir-albert/tests/</code>. Expected: all pass. P1 is unaffected: <code>prompt_corpus.py p1-score --out /tmp/p1-check.md</code> gives the same numbers as <code>p1-scorecard-2026-09-26.md</code> (95.2% / 0%).</div></li>
+<li class='step-item'><div class='step-label'>Step 5</div><div class='step-desc'>Latency: <code>time (echo '{"prompt":"write me a plan"}' | python3 plugins/sir-albert/hooks/prompt_router.py)</code>. Expected: &lt; 50 ms.</div></li>
+<li class='step-item'><div class='step-label'>Step 6</div><div class='step-desc'>Commit: <code>git commit -m "feat(w5): router emits an explicit invoke-the-skill directive"</code></div></li>
+</ul>
+    <div class='risk-callout'><span class='risk-label'>Risk</span> live immediately in every new Gal session (<code>--plugin-dir</code> working tree). The directive only fires on router matches (precision 95%), so a false fire costs one skill load.</div>
+    <div class="task-dod"><div class="task-dod-title">Definition of Done</div><div class='task-dod-item'><input type='checkbox'><span>New tests fail on the old code and pass on the new code; the suite is green; P1 numbers are unchanged</span></div><div class='task-dod-item'><input type='checkbox'><span>Hook still &lt; 50 ms, no network</span></div></div>
+  </div>
+</div>
+<div class="task" id="task-07">
+  <div class="task-header"><span class="task-chevron">›</span><span class="task-number">07</span><span class="task-name">session-contract</span><div class="task-meta"></div></div>
+  <div class="task-body">
+    <div class="task-info-row"><div class="task-info-item"><strong>Blocked by:</strong> —</div><div class="task-info-item"><strong>Ticket:</strong> <code>docs/plans/2026-09-27-w5-outperform/tickets/07-session-contract.md</code></div></div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);"><strong>Goal:</strong> The SessionStart injection carries a scoped "use the skill" rule: invoke the matching sir_albert skill before any response to task work. It rules out the usual excuses and says explicitly when not to fire, so it gets superpowers' invocation lift without superpowers' blanket "1% rule" false fires.</p>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);"><strong>Why:</strong> Superpowers injects 3.2k chars of "MUST invoke before ANY response" and gets A to fire skills even on prompts that lack context. It also produced A's control false fire (<code>create-skill</code> on <code>feb8b4a9e0a8e885</code>, both reps). sir_albert injects only a 623-char table.</p>
+    <ul class="steps-list">
+<li class='step-item'><div class='step-label'>Step 1</div><div class='step-desc'>Write the failing tests in <code>plugins/sir-albert/tests/test_session_start.py</code>:</div><ul style='margin:var(--space-2) 0 0 var(--space-5)'><li class='step-desc'><code>test_contract_present</code>: the injection contains <code>Use-the-skill rule</code>, <code>before any other response</code>, and <code>Skip only</code>.</li><li class='step-desc'><code>test_contract_names_router</code>: it contains <code>router</code>. The router's instruction is referenced so the two reinforce each other.</li><li class='step-desc'>Change <code>test_within_800_chars</code> / <code>test_plain_within_800_chars</code> to ≤ 1600, and change the cap in <code>hooks/session_start.py</code> from 800 to 1600 (the error message too).</li></ul></li>
+<li class='step-item'><div class='step-label'>Step 2</div><div class='step-desc'>Run: <code>/usr/local/bin/python3.13 -m pytest -q plugins/sir-albert/tests/test_session_start.py</code>. Expected: new FAIL.</div></li>
+<li class='step-item'><div class='step-label'>Step 3</div><div class='step-desc'>Rewrite <code>plugins/sir-albert/hooks/HOOK_CONTEXT.md</code>. Keep the existing table and <code>{PACK_LIST}</code>/<code>{RESUME_HINT}</code>, and add above the table:</div><pre><code>**Use-the-skill rule:** for task work — exploring or designing an idea, planning, executing a plan, debugging, shipping a branch, handing off — invoke the matching skill below with the Skill tool *before any other response*, including clarifying questions (the skill asks them better). When the sir-albert router names a skill, invoke it.
+Not reasons to skip: &quot;it&#x27;s simple&quot;, &quot;I need context first&quot;, &quot;I know what the skill says&quot;.
+Skip only for chit-chat, one-line factual answers, or when no row fits — never invoke a skill just to have invoked one.</code></pre></li>
+<li class='step-item'><div class='step-label'>Step 4</div><div class='step-desc'>Run the step 2 command again. Expected: PASS. Measure: <code>echo | PWD=/tmp python3 plugins/sir-albert/hooks/session_start.py | /usr/local/bin/python3.13 -c "import json,sys;print(len(json.load(sys.stdin)['hookSpecificOutput']['additionalContext']))"</code>. Expected: ≤ 1600.</div></li>
+<li class='step-item'><div class='step-label'>Step 5</div><div class='step-desc'>Full suite green.</div></li>
+<li class='step-item'><div class='step-label'>Step 6</div><div class='step-desc'>Commit: <code>git commit -m "feat(w5): scoped use-the-skill contract in session start"</code></div></li>
+</ul>
+    <div class='risk-callout'><span class='risk-label'>Risk</span> live immediately in every Gal session. The "Skip only…" line is the false-fire guard; G3 in P3 measures it.</div>
+    <div class="task-dod"><div class="task-dod-title">Definition of Done</div><div class='task-dod-item'><input type='checkbox'><span>New tests fail on the old code and pass on the new code; the suite is green</span></div><div class='task-dod-item'><input type='checkbox'><span>Injection ≤ 1600 chars, with explicit skip conditions (the control-slice guard)</span></div></div>
+  </div>
+</div>
+<div class="task" id="task-08">
+  <div class="task-header"><span class="task-chevron">›</span><span class="task-number">08</span><span class="task-name">router-recall</span><div class="task-meta"></div></div>
+  <div class="task-body">
+    <div class="task-info-row"><div class="task-info-item"><strong>Blocked by:</strong> 06 (step 0 only: <code>p1-score --out</code>)</div><div class="task-info-item"><strong>Ticket:</strong> <code>docs/plans/2026-09-27-w5-outperform/tickets/08-router-recall.md</code></div></div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);"><strong>Goal:</strong> The router catches more real task prompts, measured on tuning data only, while precision stays ≥ 90% and false fires stay at 0% on P1.</p>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);"><strong>Why:</strong> P1 found 8/14 task prompts in the router's blind spot (6 brainstorm, 2 plan). The <code>build</code> route is dead because of vocabulary mismatch ("open pr" / "merge" / "push"). On the 5 router-missed W4 prompts, neither arm fired the labeled skill (A 0/5, B 0/5). This is where B can beat S and A.</p>
+    <ul class="steps-list">
+<li class='step-item'><div class='step-label'>Step 1</div><div class='step-desc'>Local analysis only; the text never leaves the machine or enters git. List the <code>labels.jsonl</code> rows labelled <code>brainstorm</code>/<code>plan</code>/<code>execute</code>/<code>build</code> that the current router misses. Read their text from <code>docs/plans/2026-09-26-w4-eval/labeled-set.jsonl</code>, and write the recurring phrasings as <strong>paraphrased, synthetic</strong> trigger phrases into <code>docs/plans/2026-09-27-w5-outperform/08-phrase-candidates.md</code>. Commit this file only if it contains no verbatim prompt text; otherwise keep it gitignored.</div></li>
+<li class='step-item'><div class='step-label'>Step 2</div><div class='step-desc'>Write the failing tests in <code>plugins/sir-albert/tests/test_prompt_router.py</code>, one per new pattern, using the synthetic phrases. Examples: <code>"what do you think about this approach"</code> → brainstorm, <code>"help me figure out how to structure"</code> → brainstorm, <code>"break this into steps"</code> → plan, <code>"open a pr for this"</code> → build. Add a negative test for each new pattern, using a near-miss phrase that must stay silent (e.g. <code>"what do you think?"</code> alone with no task noun, <code>"merge conflict in file x"</code>).</div></li>
+<li class='step-item'><div class='step-label'>Step 3</div><div class='step-desc'>Run: <code>/usr/local/bin/python3.13 -m pytest -q plugins/sir-albert/tests/test_prompt_router.py</code>. Expected: new FAIL.</div></li>
+<li class='step-item'><div class='step-label'>Step 4</div><div class='step-desc'>Add patterns to <code>plugins/sir-albert/hooks/router_data.json</code>, in the existing <code>keyword_patterns</code> shape with <code>order</code> values placed so they don't shadow the existing routes.</div></li>
+<li class='step-item'><div class='step-label'>Step 5</div><div class='step-desc'>Run the step 3 command again. Expected: PASS.</div></li>
+<li class='step-item'><div class='step-label'>Step 6</div><div class='step-desc'>Gate on P1: <code>/usr/local/bin/python3.13 plugins/sir-albert/tools/prompt_corpus.py p1-score --out docs/plans/2026-09-27-w5-outperform/p1-scorecard-w5.md</code>. The <code>--out</code> flag comes from ticket 06 step 0. Without it, <code>p1-score</code> overwrites the committed W4 record (hard-coded path, <code>prompt_corpus.py:1084</code>). Expected: precision ≥ 90%, false-fire 0%, and a miss rate below 57.1%. If precision drops, remove the offending pattern; don't widen the labels.</div></li>
+<li class='step-item'><div class='step-label'>Step 7</div><div class='step-desc'>Corpus blast radius: run the router over all 1,938 corpus rows and count new fires per route. Eyeball 10 random new fires per route locally. If more than 2/10 are wrong, tighten the pattern. Record counts only in <code>docs/plans/2026-09-27-w5-outperform/08-recall-report.md</code>.</div></li>
+<li class='step-item'><div class='step-label'>Step 8</div><div class='step-desc'>Full suite green. Commit: <code>git commit -m "feat(w5): router recall — brainstorm/plan phrasing, build vocabulary"</code></div></li>
+</ul>
+    <div class='risk-callout'><span class='risk-label'>Risk</span> overfitting to 50 labels. The held-out P3 is what checks it. Keep patterns phrase-level, not prompt-specific.</div>
+    <div class="task-dod"><div class="task-dod-title">Definition of Done</div><div class='task-dod-item'><input type='checkbox'><span>P1 precision ≥ 90% and false-fire 0%; miss rate &lt; 57.1%</span></div><div class='task-dod-item'><input type='checkbox'><span>Every new pattern has a positive test and a near-miss negative test</span></div><div class='task-dod-item'><input type='checkbox'><span>No prompt text in git; nothing read from <code>*p3*</code> files (tuning firewall, spec §Tuning firewall)</span></div></div>
+  </div>
+</div>
+<div class="task" id="task-09">
+  <div class="task-header"><span class="task-chevron">›</span><span class="task-number">09</span><span class="task-name">skill-descriptions</span><div class="task-meta"></div></div>
+  <div class="task-body">
+    <div class="task-info-row"><div class="task-info-item"><strong>Blocked by:</strong> —</div><div class="task-info-item"><strong>Ticket:</strong> <code>docs/plans/2026-09-27-w5-outperform/tickets/09-skill-descriptions.md</code></div></div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);"><strong>Goal:</strong> The <code>brainstorm</code> and <code>plan</code> SKILL.md descriptions trigger on the phrasings the router misses. The model routes itself when the regex can't; 131 of 138 standalone corpus prompts get no router hit at all.</p>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);"><strong>Why:</strong> Recall past the regex depends on the model matching prompts to skill descriptions. Today's descriptions list mostly explicit commands ("brainstorm this", "write a plan"). Gal's actual task prompts ("what do you think about…", "how should we approach…", "turn this into…") aren't covered.</p>
+    <ul class="steps-list">
+<li class='step-item'><div class='step-label'>Step 1</div><div class='step-desc'>Invoke <code>/sir-albert:create-skill</code> in edit mode on <code>plugins/sir-albert/skills/core/brainstorm/SKILL.md</code>. This is <strong>mandatory</strong>: every SKILL.md edit goes through create-skill (Gal's rule). Input: the synthetic phrases from <code>docs/plans/2026-09-27-w5-outperform/08-phrase-candidates.md</code> (ticket 08 step 1, or derive them the same way if 08 isn't done). Ask: widen the description's trigger list to cover them, and keep "Use when …" first.</div></li>
+<li class='step-item'><div class='step-label'>Step 2</div><div class='step-desc'>Complete create-skill's full scoring loop and evals for brainstorm. Expected: it passes its own convergence threshold, and <code>hooks/validate-skill.py</code> passes on save.</div></li>
+<li class='step-item'><div class='step-label'>Step 3</div><div class='step-desc'>Same for <code>plugins/sir-albert/skills/core/plan/SKILL.md</code> (plan phrasings: "break this down", "how do we roll this out", "steps to …").</div></li>
+<li class='step-item'><div class='step-label'>Step 4</div><div class='step-desc'>Check the description length: <code>/usr/local/bin/python3.13 -c</code> to parse the frontmatter; each description must stay ≤ 1024 chars (agentskills spec).</div></li>
+<li class='step-item'><div class='step-label'>Step 5</div><div class='step-desc'>Run: <code>/usr/local/bin/python3.13 -m pytest -q plugins/sir-albert/tests/</code>. Expected: all pass.</div></li>
+<li class='step-item'><div class='step-label'>Step 6</div><div class='step-desc'>Commit: <code>git commit -m "feat(w5): brainstorm/plan descriptions cover Gal's real task phrasing"</code></div></li>
+</ul>
+    
+    <div class="task-dod"><div class="task-dod-title">Definition of Done</div><div class='task-dod-item'><input type='checkbox'><span>Both edits went through <code>/sir-albert:create-skill</code>, with scoring + evals recorded</span></div><div class='task-dod-item'><input type='checkbox'><span>Descriptions ≤ 1024 chars; validate-skill passes</span></div><div class='task-dod-item'><input type='checkbox'><span>No text from <code>*p3*</code> files used (tuning firewall)</span></div></div>
+  </div>
+</div>
+<div class="task" id="task-10">
+  <div class="task-header"><span class="task-chevron">›</span><span class="task-number">10</span><span class="task-name">fanout-in-turn</span><div class="task-meta"></div></div>
+  <div class="task-body">
+    <div class="task-info-row"><div class="task-info-item"><strong>Blocked by:</strong> 04</div><div class="task-info-item"><strong>Ticket:</strong> <code>docs/plans/2026-09-27-w5-outperform/tickets/10-fanout-in-turn.md</code></div></div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);"><strong>Goal:</strong> When brainstorm's explore/panel modes dispatch voice agents, the skill waits for them and synthesizes in the same turn. It never ends a turn with "I'll synthesize once they're back".</p>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);"><strong>Why:</strong> In W4 the only happy-path pair A lost on merit (<code>600120ad468a3201</code> rep 2) was B invoking brainstorm, dispatching 3 voices, and ending with no answer. Using the skill made the answer worse.</p>
+    <ul class="steps-list">
+<li class='step-item'><div class='step-label'>Step 1</div><div class='step-desc'>Read <code>docs/plans/2026-09-27-w5-outperform/04-probe-results.md</code> and take the verdict and wording from it:</div><ul style='margin:var(--space-2) 0 0 var(--space-5)'><li class='step-desc'><code>returns</code>: no skill change is needed. Close this ticket with a note and skip to step 5.</li><li class='step-desc'><code>returns-only-when-told-to-wait</code>: use ticket 04's exact wait wording.</li><li class='step-desc'><code>never-returns</code>: in headless runs, voices run sequentially inline (the coordinator writes each voice itself, clearly labelled), and the answer notes the loss of blindness.</li></ul></li>
+<li class='step-item'><div class='step-label'>Step 2</div><div class='step-desc'>Invoke <code>/sir-albert:create-skill</code> in edit mode on <code>plugins/sir-albert/skills/core/brainstorm/SKILL.md</code> (mandatory). Change the dispatch bullets at lines ~35 and ~42 and <code>references/modes.md:17</code> per step 1. Add: "Never end the turn before the synthesis is delivered."</div></li>
+<li class='step-item'><div class='step-label'>Step 3</div><div class='step-desc'>Complete create-skill's scoring loop and evals, including an eval where panel mode must deliver its synthesis in one turn.</div></li>
+<li class='step-item'><div class='step-label'>Step 4</div><div class='step-desc'>Live check (~$0.20, AUTO). Re-run W4 prompt <code>600120ad468a3201</code> on arm B with context (ticket 01 mechanism) into <code>runs-dev/</code>. Expected: the final text contains a synthesis, not just a status line.</div></li>
+<li class='step-item'><div class='step-label'>Step 5</div><div class='step-desc'>Suite green. Commit: <code>git commit -m "fix(w5): brainstorm panel synthesizes in-turn"</code></div></li>
+</ul>
+    
+    <div class="task-dod"><div class="task-dod-title">Definition of Done</div><div class='task-dod-item'><input type='checkbox'><span>Behavior matches the ticket 04 verdict; edited via create-skill</span></div><div class='task-dod-item'><input type='checkbox'><span>Live re-run delivers a synthesis in-turn</span></div></div>
+  </div>
+</div>
+<div class="task" id="task-11">
+  <div class="task-header"><span class="task-chevron">›</span><span class="task-number">11</span><span class="task-name">dev-loop</span><div class="task-meta"></div></div>
+  <div class="task-body">
+    <div class="task-info-row"><div class="task-info-item"><strong>Blocked by:</strong> 01, 03, 05 (spec commit only, step 2), 06, 07, 08, 09, 10</div><div class="task-info-item"><strong>Ticket:</strong> <code>docs/plans/2026-09-27-w5-outperform/tickets/11-dev-loop.md</code></div></div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);"><strong>Goal:</strong> A cheap arm-B-only replay of the 15 W4 tuning prompts, with context, meets the dev bar within ≤ 3 rounds: happy 5/5, router-silent ≥ 3/5, control 0 fires.</p>
+    
+    <ul class="steps-list">
+<li class='step-item'><div class='step-label'>Step 1</div><div class='step-desc'>Write the failing tests in <code>plugins/sir-albert/tests/eval/test_run_tranche.py</code>:</div><ul style='margin:var(--space-2) 0 0 var(--space-5)'><li class='step-desc'><code>test_arms_flag_b_only</code>: <code>run_tranche.py --arms b --rows all --reps 1 …</code> schedules 15 jobs, all arm b.</li><li class='step-desc'><code>test_context_passed</code>: jobs whose sample row has <code>preceding_turns</code> pass a context file as arg 6 to <code>run_one.sh</code>.</li><li class='step-desc'><code>test_legacy_positional_unchanged</code>: <code>run_tranche.py RUNDIR SAMPLE 2</code> still schedules W4 tranche 2 exactly.</li></ul></li>
+<li class='step-item'><div class='step-label'>Step 2</div><div class='step-desc'>Run: <code>/usr/local/bin/python3.13 -m pytest -q plugins/sir-albert/tests/eval/test_run_tranche.py</code>. Expected: new FAIL.</div></li>
+<li class='step-item'><div class='step-label'>Step 3</div><div class='step-desc'>Implement in <code>plugins/sir-albert/tools/eval/run_tranche.py</code>: argparse with the legacy positional form kept, plus <code>--arms</code> (default <code>a,b</code>), <code>--rows all|1|2</code>, <code>--reps</code> (default 2), and <code>--expected N</code>. Write the context files to <code>docs/plans/2026-09-27-w5-outperform/context/&lt;hash&gt;.json</code> (gitignored).</div></li>
+<li class='step-item'><div class='step-label'>Step 4</div><div class='step-desc'>Run the step 2 command again. Expected: PASS. Suite green.</div></li>
+<li class='step-item'><div class='step-label'>Step 5</div><div class='step-desc'>Write <code>plugins/sir-albert/tools/eval/dev_report.py</code> with a test <code>test_dev_report_real_schema</code>. The fixture sample uses <code>_hash</code> (the real <code>sample.jsonl</code> key; this is the W4 <code>aee9250</code> lesson). Output: per slice, hit counts and fire counts. Prints <code>DEV PASS</code> or <code>DEV FAIL</code> against the bar.</div></li>
+<li class='step-item'><div class='step-label'>Step 6</div><div class='step-desc'>Round N (~$3 per round, AUTO, total cap $15). Re-pin the clone at the current HEAD: <code>W4_RUNDIR=~/.claude/sir-albert-w5-dev-rN bash plugins/sir-albert/tools/eval/build_arms.sh</code> → <code>canary_preflight.sh</code> → <code>W4_BUDGET_USD=5 run_tranche.py ~/.claude/sir-albert-w5-dev-rN docs/plans/2026-09-26-w4-eval/sample.jsonl --arms b --rows all --reps 1</code> into <code>W4_ARTIFACT_DIR=docs/plans/2026-09-27-w5-outperform/runs-dev/rN</code>. Then <code>grep '"model"' ~/.claude/settings.json</code>.</div></li>
+<li class='step-item'><div class='step-label'>Step 7</div><div class='step-desc'><code>dev_report.py runs-dev/rN</code>. Append counts only (no text) to <code>docs/plans/2026-09-27-w5-outperform/11-dev-log.md</code>, one row per round: SHA, happy, silent, control fires, and cost.</div></li>
+<li class='step-item'><div class='step-label'>Step 8</div><div class='step-desc'>On <code>DEV FAIL</code>: diagnose each miss from its artifact, make one change in the relevant ticket's files (06/07/08/09/10 rules apply, including create-skill for any SKILL.md), commit, and go to step 6. Stop after round 3 and report to Gal. Don't widen the P3 gates.</div></li>
+<li class='step-item'><div class='step-label'>Step 9</div><div class='step-desc'>Commit the tooling and dev log: <code>git commit -m "feat(w5): B-only dev loop runner + report"</code></div></li>
+</ul>
+    <div class='risk-callout'><span class='risk-label'>Risk</span> these 15 prompts are now tuned-on. A dev pass is necessary, not sufficient; only P3 counts.</div>
+    <div class="task-dod"><div class="task-dod-title">Definition of Done</div><div class='task-dod-item'><input type='checkbox'><span><code>DEV PASS</code> in ≤ 3 rounds, or a stop-and-report to Gal with per-miss diagnosis</span></div><div class='task-dod-item'><input type='checkbox'><span>Legacy W4 invocation unchanged (test)</span></div><div class='task-dod-item'><input type='checkbox'><span>Dev spend ≤ $15, logged per round</span></div></div>
+  </div>
+</div>
+<div class="task" id="task-12">
+  <div class="task-header"><span class="task-chevron">›</span><span class="task-number">12</span><span class="task-name">freeze-and-run-p3</span><div class="task-meta"><span class='badge badge-red'>CHECKPOINT · Gal yes · spend</span></div></div>
+  <div class="task-body">
+    <div class="task-info-row"><div class="task-info-item"><strong>Blocked by:</strong> 05, 11</div><div class="task-info-item"><strong>Ticket:</strong> <code>docs/plans/2026-09-27-w5-outperform/tickets/12-freeze-and-run-p3.md</code></div></div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);"><strong>Goal:</strong> 180 valid P3 runs (30 held-out prompts × 2 reps × 3 arms B/A/S) on Sonnet 5, against a frozen and tagged sir_albert SHA, interleaved per prompt and rep.</p>
+    
+    <ul class="steps-list">
+<li class='step-item'><div class='step-label'>Step 1</div><div class='step-desc'>Write the failing tests:</div><ul style='margin:var(--space-2) 0 0 var(--space-5)'><li class='step-desc'><code>plugins/sir-albert/tests/eval/test_arm_builder.py::test_arm_s_settings</code>: <code>build_arms.sh</code> writes <code>arm-s-settings.json</code> (superpowers true) and <code>run-manifest.json</code> has <code>arm_s_settings</code>.</li><li class='step-desc'><code>plugins/sir-albert/tests/eval/test_run_executor.py::test_arm_s_has_no_plugin_dir</code>: for arm <code>s</code>, the stub argv has no <code>--plugin-dir</code>. For <code>a</code>/<code>b</code> it does.</li><li class='step-desc'><code>plugins/sir-albert/tests/eval/test_canary.py::test_canary_arm_s</code>: the canary asserts S loads superpowers skills and 0 <code>sir-albert:</code> skills.</li></ul></li>
+<li class='step-item'><div class='step-label'>Step 2</div><div class='step-desc'>Run those 3 tests. Expected: FAIL.</div></li>
+<li class='step-item'><div class='step-label'>Step 3</div><div class='step-desc'>Implement in <code>build_arms.sh</code> (arm S settings plus manifest key), <code>run_one.sh</code> (arm <code>s</code> → <code>arm_s_settings</code>, no <code>--plugin-dir</code>), and <code>canary_preflight.sh</code> (a third canary, <code>canary-s.jsonl</code>). Also <code>run_tranche.py</code>: <code>--arms b,a,s</code> interleaves <code>b a s</code> per prompt and rep, and the precondition loop checks canaries for the requested arms only.</div></li>
+<li class='step-item'><div class='step-label'>Step 4</div><div class='step-desc'>Run the tests again. Expected: PASS. Full suite green.</div></li>
+<li class='step-item'><div class='step-label'>Step 5</div><div class='step-desc'>Freeze: <code>git tag w5-freeze</code> (local only, never pushed). Build with <code>W4_RUNDIR=~/.claude/sir-albert-w5-p3 bash plugins/sir-albert/tools/eval/build_arms.sh</code>, then check that <code>run-manifest.json</code> <code>pin_sha</code> equals <code>git rev-parse w5-freeze</code>.</div></li>
+<li class='step-item'><div class='step-label'>Step 6</div><div class='step-desc'><code>canary_preflight.sh ~/.claude/sir-albert-w5-p3</code>: 3 arms PASS on <code>claude-sonnet-5</code>. Then <code>grep '"model"' ~/.claude/settings.json</code>.</div></li>
+<li class='step-item'><div class='step-label'>CHECKPOINT</div><div class='step-desc'><strong>CHECKPOINT: Gal's explicit yes</strong> for 180 runs (~$33 expected; runner budget cap $60).</div></li>
+<li class='step-item'><div class='step-label'>Step 8</div><div class='step-desc'>Run in the background, lid open, no new Claude sessions: <code>W4_BUDGET_USD=60 W4_PARALLEL=4 W4_ARTIFACT_DIR=docs/plans/2026-09-27-w5-outperform/runs-p3 /usr/local/bin/python3.13 plugins/sir-albert/tools/eval/run_tranche.py ~/.claude/sir-albert-w5-p3 docs/plans/2026-09-27-w5-outperform/sample-p3.jsonl --arms b,a,s --rows all --reps 2 --expected 180</code></div></li>
+<li class='step-item'><div class='step-label'>Step 9</div><div class='step-desc'>Audit (<code>/tmp/w4-audit.py</code> generalized to 3 arms and saved as <code>plugins/sir-albert/tools/eval/audit_runs.py</code>, with a test on a real-schema fixture). Expected: 180 artifacts, 60 per arm, 0 infra errors (ticket 03 definition), 0 empty, all <code>claude-sonnet-5</code>, 60 complete (prompt, rep) triples, and cut-offs reported per arm.</div></li>
+<li class='step-item'><div class='step-label'>Step 10</div><div class='step-desc'>Check the clone is untouched: <code>git -C &lt;clone&gt; status --porcelain</code> is empty and <code>rev-parse</code> equals <code>w5-freeze</code>.</div></li>
+</ul>
+    <div class='checkpoint'><div class='checkpoint-title'>CHECKPOINT</div>Step 7: live spend of ~$33 (cap $60). Needs Gal's explicit yes for this action. Plan approval doesn't cover it.</div>
+    <div class="task-dod"><div class="task-dod-title">Definition of Done</div><div class='task-dod-item'><input type='checkbox'><span>180/180 valid, complete triples, audit script committed with test</span></div><div class='task-dod-item'><input type='checkbox'><span>Frozen SHA verified in the manifest and the clone</span></div><div class='task-dod-item'><input type='checkbox'><span>Gal's default model intact</span></div></div>
+  </div>
+</div>
+<div class="task" id="task-13">
+  <div class="task-header"><span class="task-chevron">›</span><span class="task-number">13</span><span class="task-name">judge-verdict-p3</span><div class="task-meta"></div></div>
+  <div class="task-body">
+    <div class="task-info-row"><div class="task-info-item"><strong>Blocked by:</strong> 02, 12</div><div class="task-info-item"><strong>Ticket:</strong> <code>docs/plans/2026-09-27-w5-outperform/tickets/13-judge-verdict-p3.md</code></div></div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);"><strong>Goal:</strong> Judge v2 verdicts for B-vs-S and B-vs-A, and <code>verdict_p3.py</code> computing G1–G4 exactly as pre-registered. The result is OUTPERFORM / FAIL / ABORT / INCONCLUSIVE plus a separate UNINSTALL-SAFE line.</p>
+    
+    <ul class="steps-list">
+<li class='step-item'><div class='step-label'>Step 1</div><div class='step-desc'>Write the failing tests in <code>plugins/sir-albert/tests/eval/test_verdict_p3.py</code>. All fixtures use the <strong>real schemas</strong>: sample rows keyed <code>_hash</code> with <code>p2_slice</code>-style <code>p3_slice</code>, artifacts with <code>skills_called</code> as namespaced strings, and judge-v2 resolved rows with <code>left_arm</code>/<code>right_arm</code>.</div><ul style='margin:var(--space-2) 0 0 var(--space-5)'><li class='step-desc'>G1–G3 per-run rates per arm, including a case where B ties S on G2 → FAIL (strict &gt;).</li><li class='step-desc'>G3 counts a <code>sir-albert:create-skill</code> call on a control as a fire (the W4 A case).</li><li class='step-desc'>G4 bootstrap is deterministic with seed 0; the lower bound on a known fixture matches a hand-computed value.</li><li class='step-desc'>Exit codes 0/1/2/3; the UNINSTALL-SAFE line is independent of OUTPERFORM.</li><li class='step-desc'>ABORT when the run count ≠ 180 or judge_error &gt; 5%.</li></ul></li>
+<li class='step-item'><div class='step-label'>Step 2</div><div class='step-desc'>Run: <code>/usr/local/bin/python3.13 -m pytest -q plugins/sir-albert/tests/eval/test_verdict_p3.py</code>. Expected: FAIL (module missing).</div></li>
+<li class='step-item'><div class='step-label'>Step 3</div><div class='step-desc'>Implement <code>plugins/sir-albert/tools/eval/verdict_p3.py</code>, reusing <code>_skill_to_route</code> from <code>prompt_corpus.py</code>. Report: gates table, per-slice rates per arm, win-rates with CI for both comparisons, cut-offs per arm, "describes Sonnet 5", and the fixed "uninstall is Gal's decision" paragraph.</div></li>
+<li class='step-item'><div class='step-label'>Step 4</div><div class='step-desc'>Run the step 2 command again. Expected: PASS. Full suite green.</div></li>
+<li class='step-item'><div class='step-label'>Step 5</div><div class='step-desc'>Smoke-test the judge on 1 B-vs-S pair (~$0.08), then check the model.</div></li>
+<li class='step-item'><div class='step-label'>Step 6</div><div class='step-desc'>Full judge (~$10, AUTO under the plan budget; sequential): <code>blind_judge.py --runs-dir docs/plans/2026-09-27-w5-outperform/runs-p3 --pair b:s --rubric --max-chars 6000 --model claude-opus-5-5 --out docs/plans/2026-09-27-w5-outperform/judgments-bs.jsonl</code>, then the same with <code>--pair b:a</code> → <code>judgments-ba.jsonl</code>. <code>W4_RESTORE_MODEL='claude-opus-5-5[1m]'</code>.</div></li>
+<li class='step-item'><div class='step-label'>Step 7</div><div class='step-desc'>Bias checks before the verdict: position split (left vs right wins), count of reasons mentioning <code>[skill]</code>/placeholder/template (expect 0), and the judge_error count.</div></li>
+<li class='step-item'><div class='step-label'>Step 8</div><div class='step-desc'>Spot-check by hand 3 judgments per comparison (one per verdict type) against the full artifacts. Record them in the report.</div></li>
+<li class='step-item'><div class='step-label'>Step 9</div><div class='step-desc'>Run <code>verdict_p3.py --runs-dir … --judgments-bs … --judgments-ba … --sample docs/plans/2026-09-27-w5-outperform/sample-p3.jsonl --out-dir docs/plans/2026-09-27-w5-outperform</code>.</div></li>
+<li class='step-item'><div class='step-label'>Step 10</div><div class='step-desc'>Sensitivity: rerun G4 excluding (a) pairs with any cut-off and (b) pairs where only one side has <code>[skill]</code>. Report the range.</div></li>
+<li class='step-item'><div class='step-label'>Step 11</div><div class='step-desc'>Commit the tooling (not the judgments or runs): <code>git commit -m "feat(w5): P3 verdict — outperform + uninstall-safe gates"</code></div></li>
+</ul>
+    
+    <div class="task-dod"><div class="task-dod-title">Definition of Done</div><div class='task-dod-item'><input type='checkbox'><span>Real-schema fixtures; every new test fails on missing or old code and passes on the new code</span></div><div class='task-dod-item'><input type='checkbox'><span>Both judge passes complete with judge_error ≤ 5%; bias checks recorded</span></div><div class='task-dod-item'><input type='checkbox'><span>Verdict report written, sensitivity range included</span></div></div>
+  </div>
+</div>
+<div class="task" id="task-14">
+  <div class="task-header"><span class="task-chevron">›</span><span class="task-number">14</span><span class="task-name">e2e-verify</span><div class="task-meta"><span class='badge badge-red'>CHECKPOINT · No push</span><span class='badge badge-green'>Verification</span></div></div>
+  <div class="task-body">
+    <div class="task-info-row"><div class="task-info-item"><strong>Blocked by:</strong> 13</div><div class="task-info-item"><strong>Ticket:</strong> <code>docs/plans/2026-09-27-w5-outperform/tickets/14-e2e-verify.md</code></div></div>
+    <p style="font-size:var(--text-body-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3);"><strong>Goal:</strong> Every gate in the P3 verdict is independently recomputed from raw artifacts and matches. Nothing text-bearing is tracked in git. The result is presented to Gal with the uninstall decision left to him.</p>
+    
+    <ul class="steps-list">
+<li class='step-item'><div class='step-label'>Step 1</div><div class='step-desc'>Independent recompute: write a throwaway script in <code>mktemp -d</code> (not reusing <code>verdict_p3.py</code> code) that reads <code>runs-p3/*.json</code>, <code>sample-p3.jsonl</code>, and both resolved judgment files, and recomputes G1–G4. Expected: identical numbers to the verdict report. Any mismatch is a bug in <code>verdict_p3.py</code>; fix it test-first.</div></li>
+<li class='step-item'><div class='step-label'>Step 2</div><div class='step-desc'>Provenance: every artifact's <code>init_event</code> model is <code>claude-sonnet-5</code>. <code>run-manifest.json</code> <code>pin_sha</code> == <code>git rev-parse w5-freeze</code>. Arm S artifacts show 0 <code>sir-albert:</code> skills loaded, and arm B shows 0 <code>superpowers:</code> skills loaded.</div></li>
+<li class='step-item'><div class='step-label'>Step 3</div><div class='step-desc'>Held-out integrity: 0 overlap between <code>sample-p3.jsonl</code> hashes and the W4 <code>labeled-set.jsonl</code>/<code>sample.jsonl</code>. The spec commit predates the first <code>11-dev-log.md</code> row.</div></li>
+<li class='step-item'><div class='step-label'>Step 4</div><div class='step-desc'>Privacy scan: for each <code>sample-p3.jsonl</code> and W4 <code>sample.jsonl</code> row, take a 40-char substring of its text and grep for it in <code>git ls-files -z | xargs -0 cat</code> and in <code>git log -p</code>. Expected: 0 hits.</div></li>
+<li class='step-item'><div class='step-label'>Step 5</div><div class='step-desc'>Gal's settings: <code>grep '"model"' ~/.claude/settings.json</code> → <code>claude-opus-5-5[1m]</code>.</div></li>
+<li class='step-item'><div class='step-label'>Step 6</div><div class='step-desc'>Run: <code>/usr/local/bin/python3.13 -m pytest -q plugins/sir-albert/tests/</code>. Expected: all pass.</div></li>
+<li class='step-item'><div class='step-label'>Step 7</div><div class='step-desc'>Write a handoff via <code>/sir-albert:handoff</code>.</div></li>
+<li class='step-item'><div class='step-label'>Step 8</div><div class='step-desc'>Present to Gal: TLDR verdict (OUTPERFORM or not, UNINSTALL-SAFE or not), the gate table, per-slice rates for B/A/S, the CI range, sensitivity, total spend, and the known limits.</div></li>
+</ul>
+    <div class='checkpoint'><div class='checkpoint-title'>CHECKPOINT</div>No push or PR (Gal is moving the repo to <code>dapulse</code> first). Uninstalling superpowers is Gal's separate decision and is never inferred from OUTPERFORM.</div>
+    <div class="task-dod"><div class="task-dod-title">Definition of Done</div><div class='task-dod-item'><input type='checkbox'><span>Independent recompute matches the verdict exactly</span></div><div class='task-dod-item'><input type='checkbox'><span>Provenance, held-out, and privacy checks all pass</span></div><div class='task-dod-item'><input type='checkbox'><span>Verdict presented; no push, no uninstall</span></div></div>
+  </div>
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      primaryColor: '#6164ff',
+      primaryTextColor: '#ffffff',
+      primaryBorderColor: '#6164ff',
+      lineColor: '#c3ced8',
+      secondaryColor: '#232427',
+      tertiaryColor: '#2D3035',
+      fontFamily: 'Poppins, sans-serif',
+      fontSize: '14px',
+      nodeBorder: '#6164ff',
+      mainBkg: '#232427',
+      clusterBkg: '#2D3035',
+      edgeLabelBackground: '#232427',
+      actorBkg: '#6164ff',
+      actorTextColor: '#ffffff',
+      actorLineColor: '#c3ced8',
+      signalColor: '#c3ced8',
+      signalTextColor: '#ffffff',
+      activationBkgColor: '#2D3035',
+      sequenceNumberColor: '#ffffff'
+    }
+  });
+
+  // Collapsible tasks
+  document.querySelectorAll('.task-header').forEach(header => {
+    header.addEventListener('click', () => {
+      header.closest('.task').classList.toggle('open');
+    });
+  });
+
+  // Progress tracking via checkboxes
+  function updateProgress() {
+    const all = document.querySelectorAll('.task-dod-item input[type="checkbox"]');
+    const checked = document.querySelectorAll('.task-dod-item input[type="checkbox"]:checked');
+    const taskCount = document.querySelectorAll('.task').length;
+    // Count tasks where all checkboxes are checked
+    let completedTasks = 0;
+    document.querySelectorAll('.task').forEach(task => {
+      const boxes = task.querySelectorAll('.task-dod-item input[type="checkbox"]');
+      const checkedBoxes = task.querySelectorAll('.task-dod-item input[type="checkbox"]:checked');
+      if (boxes.length > 0 && boxes.length === checkedBoxes.length) completedTasks++;
+    });
+    const pct = taskCount > 0 ? Math.round(completedTasks / taskCount * 100) : 0;
+    document.getElementById('progress-label').textContent = completedTasks + ' of ' + taskCount + ' tasks complete';
+    document.getElementById('progress-fill').style.width = pct + '%';
+  }
+
+  document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', updateProgress);
+  });
+  updateProgress();
+</script>
+</body>
+</html>

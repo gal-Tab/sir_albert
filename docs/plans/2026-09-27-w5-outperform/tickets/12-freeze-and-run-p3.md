@@ -1,0 +1,29 @@
+# 12 — freeze-and-run-p3
+
+**Blocked by:** 05, 11
+
+## Goal
+180 valid P3 runs (30 held-out prompts × 2 reps × 3 arms B/A/S) on Sonnet 5, against a frozen and tagged sir_albert SHA, interleaved per prompt and rep.
+
+## Steps
+1. Write the failing tests:
+   - `plugins/sir-albert/tests/eval/test_arm_builder.py::test_arm_s_settings`: `build_arms.sh` writes `arm-s-settings.json` (superpowers true) and `run-manifest.json` has `arm_s_settings`.
+   - `plugins/sir-albert/tests/eval/test_run_executor.py::test_arm_s_has_no_plugin_dir`: for arm `s`, the stub argv has no `--plugin-dir`. For `a`/`b` it does.
+   - `plugins/sir-albert/tests/eval/test_canary.py::test_canary_arm_s`: the canary asserts S loads superpowers skills and 0 `sir-albert:` skills.
+2. Run those 3 tests. Expected: FAIL.
+3. Implement in `build_arms.sh` (arm S settings plus manifest key), `run_one.sh` (arm `s` → `arm_s_settings`, no `--plugin-dir`), and `canary_preflight.sh` (a third canary, `canary-s.jsonl`). Also `run_tranche.py`: `--arms b,a,s` interleaves `b a s` per prompt and rep, and the precondition loop checks canaries for the requested arms only.
+4. Run the tests again. Expected: PASS. Full suite green.
+5. Freeze: `git tag w5-freeze` (local only, never pushed). Build with `W4_RUNDIR=~/.claude/sir-albert-w5-p3 bash plugins/sir-albert/tools/eval/build_arms.sh`, then check that `run-manifest.json` `pin_sha` equals `git rev-parse w5-freeze`.
+6. `canary_preflight.sh ~/.claude/sir-albert-w5-p3`: 3 arms PASS on `claude-sonnet-5`. Then `grep '"model"' ~/.claude/settings.json`.
+7. **CHECKPOINT: Gal's explicit yes** for 180 runs (~$33 expected; runner budget cap $60).
+8. Run in the background, lid open, no new Claude sessions: `W4_BUDGET_USD=60 W4_PARALLEL=4 W4_ARTIFACT_DIR=docs/plans/2026-09-27-w5-outperform/runs-p3 /usr/local/bin/python3.13 plugins/sir-albert/tools/eval/run_tranche.py ~/.claude/sir-albert-w5-p3 docs/plans/2026-09-27-w5-outperform/sample-p3.jsonl --arms b,a,s --rows all --reps 2 --expected 180`
+9. Audit (`/tmp/w4-audit.py` generalized to 3 arms and saved as `plugins/sir-albert/tools/eval/audit_runs.py`, with a test on a real-schema fixture). Expected: 180 artifacts, 60 per arm, 0 infra errors (ticket 03 definition), 0 empty, all `claude-sonnet-5`, 60 complete (prompt, rep) triples, and cut-offs reported per arm.
+10. Check the clone is untouched: `git -C <clone> status --porcelain` is empty and `rev-parse` equals `w5-freeze`.
+
+## Definition of Done
+- [ ] 180/180 valid, complete triples, audit script committed with test
+- [ ] Frozen SHA verified in the manifest and the clone
+- [ ] Gal's default model intact
+
+## CHECKPOINT
+Step 7: live spend of ~$33 (cap $60). Needs Gal's explicit yes for this action. Plan approval doesn't cover it.
