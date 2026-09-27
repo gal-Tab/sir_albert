@@ -1652,6 +1652,335 @@ def cmd_label_set_p3(args):
         print("WARN: 0 router_match candidates after exclusion — all baseline-router matches are in the exclude set")
 
 
+# ── import-labels-p3 ──────────────────────────────────────────────────────────
+
+# Brainstorm sub-mode routes that normalise to "brainstorm" for scoring purposes.
+_BRAINSTORM_MODES: frozenset[str] = frozenset({"design", "attack", "grill", "zoom-out", "explore"})
+
+
+def _normalise_route(route: str | None) -> str | None:
+    """Normalise brainstorm sub-mode routes to 'brainstorm'; pass others through."""
+    if route is None:
+        return None
+    return "brainstorm" if route in _BRAINSTORM_MODES else route
+
+
+def cmd_import_labels_p3(args):
+    """Parse one or more P3 labeling checklists into a text-free labels-p3.jsonl.
+
+    Reuses _HEADER_RE / _PREDICTED_RE / _LABEL_LINE_RE.
+    Semantics:
+      y on router_match   → normalised(predicted_route)
+      y on negative_control → "none"
+      y on task_initiating  → error
+    Brainstorm modes (design, attack, grill, zoom-out, explore) normalise to "brainstorm"
+    for the label, but the raw predicted route is kept in predicted_route.
+    Aborts on blank (unfilled '___') or invalid labels.
+    """
+    checklist_files = args.checklist      # list[str]
+    rows_files = getattr(args, "rows", [])  # list[str]; used for hash validation
+    out_path = Path(args.out)
+    valid = _P3_VALID_LABELS  # brainstorm, plan, execute, debug, build, handoff, none, ambiguous
+
+    # Build rows lookup for hash validation
+    rows_map: dict[str, dict] = {}
+    for fpath in rows_files:
+        for row in load_jsonl(str(fpath)):
+            h = row.get("_hash", "")
+            if h:
+                rows_map[h] = row
+
+    # Parse all checklist files
+    # hash -> (label_raw, slice_, predicted_raw)
+    parsed: dict[str, tuple[str, str, str | None]] = {}
+    blank_hashes: list[str] = []
+
+    for checklist_path in checklist_files:
+        content = Path(checklist_path).read_text(encoding="utf-8")
+        lines = content.splitlines()
+
+        current_hash: str | None = None
+        current_slice: str | None = None
+        current_predicted: str | None = None
+        label_found: bool = False
+
+        for line in lines:
+            m = _HEADER_RE.match(line)
+            if m:
+                # Check previous entry had a label
+                if current_hash is not None and not label_found:
+                    blank_hashes.append(current_hash)
+                current_hash = m.group(1)
+                current_slice = m.group(2)
+                current_predicted = None
+                label_found = False
+                continue
+
+            if current_hash:
+                pm = _PREDICTED_RE.match(line)
+                if pm:
+                    current_predicted = pm.group(1)
+                    continue
+
+                lm = _LABEL_LINE_RE.match(line)
+                if lm:
+                    label_raw = lm.group(1).strip("_*` ").lower()
+                    if label_raw == "yes":
+                        label_raw = "y"
+                    label_found = True
+                    if label_raw:
+                        parsed[current_hash] = (label_raw, current_slice, current_predicted)
+                    else:
+                        # Blank (unfilled ___) after stripping
+                        blank_hashes.append(current_hash)
+                    current_hash = None
+                    current_slice = None
+                    current_predicted = None
+
+        # End of file: check last entry
+        if current_hash is not None and not label_found:
+            blank_hashes.append(current_hash)
+
+    # Resolve shorthands and validate
+    errors: list[str] = []
+    if blank_hashes:
+        for h in blank_hashes:
+            errors.append(f"hash={h}: blank label (unfilled '___')")
+
+    resolved: list[dict] = []
+    now = datetime.now(timezone.utc).isoformat()
+
+    for h, (label_raw, slice_, predicted_raw) in parsed.items():
+        if label_raw == "y":
+            if slice_ == "router_match":
+                if predicted_raw is None:
+                    errors.append(f"hash={h}: 'y' on router_match but no predicted route in checklist")
+                    continue
+                label = _normalise_route(predicted_raw)
+            elif slice_ == "negative_control":
+                label = "none"
+            elif slice_ == "task_initiating":
+                errors.append(
+                    f"hash={h}: 'y' is not valid for task_initiating slice (no predicted route)"
+                )
+                continue
+            else:
+                errors.append(f"hash={h}: unknown slice '{slice_}'")
+                continue
+        else:
+            if label_raw not in valid:
+                errors.append(f"hash={h}: invalid label '{label_raw}'")
+                continue
+            label = label_raw
+
+        resolved.append({
+            "_hash": h,
+            "slice": slice_,
+            "label": label,
+            "predicted_route": predicted_raw,
+            "labeled_by": "gal",
+            "labeled_at": now,
+        })
+
+    if errors:
+        for e in errors:
+            print(e)
+        sys.exit(1)
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(
+        "\n".join(json.dumps(r, ensure_ascii=False) for r in resolved) + "\n",
+        encoding="utf-8",
+    )
+    print(f"import-labels-p3: {len(resolved)} labels written to {out_path}")
+
+
+# ── sample-p3 ─────────────────────────────────────────────────────────────────
+
+_P3_TASK_ROUTES: frozenset[str] = frozenset(
+    {"brainstorm", "plan", "execute", "debug", "build", "handoff"}
+)
+_P3_SAMPLE_N = 10  # per stratum
+
+
+def cmd_sample_p3(args):
+    """Build a 30-row held-out sample (10 happy / 10 router_silent / 10 control).
+
+    Reads a text-free labels-p3.jsonl (--labels) and one or more original rows
+    files (--rows) that carry text + preceding_turns.
+
+    Strata:
+      happy_path     router_match, label ∈ task routes, label == normalised(predicted_route)
+      router_silent  task_initiating, label ∈ task routes
+      control        label "none"; negative_control rows preferred, task_initiating fill
+      ambiguous      always excluded
+      router_misfire (diagnostic) router_match, label ∈ task routes, label ≠ normalised prediction
+                     → written to sample-p3-misfire.jsonl, NOT in the 30
+
+    Output: {_hash, text, preceding_turns, label, p3_slice}, rotated h-s-c.
+    """
+    labels_path = Path(args.labels)
+    rows_files = args.rows  # list[str]
+    seed = getattr(args, "seed", 7)
+    out_path = Path(args.out)
+    misfire_path = out_path.parent / "sample-p3-misfire.jsonl"
+
+    # Load text-free labels
+    labels_map: dict[str, dict] = {}
+    for row in load_jsonl(str(labels_path)):
+        labels_map[row["_hash"]] = row
+
+    # Load original rows for text + preceding_turns lookup
+    rows_map: dict[str, dict] = {}
+    for fpath in rows_files:
+        for row in load_jsonl(str(fpath)):
+            h = row.get("_hash", "")
+            if h:
+                rows_map[h] = row
+
+    # Build pools
+    happy_pool: list[dict] = []
+    router_silent_pool: list[dict] = []
+    control_nc_pool: list[dict] = []  # negative_control, label=none
+    control_ti_pool: list[dict] = []  # task_initiating, label=none
+    misfire_rows: list[dict] = []     # all misfires (not sampled)
+
+    for h, lrow in labels_map.items():
+        label = lrow.get("label")
+        slice_ = lrow.get("slice")
+        predicted_raw = lrow.get("predicted_route")
+
+        if label == "ambiguous":
+            continue
+
+        src_row = rows_map.get(h)
+        if src_row is None:
+            continue
+
+        text = src_row.get("text", "")
+        preceding_turns = src_row.get("preceding_turns", [])
+        normalised_pred = _normalise_route(predicted_raw)
+
+        if slice_ == "router_match":
+            if label in _P3_TASK_ROUTES:
+                if label == normalised_pred:
+                    happy_pool.append({
+                        "_hash": h, "text": text, "preceding_turns": preceding_turns,
+                        "label": label, "predicted_route": predicted_raw,
+                        "slice": slice_,
+                    })
+                else:
+                    # Misfire: label is real task label but != normalised prediction
+                    misfire_rows.append({
+                        "_hash": h, "text": text, "preceding_turns": preceding_turns,
+                        "label": label, "p3_slice": "router_misfire",
+                    })
+            # router_match + none → not used in any stratum
+
+        elif slice_ == "task_initiating":
+            if label in _P3_TASK_ROUTES:
+                router_silent_pool.append({
+                    "_hash": h, "text": text, "preceding_turns": preceding_turns,
+                    "label": label, "slice": slice_,
+                })
+            elif label == "none":
+                control_ti_pool.append({
+                    "_hash": h, "text": text, "preceding_turns": preceding_turns,
+                    "label": label, "slice": slice_,
+                })
+
+        elif slice_ == "negative_control":
+            if label == "none":
+                control_nc_pool.append({
+                    "_hash": h, "text": text, "preceding_turns": preceding_turns,
+                    "label": label, "slice": slice_,
+                })
+
+    # Control pool: drain negative_control first, fill from task_initiating
+    random.seed(seed)
+    n_nc = min(_P3_SAMPLE_N, len(control_nc_pool))
+    nc_sample = random.sample(control_nc_pool, n_nc)
+    remaining = _P3_SAMPLE_N - n_nc
+    if remaining > 0 and control_ti_pool:
+        random.seed(seed + 1)
+        ti_sample = random.sample(control_ti_pool, min(remaining, len(control_ti_pool)))
+    else:
+        ti_sample = []
+    control_pool_merged = nc_sample + ti_sample  # ordered: nc first
+
+    # Sample happy and router_silent
+    random.seed(seed)
+    happy_sample = random.sample(happy_pool, min(_P3_SAMPLE_N, len(happy_pool)))
+    random.seed(seed)
+    router_silent_sample = random.sample(router_silent_pool, min(_P3_SAMPLE_N, len(router_silent_pool)))
+    control_sample = control_pool_merged[:_P3_SAMPLE_N]
+
+    # Check shortfalls — never pad
+    shortfalls: list[str] = []
+    if len(happy_sample) < _P3_SAMPLE_N:
+        shortfalls.append(
+            f"happy_path: {len(happy_pool)} available, need {_P3_SAMPLE_N} "
+            f"(shortfall {_P3_SAMPLE_N - len(happy_pool)})"
+        )
+    if len(router_silent_sample) < _P3_SAMPLE_N:
+        shortfalls.append(
+            f"router_silent: {len(router_silent_pool)} available, need {_P3_SAMPLE_N} "
+            f"(shortfall {_P3_SAMPLE_N - len(router_silent_pool)})"
+        )
+    if len(control_sample) < _P3_SAMPLE_N:
+        total_ctrl = len(control_nc_pool) + len(control_ti_pool)
+        shortfalls.append(
+            f"control: {total_ctrl} available, need {_P3_SAMPLE_N} "
+            f"(shortfall {_P3_SAMPLE_N - total_ctrl})"
+        )
+    if shortfalls:
+        for s in shortfalls:
+            print(f"SHORTFALL: {s}")
+        sys.exit(1)
+
+    # Tag p3_slice
+    for r in happy_sample:
+        r["p3_slice"] = "happy_path"
+    for r in router_silent_sample:
+        r["p3_slice"] = "router_silent"
+    for r in control_sample:
+        r["p3_slice"] = "control"
+
+    # Rotate h-s-c
+    output_rows: list[dict] = []
+    for i in range(_P3_SAMPLE_N):
+        output_rows.append(happy_sample[i])
+        output_rows.append(router_silent_sample[i])
+        output_rows.append(control_sample[i])
+
+    def _fmt(r: dict) -> dict:
+        return {
+            "_hash": r["_hash"],
+            "text": r.get("text", ""),
+            "preceding_turns": r.get("preceding_turns", []),
+            "label": r["label"],
+            "p3_slice": r["p3_slice"],
+        }
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(
+        "\n".join(json.dumps(_fmt(r), ensure_ascii=False) for r in output_rows) + "\n",
+        encoding="utf-8",
+    )
+
+    # Misfire diagnostic file (always written, even if empty)
+    misfire_path.write_text(
+        "\n".join(json.dumps(r, ensure_ascii=False) for r in misfire_rows) + "\n"
+        if misfire_rows else "",
+        encoding="utf-8",
+    )
+
+    print(
+        f"sample-p3: happy={len(happy_sample)} router_silent={len(router_silent_sample)} "
+        f"control={len(control_sample)} misfire={len(misfire_rows)}"
+    )
+
+
 # ── CLI ────────────────────────────────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser(description="sir_albert prompt corpus tool")
@@ -1712,6 +2041,41 @@ def main():
         help="Output directory (default: docs/plans/2026-09-27-w5-outperform/)",
     )
 
+    p_import_p3 = sub.add_parser("import-labels-p3")
+    p_import_p3.add_argument(
+        "--checklist", nargs="+", required=True,
+        metavar="FILE",
+        help="One or more P3 labeling checklist .md files",
+    )
+    p_import_p3.add_argument(
+        "--rows", nargs="+", required=True,
+        metavar="FILE",
+        help="One or more P3 candidate rows .jsonl files (for hash validation)",
+    )
+    p_import_p3.add_argument(
+        "--out", required=True,
+        metavar="FILE",
+        help="Output path for text-free labels-p3.jsonl",
+    )
+
+    p_sample_p3 = sub.add_parser("sample-p3")
+    p_sample_p3.add_argument(
+        "--labels", required=True,
+        metavar="FILE",
+        help="Text-free labels-p3.jsonl (from import-labels-p3)",
+    )
+    p_sample_p3.add_argument(
+        "--rows", nargs="+", required=True,
+        metavar="FILE",
+        help="Original rows .jsonl files carrying text + preceding_turns",
+    )
+    p_sample_p3.add_argument("--seed", type=int, default=7)
+    p_sample_p3.add_argument(
+        "--out", required=True,
+        metavar="FILE",
+        help="Output path for sample-p3.jsonl (misfire written to same dir)",
+    )
+
     args = parser.parse_args()
     if args.cmd == "extract":
         cmd_extract(args)
@@ -1734,6 +2098,10 @@ def main():
         cmd_sample_p2(args)
     elif args.cmd == "label-set-p3":
         cmd_label_set_p3(args)
+    elif args.cmd == "import-labels-p3":
+        cmd_import_labels_p3(args)
+    elif args.cmd == "sample-p3":
+        cmd_sample_p3(args)
     else:
         parser.print_help()
 

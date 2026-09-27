@@ -592,3 +592,441 @@ class TestP3ChecklistRendering:
         assert out[0].startswith("> **assistant:**")
         assert all(line.startswith(">") for line in out)
         assert not any("**user:**" in line for line in out)
+
+
+# ── import-labels-p3 / sample-p3 fixture helpers ─────────────────────────────
+
+
+def _make_p3_checklist_content(entries):
+    """Build a P3 checklist string from a list of entry dicts.
+
+    entry = {
+        'n': int,
+        'hash': str,
+        'slice': str,      # router_match | task_initiating | negative_control
+        'predicted': str | None,
+        'label': str,      # filled-in label (e.g. 'y', 'brainstorm', '___')
+    }
+    """
+    lines = ["# Labeling Checklist — W5 P3 Held-Out Set", ""]
+    for e in entries:
+        lines.append(f"### [{e['n']}] hash={e['hash']} slice={e['slice']}")
+        lines.append("**Prompt:**")
+        lines.append(f"> some synthetic prompt text for {e['hash']}")
+        if e.get("predicted"):
+            lines.append(f"predicted: {e['predicted']}")
+        lines.append(f"**Label:** _{e['label']}_  **Notes:** ___")
+        lines.append("")
+    return "\n".join(lines)
+
+
+def _make_p3_rows_for_checklist(entries):
+    """Build row dicts matching the labeled-set-p3.jsonl schema."""
+    rows = []
+    for e in entries:
+        rows.append({
+            "_hash": e["hash"],
+            "text": f"synthetic prompt text for {e['hash']}",
+            "predicted_route": e.get("predicted"),
+            "slice": e["slice"],
+            "label": None,
+            "labeled_by": None,
+            "labeled_at": None,
+            "preceding_turns": e.get("preceding_turns", []),
+        })
+    return rows
+
+
+def _run_import_labels_p3(tmp_path, checklist_entries, rows=None, *, subdir="", out_name="labels-p3.jsonl"):
+    """Run cmd_import_labels_p3 and return (output_rows, out_path)."""
+    cl_content = _make_p3_checklist_content(checklist_entries)
+    cl_file = tmp_path / f"{subdir}checklist.md"
+    cl_file.write_text(cl_content, encoding="utf-8")
+
+    if rows is None:
+        rows = _make_p3_rows_for_checklist(checklist_entries)
+    rows_file = tmp_path / f"{subdir}rows.jsonl"
+    _write_jsonl(rows_file, rows)
+
+    out_path = tmp_path / out_name
+    args = argparse.Namespace(
+        checklist=[str(cl_file)],
+        rows=[str(rows_file)],
+        out=str(out_path),
+    )
+    prompt_corpus.cmd_import_labels_p3(args)
+    out_rows = [
+        json.loads(line)
+        for line in out_path.read_text().splitlines()
+        if line.strip()
+    ]
+    return out_rows, out_path
+
+
+def _make_labels_p3_file(tmp_path, entries, name="labels-p3.jsonl"):
+    """Build a text-free labels-p3.jsonl from entry list (simulates import output)."""
+    rows = []
+    for e in entries:
+        rows.append({
+            "_hash": e["hash"],
+            "slice": e["slice"],
+            "label": e["label"],
+            "predicted_route": e.get("predicted"),
+            "labeled_by": "gal",
+            "labeled_at": "2026-09-27T00:00:00+00:00",
+        })
+    path = tmp_path / name
+    _write_jsonl(path, rows)
+    return path
+
+
+def _make_rows_with_text(tmp_path, entries, name="rows.jsonl"):
+    """Build a rows JSONL with text and preceding_turns (for sample-p3 --rows)."""
+    rows = []
+    for e in entries:
+        rows.append({
+            "_hash": e["hash"],
+            "text": f"synthetic text for {e['hash']}",
+            "predicted_route": e.get("predicted"),
+            "slice": e["slice"],
+            "label": None,
+            "labeled_by": None,
+            "labeled_at": None,
+            "preceding_turns": e.get("preceding_turns", []),
+        })
+    path = tmp_path / name
+    _write_jsonl(path, rows)
+    return path
+
+
+def _make_full_sample_entries():
+    """Return 12+12+12 entries with enough for a 10/10/10 sample."""
+    task_labels = ["brainstorm", "plan", "execute", "debug", "build", "handoff"]
+    entries = []
+    # 12 happy_path: router_match, label == predicted (normalised)
+    for i in range(12):
+        label = task_labels[i % len(task_labels)]
+        entries.append({
+            "hash": f"happy{i:012x}",
+            "slice": "router_match",
+            "predicted": label,
+            "label": label,
+        })
+    # 12 router_silent: task_initiating, task label
+    for i in range(12):
+        label = task_labels[i % len(task_labels)]
+        entries.append({
+            "hash": f"silent{i:011x}",
+            "slice": "task_initiating",
+            "predicted": None,
+            "label": label,
+        })
+    # 12 control: negative_control, label=none
+    for i in range(12):
+        entries.append({
+            "hash": f"ctrl{i:012x}",
+            "slice": "negative_control",
+            "predicted": None,
+            "label": "none",
+            "preceding_turns": [{"role": "user", "text": "prev"}],
+        })
+    return entries
+
+
+# ── TestImportLabelsP3 ────────────────────────────────────────────────────────
+
+
+class TestImportLabelsP3:
+    """Tests for import-labels-p3 subcommand (written before implementation)."""
+
+    def test_y_on_router_match_resolves_to_predicted_route(self, tmp_path):
+        """y on router_match → the normalised predicted route."""
+        entries = [{"n": 1, "hash": "aabb0000aabb0001", "slice": "router_match",
+                    "predicted": "brainstorm", "label": "y"}]
+        out_rows, _ = _run_import_labels_p3(tmp_path, entries)
+        assert len(out_rows) == 1
+        assert out_rows[0]["label"] == "brainstorm"
+        assert out_rows[0]["_hash"] == "aabb0000aabb0001"
+
+    def test_y_on_negative_control_resolves_to_none(self, tmp_path):
+        """y on negative_control → none."""
+        entries = [{"n": 1, "hash": "aabb0000aabb0002", "slice": "negative_control",
+                    "predicted": None, "label": "y"}]
+        out_rows, _ = _run_import_labels_p3(tmp_path, entries)
+        assert len(out_rows) == 1
+        assert out_rows[0]["label"] == "none"
+
+    def test_y_on_task_initiating_is_error(self, tmp_path):
+        """y on task_initiating → error (sys.exit non-zero)."""
+        entries = [{"n": 1, "hash": "aabb0000aabb0003", "slice": "task_initiating",
+                    "predicted": None, "label": "y"}]
+        with pytest.raises(SystemExit) as exc:
+            _run_import_labels_p3(tmp_path, entries)
+        assert exc.value.code != 0
+
+    def test_design_y_normalises_to_brainstorm(self, tmp_path):
+        """predicted=design + y → label=brainstorm; raw predicted_route=design kept."""
+        entries = [{"n": 1, "hash": "aabb0000aabb0004", "slice": "router_match",
+                    "predicted": "design", "label": "y"}]
+        out_rows, _ = _run_import_labels_p3(tmp_path, entries)
+        assert out_rows[0]["label"] == "brainstorm"
+        assert out_rows[0]["predicted_route"] == "design"
+
+    def test_explicit_brainstorm_label_on_design_prediction(self, tmp_path):
+        """predicted=design, label=brainstorm (explicit) → label=brainstorm, predicted_route=design."""
+        entries = [{"n": 1, "hash": "aabb0000aabb0005", "slice": "router_match",
+                    "predicted": "design", "label": "brainstorm"}]
+        out_rows, _ = _run_import_labels_p3(tmp_path, entries)
+        assert out_rows[0]["label"] == "brainstorm"
+        assert out_rows[0]["predicted_route"] == "design"
+
+    def test_invalid_label_is_error(self, tmp_path):
+        """Invalid label → error."""
+        entries = [{"n": 1, "hash": "aabb0000aabb0006", "slice": "task_initiating",
+                    "predicted": None, "label": "notavalidroute"}]
+        with pytest.raises(SystemExit) as exc:
+            _run_import_labels_p3(tmp_path, entries)
+        assert exc.value.code != 0
+
+    def test_blank_label_is_error(self, tmp_path):
+        """Blank label (unfilled '___') → error."""
+        h = "aabb0000aabb0007"
+        # Manually craft the checklist with unfilled blank ___
+        cl_content = (
+            "# Labeling Checklist\n\n"
+            f"### [1] hash={h} slice=router_match\n"
+            "**Prompt:**\n> some text\n"
+            "predicted: brainstorm\n"
+            "**Label:** ___  **Notes:** ___\n"
+        )
+        rows = _make_p3_rows_for_checklist([
+            {"n": 1, "hash": h, "slice": "router_match", "predicted": "brainstorm", "label": "y"}
+        ])
+        rows_file = tmp_path / "blank_rows.jsonl"
+        _write_jsonl(rows_file, rows)
+        cl_file = tmp_path / "blank_checklist.md"
+        cl_file.write_text(cl_content, encoding="utf-8")
+        out_path = tmp_path / "blank_labels.jsonl"
+        args = argparse.Namespace(
+            checklist=[str(cl_file)],
+            rows=[str(rows_file)],
+            out=str(out_path),
+        )
+        with pytest.raises(SystemExit) as exc:
+            prompt_corpus.cmd_import_labels_p3(args)
+        assert exc.value.code != 0
+
+    def test_output_is_text_free(self, tmp_path):
+        """Output rows have no 'text' or 'preceding_turns' field."""
+        entries = [{"n": 1, "hash": "aabb0000aabb0008", "slice": "router_match",
+                    "predicted": "brainstorm", "label": "y"}]
+        out_rows, _ = _run_import_labels_p3(tmp_path, entries)
+        assert "text" not in out_rows[0]
+        assert "preceding_turns" not in out_rows[0]
+
+    def test_output_has_required_fields(self, tmp_path):
+        """Output has _hash, slice, label, predicted_route, labeled_by, labeled_at."""
+        entries = [{"n": 1, "hash": "aabb0000aabb0009", "slice": "router_match",
+                    "predicted": "plan", "label": "y"}]
+        out_rows, _ = _run_import_labels_p3(tmp_path, entries)
+        required = {"_hash", "slice", "label", "predicted_route", "labeled_by", "labeled_at"}
+        assert required.issubset(set(out_rows[0].keys()))
+        assert out_rows[0]["labeled_by"] == "gal"
+
+    def test_multiple_checklists_merged(self, tmp_path):
+        """Multiple --checklist files are merged into one output."""
+        e1 = {"n": 1, "hash": "aabb0000aabb000a", "slice": "router_match",
+               "predicted": "plan", "label": "y"}
+        e2 = {"n": 2, "hash": "aabb0000aabb000b", "slice": "task_initiating",
+               "predicted": None, "label": "brainstorm"}
+        cl1 = tmp_path / "cl1.md"
+        cl1.write_text(_make_p3_checklist_content([e1]), encoding="utf-8")
+        cl2 = tmp_path / "cl2.md"
+        cl2.write_text(_make_p3_checklist_content([e2]), encoding="utf-8")
+        rows = _make_p3_rows_for_checklist([e1, e2])
+        rows_file = tmp_path / "rows_multi.jsonl"
+        _write_jsonl(rows_file, rows)
+        out_path = tmp_path / "labels-multi.jsonl"
+        args = argparse.Namespace(
+            checklist=[str(cl1), str(cl2)],
+            rows=[str(rows_file)],
+            out=str(out_path),
+        )
+        prompt_corpus.cmd_import_labels_p3(args)
+        out_rows = [json.loads(l) for l in out_path.read_text().splitlines() if l.strip()]
+        assert len(out_rows) == 2
+        hashes = {r["_hash"] for r in out_rows}
+        assert "aabb0000aabb000a" in hashes
+        assert "aabb0000aabb000b" in hashes
+
+
+# ── TestSampleP3 ──────────────────────────────────────────────────────────────
+
+
+class TestSampleP3:
+    """Tests for sample-p3 subcommand (written before implementation)."""
+
+    def test_thirty_rows_rotated_h_s_c(self, tmp_path):
+        """30 rows total, rotated happy/router_silent/control, correct output fields."""
+        entries = _make_full_sample_entries()
+        labels_path = _make_labels_p3_file(tmp_path, entries)
+        rows_path = _make_rows_with_text(tmp_path, entries)
+        out_path = tmp_path / "sample-p3.jsonl"
+        args = argparse.Namespace(
+            labels=str(labels_path),
+            rows=[str(rows_path)],
+            seed=7,
+            out=str(out_path),
+        )
+        prompt_corpus.cmd_sample_p3(args)
+        rows = [json.loads(l) for l in out_path.read_text().splitlines() if l.strip()]
+        assert len(rows) == 30
+        slices = [r["p3_slice"] for r in rows]
+        assert slices == ["happy_path", "router_silent", "control"] * 10
+        for r in rows:
+            for k in ("_hash", "text", "preceding_turns", "label", "p3_slice"):
+                assert k in r, f"missing field {k!r}"
+
+    def test_design_prediction_brainstorm_label_is_happy(self, tmp_path):
+        """design prediction + brainstorm label qualifies for happy_path (normalised match)."""
+        entries = _make_full_sample_entries()
+        # Replace first happy entry with design→brainstorm
+        entries[0] = {
+            "hash": "designhappy000000",
+            "slice": "router_match",
+            "predicted": "design",
+            "label": "brainstorm",
+        }
+        labels_path = _make_labels_p3_file(tmp_path, entries)
+        rows_path = _make_rows_with_text(tmp_path, entries)
+        out_path = tmp_path / "sample-p3.jsonl"
+        args = argparse.Namespace(
+            labels=str(labels_path),
+            rows=[str(rows_path)],
+            seed=7,
+            out=str(out_path),
+        )
+        prompt_corpus.cmd_sample_p3(args)
+        rows = [json.loads(l) for l in out_path.read_text().splitlines() if l.strip()]
+        happy = [r for r in rows if r["p3_slice"] == "happy_path"]
+        assert len(happy) == 10  # still 10 because we have 12 candidates
+
+    def test_shortfall_exits_nonzero(self, tmp_path, capsys):
+        """< 10 candidates in any stratum → non-zero exit + shortfall message."""
+        entries = []
+        task_labels = ["brainstorm", "plan", "execute", "debug", "build"]
+        # Only 5 happy_path candidates
+        for i, label in enumerate(task_labels):
+            entries.append({"hash": f"happyshort{i:08x}", "slice": "router_match",
+                             "predicted": label, "label": label})
+        # 10 router_silent
+        for i in range(10):
+            entries.append({"hash": f"silentok{i:010x}", "slice": "task_initiating",
+                             "predicted": None, "label": "brainstorm"})
+        # 10 control
+        for i in range(10):
+            entries.append({"hash": f"ctrlok{i:011x}", "slice": "negative_control",
+                             "predicted": None, "label": "none"})
+        labels_path = _make_labels_p3_file(tmp_path, entries)
+        rows_path = _make_rows_with_text(tmp_path, entries)
+        out_path = tmp_path / "sample-p3-short.jsonl"
+        args = argparse.Namespace(
+            labels=str(labels_path),
+            rows=[str(rows_path)],
+            seed=7,
+            out=str(out_path),
+        )
+        with pytest.raises(SystemExit) as exc:
+            prompt_corpus.cmd_sample_p3(args)
+        assert exc.value.code != 0
+        captured = capsys.readouterr()
+        assert "shortfall" in (captured.out + captured.err).lower()
+
+    def test_misfire_file_written(self, tmp_path):
+        """Router_match rows with label != normalised_predicted written to misfire file."""
+        entries = _make_full_sample_entries()
+        # Add 2 misfires: router_match, label is task but != normalised predicted
+        entries.append({"hash": "misfire00000000a", "slice": "router_match",
+                        "predicted": "brainstorm", "label": "plan"})
+        entries.append({"hash": "misfire00000000b", "slice": "router_match",
+                        "predicted": "plan", "label": "debug"})
+        labels_path = _make_labels_p3_file(tmp_path, entries)
+        rows_path = _make_rows_with_text(tmp_path, entries)
+        out_path = tmp_path / "sample-p3.jsonl"
+        args = argparse.Namespace(
+            labels=str(labels_path),
+            rows=[str(rows_path)],
+            seed=7,
+            out=str(out_path),
+        )
+        prompt_corpus.cmd_sample_p3(args)
+        misfire_path = tmp_path / "sample-p3-misfire.jsonl"
+        assert misfire_path.exists(), "sample-p3-misfire.jsonl not written"
+        misfire_rows = [json.loads(l) for l in misfire_path.read_text().splitlines() if l.strip()]
+        hashes = {r["_hash"] for r in misfire_rows}
+        assert "misfire00000000a" in hashes
+        assert "misfire00000000b" in hashes
+
+    def test_ambiguous_excluded_from_all_strata(self, tmp_path):
+        """Ambiguous rows are excluded from all strata."""
+        entries = _make_full_sample_entries()
+        entries.append({"hash": "ambig00000000001", "slice": "router_match",
+                        "predicted": "brainstorm", "label": "ambiguous"})
+        entries.append({"hash": "ambig00000000002", "slice": "task_initiating",
+                        "predicted": None, "label": "ambiguous"})
+        labels_path = _make_labels_p3_file(tmp_path, entries)
+        rows_path = _make_rows_with_text(tmp_path, entries)
+        out_path = tmp_path / "sample-p3.jsonl"
+        args = argparse.Namespace(
+            labels=str(labels_path),
+            rows=[str(rows_path)],
+            seed=7,
+            out=str(out_path),
+        )
+        prompt_corpus.cmd_sample_p3(args)
+        rows = [json.loads(l) for l in out_path.read_text().splitlines() if l.strip()]
+        hashes = {r["_hash"] for r in rows}
+        assert "ambig00000000001" not in hashes
+        assert "ambig00000000002" not in hashes
+
+    def test_control_prefers_negative_control_rows(self, tmp_path):
+        """Control stratum prefers negative_control-slice rows before task_initiating nones."""
+        entries = []
+        task_labels = ["brainstorm", "plan", "execute", "debug", "build", "handoff"]
+        for i in range(12):
+            label = task_labels[i % len(task_labels)]
+            entries.append({"hash": f"happyctrl{i:010x}", "slice": "router_match",
+                             "predicted": label, "label": label})
+        for i in range(12):
+            label = task_labels[i % len(task_labels)]
+            entries.append({"hash": f"silentctrl{i:09x}", "slice": "task_initiating",
+                             "predicted": None, "label": label})
+        # 8 negative_control nones + 6 task_initiating nones (should fill 10 from nc first)
+        nc_hashes = set()
+        for i in range(8):
+            h = f"nc_none{i:011x}"
+            nc_hashes.add(h)
+            entries.append({"hash": h, "slice": "negative_control", "predicted": None, "label": "none"})
+        ti_none_hashes = set()
+        for i in range(6):
+            h = f"ti_none{i:011x}"
+            ti_none_hashes.add(h)
+            entries.append({"hash": h, "slice": "task_initiating", "predicted": None, "label": "none"})
+
+        labels_path = _make_labels_p3_file(tmp_path, entries)
+        rows_path = _make_rows_with_text(tmp_path, entries)
+        out_path = tmp_path / "sample-p3.jsonl"
+        args = argparse.Namespace(
+            labels=str(labels_path),
+            rows=[str(rows_path)],
+            seed=7,
+            out=str(out_path),
+        )
+        prompt_corpus.cmd_sample_p3(args)
+        rows = [json.loads(l) for l in out_path.read_text().splitlines() if l.strip()]
+        control_rows = [r for r in rows if r["p3_slice"] == "control"]
+        assert len(control_rows) == 10
+        # All 8 nc nones should be in control (and 2 from ti_none)
+        control_hashes = {r["_hash"] for r in control_rows}
+        # All nc_hashes should appear (since there are only 8, all 8 should be used)
+        assert nc_hashes.issubset(control_hashes), "Not all negative_control nones used first"
