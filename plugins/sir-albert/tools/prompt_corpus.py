@@ -34,6 +34,9 @@ CORPUS_DIR = Path.home() / ".claude" / "sir-albert-corpus"
 CORPUS_FILE = CORPUS_DIR / "corpus.jsonl"
 REPORT_DIR = REPO_ROOT / "docs" / "plans" / "2026-09-24-w3-router"
 EVAL_DIR = REPO_ROOT / "docs" / "plans" / "2026-09-26-w4-eval"
+W5_DIR = REPO_ROOT / "docs" / "plans" / "2026-09-27-w5-outperform"
+
+BASELINE_ROUTER_SHA = "1b88127"
 
 MAX_LINE_BYTES = 200_000
 MAX_PROMPT_CHARS = 2000
@@ -1289,6 +1292,292 @@ def cmd_sample_p2(args):
     )
 
 
+# ── label-set-p3 ──────────────────────────────────────────────────────────────
+
+def _load_baseline_router_data(path_override: str | None = None) -> dict:
+    """Load router_data.json from the 1b88127 baseline commit, or from a file override."""
+    if path_override:
+        return json.loads(Path(path_override).read_text(encoding="utf-8"))
+    import subprocess
+    result = subprocess.run(
+        ["git", "show", f"{BASELINE_ROUTER_SHA}:plugins/sir-albert/hooks/router_data.json"],
+        capture_output=True, text=True, cwd=str(REPO_ROOT),
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"git show {BASELINE_ROUTER_SHA}:... failed: {result.stderr.strip()}"
+        )
+    return json.loads(result.stdout)
+
+
+def _compile_patterns_from_data(router_data: dict):
+    """Compile keyword patterns from a router_data dict."""
+    patterns = []
+    for entry in sorted(router_data.get("keyword_patterns", []), key=lambda e: e["order"]):
+        try:
+            patterns.append(
+                (entry["intent"], re.compile(entry["pattern"], re.IGNORECASE | re.UNICODE), entry.get("nudge", ""))
+            )
+        except re.error:
+            pass
+    for entry in sorted(router_data.get("hebrew_patterns", []), key=lambda e: e["order"]):
+        try:
+            patterns.append(
+                (entry["intent"], re.compile(entry["pattern"], re.UNICODE), entry.get("nudge", ""))
+            )
+        except re.error:
+            pass
+    return patterns
+
+
+# P3 valid labeling values (task routes + sentinels; excludes legacy/low-demand routes)
+_P3_VALID_LABELS = {"brainstorm", "plan", "execute", "debug", "build", "handoff", "none", "ambiguous"}
+
+# Targets per stratum
+_P3_ROUTER_MATCH_N = 15
+_P3_TASK_INITIATING_N = 25
+_P3_NEGATIVE_CONTROL_N = 10
+
+
+def cmd_label_set_p3(args):
+    """Slice corpus into a P3 held-out labeling set, excluding all W4 hashes.
+
+    args:
+      exclude     list of JSONL files; every _hash in them is excluded
+      seed        random seed (default 7)
+      router_data optional path override for baseline router JSON
+      out_dir     output directory (default W5_DIR)
+    """
+    seed = getattr(args, "seed", 7)
+    router_data_override = getattr(args, "router_data", None)
+    out_dir = Path(getattr(args, "out_dir", None) or W5_DIR)
+    exclude_files = getattr(args, "exclude", []) or []
+
+    # ── Load baseline router ──────────────────────────────────────────────────
+    router_data = _load_baseline_router_data(router_data_override)
+    patterns = _compile_patterns_from_data(router_data)
+
+    def _baseline_route(text: str) -> str | None:
+        for intent, compiled, _ in patterns:
+            if compiled.search(text):
+                return intent
+        return None
+
+    # ── Load exclude hashes ───────────────────────────────────────────────────
+    exclude_hashes: set[str] = set()
+    for fpath in exclude_files:
+        for row in load_jsonl(fpath):
+            h = row.get("_hash", "")
+            if h:
+                exclude_hashes.add(h)
+
+    # ── Load corpus ───────────────────────────────────────────────────────────
+    all_rows = list(load_jsonl(str(CORPUS_FILE)))
+
+    # ── Slice 1: router_match (baseline router fires, not excluded) ───────────
+    router_match_rows: list[dict] = []
+    router_match_hashes: set[str] = set()
+    for row in all_rows:
+        h = row.get("_hash", "")
+        if h in exclude_hashes:
+            continue
+        text = row.get("text", "")
+        if not is_organic(text):
+            continue
+        route = _baseline_route(text)
+        if route is not None and h not in router_match_hashes:
+            router_match_rows.append(row)
+            router_match_hashes.add(h)
+
+    # ── Slice 2: task-initiating (router silent, not excluded, task heuristic) ─
+    task_pool: list[dict] = []
+    for row in all_rows:
+        h = row.get("_hash", "")
+        if h in exclude_hashes or h in router_match_hashes:
+            continue
+        text = row.get("text", "")
+        if not is_organic(text):
+            continue
+        if row.get("preceding_turns", []) != []:
+            continue
+        if len(text) <= 40:
+            continue
+        if _PATH_REF_RE.search(text):
+            continue
+        task_pool.append(row)
+
+    random.seed(seed)
+    task_rows = random.sample(task_pool, min(_P3_TASK_INITIATING_N, len(task_pool)))
+
+    # ── Slice 3: negative_control (short with preceding_turns, not excluded) ──
+    neg_pool: list[dict] = []
+    neg_pool_hashes: set[str] = set()
+    task_hashes = {r.get("_hash", "") for r in task_rows}
+    for row in all_rows:
+        h = row.get("_hash", "")
+        if h in exclude_hashes or h in router_match_hashes or h in task_hashes:
+            continue
+        text = row.get("text", "")
+        if not is_organic(text):
+            continue
+        if not (len(row.get("preceding_turns", [])) > 0 and len(text.strip()) < 50):
+            continue
+        if h not in neg_pool_hashes:
+            neg_pool.append(row)
+            neg_pool_hashes.add(h)
+
+    random.seed(seed)
+    neg_rows = random.sample(neg_pool, min(_P3_NEGATIVE_CONTROL_N, len(neg_pool)))
+
+    # ── Sample router_match (take up to target; all if below target) ──────────
+    if len(router_match_rows) > _P3_ROUTER_MATCH_N:
+        random.seed(seed)
+        router_match_sample = random.sample(router_match_rows, _P3_ROUTER_MATCH_N)
+    else:
+        router_match_sample = router_match_rows
+
+    # ── Build output rows ─────────────────────────────────────────────────────
+    out_rows: list[dict] = []
+    for row in router_match_sample:
+        h = row.get("_hash", "")
+        out_rows.append({
+            "_hash": h,
+            "text": row.get("text", ""),
+            "predicted_route": _baseline_route(row.get("text", "")),
+            "slice": "router_match",
+            "label": None,
+            "labeled_by": None,
+            "labeled_at": None,
+            "preceding_turns": row.get("preceding_turns", []),
+        })
+    for row in task_rows:
+        h = row.get("_hash", "")
+        out_rows.append({
+            "_hash": h,
+            "text": row.get("text", ""),
+            "predicted_route": None,
+            "slice": "task_initiating",
+            "label": None,
+            "labeled_by": None,
+            "labeled_at": None,
+            "preceding_turns": row.get("preceding_turns", []),
+        })
+    for row in neg_rows:
+        h = row.get("_hash", "")
+        out_rows.append({
+            "_hash": h,
+            "text": row.get("text", ""),
+            "predicted_route": None,
+            "slice": "negative_control",
+            "label": None,
+            "labeled_by": None,
+            "labeled_at": None,
+            "preceding_turns": row.get("preceding_turns", []),
+        })
+
+    # ── Write JSONL ───────────────────────────────────────────────────────────
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_jsonl = out_dir / "labeled-set-p3.jsonl"
+    out_jsonl.write_text(
+        "\n".join(json.dumps(r, ensure_ascii=False) for r in out_rows) + "\n",
+        encoding="utf-8",
+    )
+
+    # ── Write checklist ───────────────────────────────────────────────────────
+    def _trunc(text: str, n: int = 400) -> str:
+        return (text[:n] + "…") if len(text) > n else text
+
+    def _fmt_preceding(turns: list) -> list[str]:
+        lines = []
+        for t in turns:
+            role = t.get("role", "?")
+            txt = _trunc(t.get("text", ""), 200)
+            lines.append(f"  [{role}]: {txt}")
+        return lines
+
+    cl_lines = [
+        "# Labeling Checklist — W5 P3 Held-Out Set",
+        "",
+        "## Shorthand legend",
+        "- **Router matches:** `y` = predicted route is correct. Otherwise write the correct route name, `none`, or `ambiguous`.",
+        "- **Task-initiating:** write a route name, `none`, or `ambiguous`.",
+        "- **Negative controls:** `y` = should NOT route (`none`). Otherwise write the route it *should* take.",
+        "",
+        "**Question to ask per prompt:** read alone, as the first message of a session — should the router nudge a skill?",
+        "",
+        "## Valid labels",
+        "| Label | Nudges toward |",
+        "|---|---|",
+        "| `brainstorm` | explore / think an idea through |",
+        "| `plan` | write a plan / break into tickets |",
+        "| `execute` | implement a plan / tickets |",
+        "| `debug` | something is broken |",
+        "| `build` | finish / ship a branch, open PR |",
+        "| `handoff` | wrap session for a fresh one |",
+        "| `none` | no skill applies |",
+        "| `ambiguous` | can't tell — excluded from scoring |",
+        "",
+    ]
+
+    cl_lines.append("## Router matches (binary: yes this should route / no + correct route if wrong)")
+    cl_lines.append("")
+    for i, row in enumerate(router_match_sample):
+        h = row.get("_hash", "")
+        text = row.get("text", "")
+        route = _baseline_route(text)
+        cl_lines.append(f"### [{i + 1}] hash={h} slice=router_match")
+        prec = row.get("preceding_turns", [])
+        if prec:
+            cl_lines.append("**Preceding turns:**")
+            cl_lines.extend(_fmt_preceding(prec))
+        cl_lines.append(f"> {_trunc(text)}")
+        cl_lines.append(f"predicted: {route}")
+        cl_lines.append("**Label:** ___  **Notes:** ___")
+        cl_lines.append("")
+
+    cl_lines.append("## Task-initiating (label: one of the route names | none | ambiguous)")
+    cl_lines.append("")
+    offset = len(router_match_sample)
+    for i, row in enumerate(task_rows):
+        h = row.get("_hash", "")
+        text = row.get("text", "")
+        cl_lines.append(f"### [{offset + i + 1}] hash={h} slice=task_initiating")
+        prec = row.get("preceding_turns", [])
+        if prec:
+            cl_lines.append("**Preceding turns:**")
+            cl_lines.extend(_fmt_preceding(prec))
+        cl_lines.append(f"> {_trunc(text)}")
+        cl_lines.append("**Label:** ___  **Notes:** ___")
+        cl_lines.append("")
+
+    cl_lines.append("## Negative controls (binary: should NOT fire — label: none | or correct route if wrong)")
+    cl_lines.append("")
+    offset2 = len(router_match_sample) + len(task_rows)
+    for i, row in enumerate(neg_rows):
+        h = row.get("_hash", "")
+        text = row.get("text", "")
+        cl_lines.append(f"### [{offset2 + i + 1}] hash={h} slice=negative_control")
+        prec = row.get("preceding_turns", [])
+        if prec:
+            cl_lines.append("**Preceding turns:**")
+            cl_lines.extend(_fmt_preceding(prec))
+        cl_lines.append(f"> {_trunc(text)}")
+        cl_lines.append("**Label:** ___  **Notes:** ___")
+        cl_lines.append("")
+
+    checklist_path = out_dir / "labeled-set-p3-checklist.md"
+    checklist_path.write_text("\n".join(cl_lines), encoding="utf-8")
+
+    print(
+        f"router_match={len(router_match_sample)} "
+        f"task_initiating={len(task_rows)} "
+        f"negative_control={len(neg_rows)} "
+        f"total={len(out_rows)}"
+    )
+    if len(router_match_rows) == 0:
+        print("WARN: 0 router_match candidates after exclusion — all baseline-router matches are in the exclude set")
+
+
 # ── CLI ────────────────────────────────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser(description="sir_albert prompt corpus tool")
@@ -1321,6 +1610,24 @@ def main():
     p_sample_p2 = sub.add_parser("sample-p2")
     p_sample_p2.add_argument("--file", default=str(EVAL_DIR / "labeled-set.jsonl"))
 
+    p_label_set_p3 = sub.add_parser("label-set-p3")
+    p_label_set_p3.add_argument(
+        "--exclude", nargs="+", default=[],
+        metavar="FILE",
+        help="JSONL files whose _hashes are excluded from the output",
+    )
+    p_label_set_p3.add_argument("--seed", type=int, default=7)
+    p_label_set_p3.add_argument(
+        "--router-data", default=None, dest="router_data",
+        metavar="FILE",
+        help=f"Path to router_data.json override (default: git show {BASELINE_ROUTER_SHA}:...)",
+    )
+    p_label_set_p3.add_argument(
+        "--out-dir", default=None, dest="out_dir",
+        metavar="DIR",
+        help="Output directory (default: docs/plans/2026-09-27-w5-outperform/)",
+    )
+
     args = parser.parse_args()
     if args.cmd == "extract":
         cmd_extract(args)
@@ -1341,6 +1648,8 @@ def main():
         cmd_p1_score(args)
     elif args.cmd == "sample-p2":
         cmd_sample_p2(args)
+    elif args.cmd == "label-set-p3":
+        cmd_label_set_p3(args)
     else:
         parser.print_help()
 
