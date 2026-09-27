@@ -275,3 +275,11 @@ def test_summarize_falls_back_to_assistant_text_when_truncated():
            "result_event": {"type": "result", "subtype": "error_max_turns"},
            "assistant_text": "Here is the partial plan."}
     assert bj.summarize(art) == "Here is the partial plan."
+
+
+def test_judge_prompt_tells_judge_redaction_is_neutral():
+    # Live smoke pair: the judge read "[skill]" as "a broken template" and penalized
+    # that side. Placeholders land unevenly across arms, so they must be neutral.
+    prompt = bj.JUDGE_PROMPT.format(prompt="p", left="l", right="r")
+    assert "[skill]" in prompt
+    assert "redact" in prompt.lower()

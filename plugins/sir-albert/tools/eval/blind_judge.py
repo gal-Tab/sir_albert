@@ -20,7 +20,7 @@ from pathlib import Path
 TOOLS_EVAL = Path(__file__).parent
 REPO_ROOT = TOOLS_EVAL.parent.parent.parent.parent  # plugins/sir-albert/tools/eval → repo root
 
-JUDGE_PROMPT = """You are judging two AI assistant responses to the same prompt. You do not know which system produced each response.
+JUDGE_PROMPT = """You are judging two AI assistant responses to the same prompt. You do not know which system produced each response. "[skill]" marks a name redacted by the evaluation harness, not by the assistant; ignore it when judging.
 
 Prompt: {prompt}
 
