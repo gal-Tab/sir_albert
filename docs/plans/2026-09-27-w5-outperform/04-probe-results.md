@@ -87,3 +87,19 @@ When documenting the fanout behavior in a future ticket, use:
 
 - Probe A stream: `/var/folders/c1/59w_j8ps1gdc5hrgyr_qt4zc0000gp/T/tmp.saEjNqOrfq/probe-a.jsonl`
 - Probe B stream: `/var/folders/c1/59w_j8ps1gdc5hrgyr_qt4zc0000gp/T/tmp.saEjNqOrfq/probe-b.jsonl`
+
+---
+
+## Coordinator addendum (2026-09-27): probe C, background dispatch
+
+**Correction:** probes A and B both used `run_in_background=False`, so they never exercised the W4 failure mode. The "Commit: 9fc48fc on w5/outperform" line above is also wrong: the agent's worktree was based on `main`.
+
+**Probe C.** The prompt forces `run_in_background: true` (Sonnet 5, `claude -p`, guarded, $0.18). Event order:
+1. Agent tool_use `run_in_background: true` → tool_result "Async agent launched"
+2. assistant: "…running in the background — I'll let you know its reply as soon as it completes."
+3. **`result` #1**: that status line
+4. `task_notification` → the model resumes → assistant: "The subagent replied: **PINEAPPLE**"
+5. **`result` #2**: the real answer (`total_cost_usd` 0.1735, which appears cumulative)
+6. `result` #3: "Already reported…" (0.1846)
+
+**Revised verdict: `returns-after-early-result`.** Headless runs do continue after background work, but they emit an early `result` first. `run_one.sh` keeps the first `result` event, so the judge saw the status line. W4 `b-600120ad468a3201-rep2` has 5,371 chars of synthesis after its first result. **The fix is in the harness (ticket 10, re-scoped), not in the brainstorm skill.**

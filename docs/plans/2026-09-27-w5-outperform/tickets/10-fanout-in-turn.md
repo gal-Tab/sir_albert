@@ -1,23 +1,26 @@
-# 10 — fanout-in-turn
+# 10 — fanout-in-turn (re-scoped 2026-09-27: harness fix, not a skill fix)
 
-**Blocked by:** 04
+**Blocked by:** 01 (both edit the `run_one.sh` stream parser)
 
 ## Goal
-When brainstorm's explore/panel modes dispatch voice agents, the skill waits for them and synthesizes in the same turn. It never ends a turn with "I'll synthesize once they're back".
+A run's artifact reflects its **final** answer. When background agents make `claude -p` emit several `result` events, the artifact's `result_event`, cost, and `truncated` come from the last one.
 
 ## Why
-In W4 the only happy-path pair A lost on merit (`600120ad468a3201` rep 2) was B invoking brainstorm, dispatching 3 voices, and ending with no answer. Using the skill made the answer worse.
+Probe C in `04-probe-results.md` (coordinator, 2026-09-27): with `run_in_background: true`, headless `claude -p` does not exit early. It emits `result` #1 ("…I'll let you know once it completes"), then resumes on the task notification and emits `result` #2 with the real answer (plus a #3 "already reported"). `run_one.sh` keeps the **first** `result` event (`next(...)`). W4 artifact `b-600120ad468a3201-rep2` has 5,371 chars of synthesis after its first result, but the judge saw only the status line, and that pair went to A. The brainstorm skill was fine; the harness was wrong. No SKILL.md change is needed.
 
 ## Steps
-1. Read `docs/plans/2026-09-27-w5-outperform/04-probe-results.md` and take the verdict and wording from it:
-   - `returns`: no skill change is needed. Close this ticket with a note and skip to step 5.
-   - `returns-only-when-told-to-wait`: use ticket 04's exact wait wording.
-   - `never-returns`: in headless runs, voices run sequentially inline (the coordinator writes each voice itself, clearly labelled), and the answer notes the loss of blindness.
-2. Invoke `/sir-albert:create-skill` in edit mode on `plugins/sir-albert/skills/core/brainstorm/SKILL.md` (mandatory). Change the dispatch bullets at lines ~35 and ~42 and `references/modes.md:17` per step 1. Add: "Never end the turn before the synthesis is delivered."
-3. Complete create-skill's scoring loop and evals, including an eval where panel mode must deliver its synthesis in one turn.
-4. Live check (~$0.20, AUTO). Re-run W4 prompt `600120ad468a3201` on arm B with context (ticket 01 mechanism) into `runs-dev/`. Expected: the final text contains a synthesis, not just a status line.
-5. Suite green. Commit: `git commit -m "fix(w5): brainstorm panel synthesizes in-turn"`
+1. Build a text-free fixture `plugins/sir-albert/tests/eval/fixtures/multi-result.jsonl`, modelled on probe C's event order: init → assistant text → Agent tool_use (`run_in_background: true`) → tool_result "Async agent launched" → assistant text "…running in the background" → `result` (`result_index` 0, `total_cost_usd` 0.17, result "status line") → `task_notification` → assistant text "final answer" → `result` (`result_index` 1, `total_cost_usd` 0.18, result "final answer").
+2. Write the failing tests in `plugins/sir-albert/tests/eval/test_run_executor.py`:
+   - `test_last_result_event_wins`: artifact `result_event.result` is "final answer" and `cost_usd` is 0.18.
+   - `test_result_count_recorded`: artifact `result_count` is 2.
+   - `test_truncated_uses_last_result`: truncated if the LAST result lacks `result`, even when an earlier one has it.
+3. Run: `/usr/local/bin/python3.13 -m pytest -q plugins/sir-albert/tests/eval/test_run_executor.py -k result`. Expected: FAIL.
+4. Implement in the `run_one.sh` embedded parser: collect all `result` events and use the last for `result_ev`. Take cost from the max `total_cost_usd` (it's cumulative; check this on the fixture and on probe C). Add `result_count`.
+5. Run the step 3 command again. Expected: PASS. Full suite green.
+6. W4 impact note (no spend): list the W4 artifacts whose `assistant_text` continues more than 40 chars past their first result text. Expected: exactly `b-600120ad468a3201-rep2`. Record it in `docs/plans/2026-09-27-w5-outperform/10-w4-impact.md`: 1 of 30 pairs was misjudged, and the W4 verdict doesn't change (the skill gate fails regardless). Don't edit W4 artifacts.
+7. Commit: `git commit -m "fix(w5): artifacts use the final result event (background agents resume headless runs)"`
 
 ## Definition of Done
-- [ ] Behavior matches the ticket 04 verdict; edited via create-skill
-- [ ] Live re-run delivers a synthesis in-turn
+- [ ] New tests fail on the old code and pass on the new code; the suite is green
+- [ ] Fixture matches probe C's real event order
+- [ ] W4 impact recorded, with no W4 files modified
