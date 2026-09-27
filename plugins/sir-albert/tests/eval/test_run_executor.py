@@ -224,3 +224,129 @@ def test_modified_plugin_clone_aborts(tmp_path):
                        stub_extra=f"echo evil > {str(clone)!r}/injected.md")
     assert result.returncode == 4, result.stderr
     assert "plugin clone modified" in result.stderr
+
+
+# ── Context / preceding-turns tests (ticket 01) ────────────────────────────────
+
+def _make_recording_stub(rundir, args_file, stdin_file, stream_file):
+    """Build a stub that saves argv as JSON and stdin as text, then emits stream_file."""
+    scratch = json.loads((rundir / "run-manifest.json").read_text())["scratch_cwd"]
+    stub = rundir / "recording_stub.sh"
+    stub.write_text(
+        "#!/bin/bash\n"
+        # Read stdin first (it's the prompt piped from run_one.sh)
+        "STDIN_TEXT=$(cat)\n"
+        f'printf \'%s\' "$STDIN_TEXT" > {str(stdin_file)!r}\n'
+        # Save argv as JSON array
+        f"/usr/local/bin/python3.13 -c \"import json,sys; json.dump(list(sys.argv[1:]), open('{args_file}', 'w'))\" \"$@\"\n"
+        # Validate we're running from a scratch sub-directory
+        f'case "$(pwd -P)/" in "$(cd {scratch!r} && pwd -P)"/run-*) ;; *) echo "stub: wrong cwd $(pwd)" >&2; exit 3;; esac\n'
+        # Emit the stream
+        f"cat {str(stream_file)!r}\n"
+    )
+    stub.chmod(0o755)
+    return stub
+
+
+def _minimal_stream(tmp_path, name="stream.jsonl"):
+    """Write a minimal valid JSONL stream and return its path."""
+    stream = [
+        {"type": "system", "subtype": "init", "model": EXPECTED_MODEL, "skills": [], "plugins": []},
+        {"type": "result", "subtype": "success", "total_cost_usd": 0.01, "num_turns": 1,
+         "is_error": False, "result": "done"},
+    ]
+    p = tmp_path / name
+    p.write_text("\n".join(json.dumps(e) for e in stream))
+    return p
+
+
+def test_context_goes_to_system_prompt_not_stdin(tmp_path):
+    """run_one.sh with a 6th context_file arg passes preceding turns via
+    --append-system-prompt and leaves stdin as the bare prompt, unchanged."""
+    ctx = [
+        {"role": "user", "text": "earlier Q"},
+        {"role": "assistant", "text": "earlier A"},
+    ]
+    ctx_file = tmp_path / "ctx.json"
+    ctx_file.write_text(json.dumps(ctx))
+
+    args_file = tmp_path / "recorded_args.json"
+    stdin_file = tmp_path / "recorded_stdin.txt"
+    stream_file = _minimal_stream(tmp_path)
+
+    rundir = _make_manifest(tmp_path)
+    art_dir = tmp_path / "runs"
+    art_dir.mkdir()
+
+    stub = _make_recording_stub(rundir, args_file, stdin_file, stream_file)
+
+    fake_settings = rundir / "guard-settings.json"
+    fake_settings.write_text(json.dumps({"model": EXPECTED_MODEL, "hooks": {}}))
+
+    env = os.environ.copy()
+    env["W4_CLAUDE_BIN"] = str(stub)
+    env["W4_SETTINGS_FILE"] = str(fake_settings)
+    env["W4_ARTIFACT_DIR"] = str(art_dir)
+
+    result = subprocess.run(
+        ["bash", str(RUN_ONE_SH),
+         "b", "aef6880dbd5903c4", "1", "bare prompt text",
+         str(rundir), str(ctx_file)],
+        capture_output=True, text=True, env=env,
+    )
+    assert result.returncode == 0, f"run_one.sh failed:\n{result.stderr}\n{result.stdout}"
+
+    recorded_args = json.loads(args_file.read_text())
+
+    # --append-system-prompt must be present
+    assert "--append-system-prompt" in recorded_args, \
+        f"--append-system-prompt not found in argv: {recorded_args}"
+    idx = recorded_args.index("--append-system-prompt")
+    ctx_value = recorded_args[idx + 1]
+
+    assert "User: earlier Q" in ctx_value, \
+        f"Missing 'User: earlier Q' in ctx block: {ctx_value!r}"
+    assert "Assistant: earlier A" in ctx_value, \
+        f"Missing 'Assistant: earlier A' in ctx block: {ctx_value!r}"
+
+    # stdin must be the bare prompt, unmodified
+    assert stdin_file.read_text() == "bare prompt text", \
+        f"stdin was modified: {stdin_file.read_text()!r}"
+
+    # artifact must record context_turns
+    artifact = json.loads((art_dir / "b-aef6880dbd5903c4-rep1.json").read_text())
+    assert artifact.get("context_turns", -1) >= 1, \
+        f"context_turns missing or 0 in artifact: {artifact}"
+
+
+def test_no_context_arg_is_unchanged(tmp_path):
+    """Without a 6th arg, run_one.sh must not pass --append-system-prompt.
+    Ensures W4 replay is reproducible."""
+    args_file = tmp_path / "recorded_args.json"
+    stdin_file = tmp_path / "recorded_stdin.txt"
+    stream_file = _minimal_stream(tmp_path)
+
+    rundir = _make_manifest(tmp_path)
+    art_dir = tmp_path / "runs"
+    art_dir.mkdir()
+
+    stub = _make_recording_stub(rundir, args_file, stdin_file, stream_file)
+
+    fake_settings = rundir / "guard-settings.json"
+    fake_settings.write_text(json.dumps({"model": EXPECTED_MODEL, "hooks": {}}))
+
+    env = os.environ.copy()
+    env["W4_CLAUDE_BIN"] = str(stub)
+    env["W4_SETTINGS_FILE"] = str(fake_settings)
+    env["W4_ARTIFACT_DIR"] = str(art_dir)
+
+    result = subprocess.run(
+        ["bash", str(RUN_ONE_SH),
+         "b", "noctx123", "1", "bare prompt only", str(rundir)],  # 5 args
+        capture_output=True, text=True, env=env,
+    )
+    assert result.returncode == 0, f"run_one.sh failed:\n{result.stderr}\n{result.stdout}"
+
+    recorded_args = json.loads(args_file.read_text())
+    assert "--append-system-prompt" not in recorded_args, \
+        f"--append-system-prompt appeared without a context file: {recorded_args}"

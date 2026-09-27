@@ -344,3 +344,30 @@ class TestP2BSilentNegControl:
         b_silent = [r for r in sample if r["p2_slice"] == "b_silent"]
         assert len(b_silent) == 5
         assert all(r["slice"] == "negative_control" for r in b_silent)
+
+
+# ── preceding_turns carried through to sample (ticket 01) ─────────────────────
+
+class TestP2PrecedingTurns:
+    def test_sample_rows_carry_preceding_turns(self, tmp_path, monkeypatch):
+        """A happy_path row with preceding_turns in labeled-set.jsonl must appear
+        in sample.jsonl with the same preceding_turns value."""
+        # One happy_path row that carries a preceding turn
+        turns = [{"role": "user", "text": "prior question"}]
+        happy_with_ctx = _row(700, "what do you think about this plan we discussed", "router_match",
+                              "brainstorm", predicted_route="brainstorm")
+        happy_with_ctx["preceding_turns"] = turns
+
+        rows = [happy_with_ctx] + _happy_rows(9) + _b_silent_rows(10) + _control_wrong_fire(5) + _control_no_route(5)
+        args = _run(tmp_path, monkeypatch, rows)
+        prompt_corpus.cmd_sample_p2(args)
+        sample = _load_sample(tmp_path)
+
+        # Find our specific row by hash
+        target_hash = happy_with_ctx["_hash"]
+        matched = [r for r in sample if r.get("_hash") == target_hash]
+        assert matched, f"Row {target_hash} not found in sample"
+        row = matched[0]
+        assert "preceding_turns" in row, f"preceding_turns missing from sampled row: {row}"
+        assert row["preceding_turns"] == turns, \
+            f"preceding_turns mismatch: {row['preceding_turns']!r} != {turns!r}"

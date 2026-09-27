@@ -565,6 +565,7 @@ def cmd_label_set(args):
             "label": b["label"],
             "labeled_by": b["labeled_by"],
             "labeled_at": b["labeled_at"],
+            "preceding_turns": row.get("preceding_turns", []),
         })
     for row in task_rows:
         h = row.get("_hash", "")
@@ -577,6 +578,7 @@ def cmd_label_set(args):
             "label": b["label"],
             "labeled_by": b["labeled_by"],
             "labeled_at": b["labeled_at"],
+            "preceding_turns": row.get("preceding_turns", []),
         })
     for row in neg_rows:
         h = row.get("_hash", "")
@@ -589,6 +591,7 @@ def cmd_label_set(args):
             "label": b["label"],
             "labeled_by": b["labeled_by"],
             "labeled_at": b["labeled_at"],
+            "preceding_turns": row.get("preceding_turns", []),
         })
 
     # Write JSONL
@@ -1263,6 +1266,7 @@ def cmd_sample_p2(args):
             "label": r.get("label"),
             "predicted_route": r.get("predicted_route"),
             "p2_slice": r.get("p2_slice"),
+            "preceding_turns": r.get("preceding_turns", []),
         }
         if r.get("p2_slice") == "control":
             out["p2_control_kind"] = r.get("p2_control_kind")

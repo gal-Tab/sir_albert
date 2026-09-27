@@ -1,17 +1,21 @@
 #!/usr/bin/env bash
 # run_one.sh — execute one arm/prompt/rep and write an artifact JSON.
-# Usage: bash run_one.sh <arm> <prompt_hash> <rep> <prompt_text> <RUNDIR>
+# Usage: bash run_one.sh <arm> <prompt_hash> <rep> <prompt_text> <RUNDIR> [CONTEXT_FILE]
+#   CONTEXT_FILE (optional): JSON array of {role, text} preceding turns.
+#   When present, turns are rendered into a system-prompt block and passed via
+#   --append-system-prompt so the router hook still sees only the bare prompt on stdin.
 # Env overrides (for testing):
 #   W4_SETTINGS_FILE  source settings.json for guard (default: ~/.claude/settings.json)
 #   W4_CLAUDE_BIN     claude binary (default: command claude)
 #   W4_ARTIFACT_DIR   where to write artifacts (default: docs/plans/2026-09-26-w4-eval/runs)
 set -euo pipefail
 
-ARM="${1:?Usage: $0 arm prompt_hash rep prompt_text RUNDIR}"
+ARM="${1:?Usage: $0 arm prompt_hash rep prompt_text RUNDIR [CONTEXT_FILE]}"
 HASH="${2:?}"
 REP="${3:?}"
 PROMPT="${4:?}"
 RUNDIR="${5:?}"
+CONTEXT_FILE="${6:-}"
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 ARTIFACT_DIR="${W4_ARTIFACT_DIR:-$REPO_ROOT/docs/plans/2026-09-26-w4-eval/runs}"
@@ -44,6 +48,50 @@ else
   ARM_SETTINGS=$(echo "$MANIFEST" | /usr/local/bin/python3.13 -c "import sys,json; print(json.load(sys.stdin)['arm_b_settings'])")
 fi
 
+# Render preceding turns into a system-prompt block (when CONTEXT_FILE is provided).
+# The block is passed via --append-system-prompt so the router hook still sees only the
+# bare prompt on stdin — injecting context there would be a confound.
+CTX_BLOCK=""
+CTX_TURNS=0
+if [ -n "$CONTEXT_FILE" ]; then
+  CTX_BLOCK=$(/usr/local/bin/python3.13 - "$CONTEXT_FILE" <<'PY'
+import json, sys
+turns = json.load(open(sys.argv[1]))
+lines = [
+    "This message continues an earlier conversation. The earlier turns"
+    " (replayed for evaluation; each truncated to 500 chars) were:"
+]
+for t in turns:
+    role = t.get("role", "").capitalize()
+    text = t.get("text", "")[:500]
+    lines.append(f"{role}: {text}")
+print("\n".join(lines))
+PY
+  )
+  CTX_TURNS=$(/usr/local/bin/python3.13 -c "import json; print(len(json.load(open('$CONTEXT_FILE'))))")
+fi
+
+# Build command array. CLAUDE_BIN may be "command claude" (two tokens), so split it.
+# --append-system-prompt is only added when a context block was rendered.
+read -ra CLAUDE_WORDS <<< "$CLAUDE_BIN"
+CMD_ARGS=(
+  "${CLAUDE_WORDS[@]}" --print
+    --setting-sources project,local
+    --settings "$ARM_SETTINGS"
+    --plugin-dir "$CLONE_PATH/plugins"
+    --model "$MODEL"
+    --max-turns 12
+    --no-session-persistence
+    --output-format stream-json
+    --verbose
+    --include-hook-events
+    --max-budget-usd 0.60
+    --disallowedTools Write,Edit,NotebookEdit
+)
+if [ -n "$CTX_BLOCK" ]; then
+  CMD_ARGS+=(--append-system-prompt "$CTX_BLOCK")
+fi
+
 # Execute run — wrapped in guarded.sh, strictly sequential (no &).
 # claude has no --cwd flag, so the spawn runs from the scratch repo. A non-zero exit
 # (e.g. budget cap) must still produce an artifact, so it is captured rather than
@@ -55,18 +103,7 @@ EXIT_CODE=0
 # The prompt goes in on stdin: as a positional arg it is swallowed by the variadic
 # --disallowedTools (verified live 2026-09-26: "Input must be provided...").
 (cd "$SCRATCH_CWD" && printf '%s' "$PROMPT" | bash "$EVAL_DIR/guarded.sh" \
-  $CLAUDE_BIN --print \
-    --setting-sources project,local \
-    --settings "$ARM_SETTINGS" \
-    --plugin-dir "$CLONE_PATH/plugins" \
-    --model "$MODEL" \
-    --max-turns 12 \
-    --no-session-persistence \
-    --output-format stream-json \
-    --verbose \
-    --include-hook-events \
-    --max-budget-usd 0.60 \
-    --disallowedTools Write,Edit,NotebookEdit) > "$RAW_FILE" || EXIT_CODE=$?
+  "${CMD_ARGS[@]}") > "$RAW_FILE" || EXIT_CODE=$?
 
 # The plugin clone is arm B's (and A's) sir_albert. A run that modified it would change
 # the treatment for every later run: abort the replay rather than keep measuring.
@@ -76,10 +113,10 @@ if [ -n "$(git -C "$CLONE_PATH" status --porcelain 2>/dev/null)" ]; then
 fi
 
 # Parse stream-json and build artifact
-/usr/local/bin/python3.13 - "$ARM" "$HASH" "$REP" "$PROMPT" "$MODEL" "$EXIT_CODE" "$OUT" "$RAW_FILE" <<'PY'
+/usr/local/bin/python3.13 - "$ARM" "$HASH" "$REP" "$PROMPT" "$MODEL" "$EXIT_CODE" "$OUT" "$RAW_FILE" "$CTX_TURNS" <<'PY'
 import json, sys, datetime
 
-arm, h, rep, prompt, model, exit_code_str, out_path, raw_file = sys.argv[1:]
+arm, h, rep, prompt, model, exit_code_str, out_path, raw_file, ctx_turns_str = sys.argv[1:]
 lines = [l for l in open(raw_file).read().splitlines() if l.strip()]
 
 events = []
@@ -137,6 +174,7 @@ artifact = {
     'skills_called': skills_called,
     'assistant_text': assistant_text,
     'truncated': result_ev is None or 'result' not in (result_ev or {}),
+    'context_turns': int(ctx_turns_str),
     'init_event': init_ev,
     'result_event': result_ev,
 }
