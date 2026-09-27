@@ -69,6 +69,12 @@ def main():
     if not prompt:
         sys.exit(0)
 
+    # Harness-injected text (task notifications, system reminders) also reaches this
+    # hook; a match there would force a skill load nobody asked for.
+    head = prompt.lstrip()[:200]
+    if head.startswith(("<task-notification", "<system-reminder")) or "[SYSTEM NOTIFICATION" in head:
+        sys.exit(0)
+
     try:
         data = json.loads(DATA_FILE.read_text(encoding="utf-8"))
     except Exception as e:

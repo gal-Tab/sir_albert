@@ -181,3 +181,21 @@ class TestNoMatch:
 
     def test_git_status(self):
         assert _nudge("git status") == ""
+
+
+class TestSystemInjectedText:
+    """Task notifications / system reminders reach UserPromptSubmit too; with the
+    imperative directive a match there forces a skill load nobody asked for
+    (observed live 2026-09-27: a subagent report containing 'plan it first')."""
+
+    def test_task_notification_silent(self):
+        assert _nudge("<task-notification>\n<task-id>x</task-id> let's brainstorm this") == ""
+
+    def test_system_reminder_silent(self):
+        assert _nudge("<system-reminder>\n[SYSTEM NOTIFICATION - NOT USER INPUT] write a plan") == ""
+
+    def test_system_notification_banner_silent(self):
+        assert _nudge("[SYSTEM NOTIFICATION - NOT USER INPUT]\nhelp me debug this") == ""
+
+    def test_user_text_still_routes(self):
+        assert "sir-albert:plan" in _nudge("write me a plan for this")
