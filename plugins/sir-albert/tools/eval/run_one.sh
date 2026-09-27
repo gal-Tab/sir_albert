@@ -129,7 +129,8 @@ for l in lines:
         pass
 
 init_ev = next((e for e in events if e.get('type') == 'system' and e.get('subtype') == 'init'), None)
-result_ev = next((e for e in events if e.get('type') == 'result'), None)
+result_events = [e for e in events if e.get('type') == 'result']
+result_ev = result_events[-1] if result_events else None
 
 # skills_loaded: what the arm made available (init event). Canary only; not for verdict gate.
 skills_loaded = [
@@ -155,7 +156,7 @@ skills_called = [
     if isinstance(b, dict) and b.get('type') == 'tool_use' and b.get('name') == 'Skill'
 ]
 
-cost = (result_ev or {}).get('total_cost_usd')
+cost = max((e.get('total_cost_usd') or 0 for e in result_events), default=None) if result_events else None
 turns = (result_ev or {}).get('num_turns')
 result_subtype = (result_ev or {}).get('subtype')
 budget_capped = 'budget' in str(result_subtype).lower()
@@ -176,6 +177,7 @@ artifact = {
     'skills_called': skills_called,
     'assistant_text': assistant_text,
     'truncated': result_ev is None or 'result' not in (result_ev or {}),
+    'result_count': len(result_events),
     'context_turns': int(ctx_turns_str),
     'init_event': init_ev,
     'result_event': result_ev,

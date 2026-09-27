@@ -1,0 +1,9 @@
+{"type":"system","subtype":"init","model":"claude-sonnet-5","skills":[],"plugins":[]}
+{"type":"assistant","message":{"content":[{"type":"text","text":"x"}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","id":"tu1","name":"Agent","input":{"description":"d","prompt":"p","run_in_background":true}}]}}
+{"type":"user","message":{"role":"user","content":[{"tool_use_id":"tu1","type":"tool_result","content":[{"type":"text","text":"Async agent launched"}]}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"x"}]}}
+{"type":"result","subtype":"success","is_error":false,"total_cost_usd":0.17,"num_turns":1,"result":"status line","result_index":0}
+{"type":"task_notification","session_id":"sess1"}
+{"type":"assistant","message":{"content":[{"type":"text","text":"x"}]}}
+{"type":"result","subtype":"success","is_error":false,"total_cost_usd":0.18,"num_turns":2,"result":"final answer","result_index":1}

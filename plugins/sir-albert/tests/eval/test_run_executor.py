@@ -379,3 +379,86 @@ def test_context_skips_empty_turns(tmp_path):
     assert ctx_value.count("Assistant:") == 1
     artifact = json.loads(next(art_dir.glob("*.json")).read_text())
     assert artifact["context_turns"] == 1
+
+
+# ── Multi-result (background-agent fanout) tests (ticket 10) ───────────────────
+
+def test_last_result_event_wins(tmp_path):
+    """With multiple result events, artifact uses the last one: result text and cost."""
+    fixture = FIXTURES_DIR / "multi-result.jsonl"
+    rundir = _make_manifest(tmp_path)
+    art_dir = tmp_path / "runs"
+    art_dir.mkdir()
+    result = _run_stub(fixture, "b", "mr001", 1, "x", rundir, art_dir)
+    assert result.returncode == 0, f"run_one.sh failed:\n{result.stderr}\n{result.stdout}"
+
+    artifact = json.loads((art_dir / "b-mr001-rep1.json").read_text())
+    assert artifact["result_event"]["result"] == "final answer", (
+        f"expected last result, got: {artifact['result_event']['result']!r}"
+    )
+    assert artifact["cost_usd"] == pytest.approx(0.18), (
+        f"expected max cost 0.18, got: {artifact['cost_usd']}"
+    )
+
+
+def test_result_count_recorded(tmp_path):
+    """Artifact records result_count equal to the number of result events emitted."""
+    fixture = FIXTURES_DIR / "multi-result.jsonl"
+    rundir = _make_manifest(tmp_path)
+    art_dir = tmp_path / "runs"
+    art_dir.mkdir()
+    result = _run_stub(fixture, "b", "mr002", 1, "x", rundir, art_dir)
+    assert result.returncode == 0, result.stderr
+
+    artifact = json.loads((art_dir / "b-mr002-rep1.json").read_text())
+    assert artifact["result_count"] == 2, (
+        f"expected result_count=2, got: {artifact.get('result_count')}"
+    )
+
+
+def test_truncated_uses_last_result(tmp_path):
+    """truncated=True when the LAST result lacks 'result', even if an earlier one has it."""
+    stream = [
+        {"type": "system", "subtype": "init", "model": EXPECTED_MODEL, "skills": [], "plugins": []},
+        {"type": "result", "subtype": "success", "total_cost_usd": 0.10,
+         "num_turns": 1, "is_error": False, "result": "early answer", "result_index": 0},
+        {"type": "result", "subtype": "budget", "total_cost_usd": 0.20,
+         "num_turns": 12, "is_error": True, "result_index": 1},
+    ]
+    stream_file = tmp_path / "truncated_stream.jsonl"
+    stream_file.write_text("\n".join(json.dumps(e) for e in stream))
+
+    rundir = _make_manifest(tmp_path)
+    art_dir = tmp_path / "runs"
+    art_dir.mkdir()
+    result = _run_stub(stream_file, "b", "trunc1", 1, "x", rundir, art_dir, stub_exit=1)
+    assert result.returncode == 0, result.stderr  # run_one.sh always exits 0; exit_code in artifact
+
+    artifact = json.loads((art_dir / "b-trunc1-rep1.json").read_text())
+    assert artifact["exit_code"] == 1
+    assert artifact["truncated"] is True, (
+        f"expected truncated=True when last result lacks 'result', got: {artifact['truncated']}"
+    )
+
+
+def test_single_result_unchanged_except_result_count(tmp_path):
+    """Single-result runs: all artifact fields identical to pre-fix, plus result_count=1."""
+    stream = [
+        {"type": "system", "subtype": "init", "model": EXPECTED_MODEL, "skills": [], "plugins": []},
+        {"type": "result", "subtype": "success", "total_cost_usd": 0.05, "num_turns": 1,
+         "is_error": False, "result": "done"},
+    ]
+    stream_file = tmp_path / "single.jsonl"
+    stream_file.write_text("\n".join(json.dumps(e) for e in stream))
+
+    rundir = _make_manifest(tmp_path)
+    art_dir = tmp_path / "runs"
+    art_dir.mkdir()
+    result = _run_stub(stream_file, "b", "single1", 1, "x", rundir, art_dir)
+    assert result.returncode == 0, result.stderr
+
+    artifact = json.loads((art_dir / "b-single1-rep1.json").read_text())
+    assert artifact["result_count"] == 1
+    assert artifact["result_event"]["result"] == "done"
+    assert artifact["cost_usd"] == pytest.approx(0.05)
+    assert artifact["truncated"] is False
