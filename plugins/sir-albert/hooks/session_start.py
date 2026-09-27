@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SessionStart hook — injects ≤800 chars of sir_albert context."""
+"""SessionStart hook — injects ≤1600 chars of sir_albert context."""
 import fnmatch
 import json
 import os
@@ -61,9 +61,9 @@ def main():
 
     filled = template.replace("{PACK_LIST}", pack_str).replace("{RESUME_HINT}", resume_str).rstrip()
 
-    if len(filled) > 800:
+    if len(filled) > 1600:
         print(
-            f"[sir-albert] WARNING: injection {len(filled)} chars > 800, skipping",
+            f"[sir-albert] WARNING: injection {len(filled)} chars > 1600, skipping",
             file=sys.stderr,
         )
         sys.exit(0)

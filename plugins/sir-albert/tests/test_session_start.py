@@ -53,11 +53,23 @@ class TestPackDetection:
 class TestCharCount:
     def test_within_800_chars(self, tmp_project_gtm):
         ctx = _parse_context(_run(tmp_project_gtm))
-        assert len(ctx) <= 800, f"Injection too long: {len(ctx)} chars"
+        assert len(ctx) <= 1600, f"Injection too long: {len(ctx)} chars"
 
     def test_plain_within_800_chars(self, tmp_project_plain):
         ctx = _parse_context(_run(tmp_project_plain))
-        assert len(ctx) <= 800, f"Injection too long: {len(ctx)} chars"
+        assert len(ctx) <= 1600, f"Injection too long: {len(ctx)} chars"
+
+
+class TestContract:
+    def test_contract_present(self, tmp_project_plain):
+        ctx = _parse_context(_run(tmp_project_plain))
+        assert "Use-the-skill rule" in ctx
+        assert "before any other response" in ctx
+        assert "Skip only" in ctx
+
+    def test_contract_names_router(self, tmp_project_plain):
+        ctx = _parse_context(_run(tmp_project_plain))
+        assert "router" in ctx
 
 
 class TestResumeHint:
