@@ -395,3 +395,180 @@ class TestLabelSetP3ExcludesPriorRows:
         # preceding_turns present in all rows
         for row in rows:
             assert "preceding_turns" in row, f"preceding_turns missing from row {row.get('_hash')}"
+
+
+# ── Amendment 1 exclusion-rule tests (one per rule, fail-first) ────────────────
+#
+# Each test uses the new args.exclude_hashes / args.current_router_data /
+# args.session_prefix interface (not yet wired in cmd_label_set_p3).
+# All four tests are expected to FAIL until the implementation is updated.
+
+
+def _make_amend1_args(
+    corpus_file,
+    router_data_file,
+    w5_dir,
+    *,
+    exclude_hashes_files=None,
+    current_router_data=None,
+    session_prefix="6834d4ec",
+    seed=7,
+):
+    """Build a Namespace using the Amendment-1 arg names."""
+    return argparse.Namespace(
+        exclude_hashes=exclude_hashes_files or [],
+        current_router_data=current_router_data,
+        session_prefix=session_prefix,
+        seed=seed,
+        router_data=str(router_data_file),
+        out_dir=str(w5_dir),
+    )
+
+
+class TestAmendment1ExclusionRules:
+    """One test per Amendment 1 exclusion rule; each written before the rule is implemented."""
+
+    # ── Rule 1: every hash in labels.jsonl is excluded ────────────────────────
+    def test_rule1_labeled_hashes_excluded(self, p3_corpus, monkeypatch):
+        """Hashes passed via exclude_hashes (labels.jsonl source) must not appear in output."""
+        corpus_file, router_data_file, _, _, w5_dir = p3_corpus
+        monkeypatch.setattr(prompt_corpus, "CORPUS_FILE", corpus_file)
+
+        # Put the first router_match row into the labels file (it WOULD appear without exclusion)
+        all_rows = make_p3_fixture_rows()
+        # The first routing-text row is a guaranteed router_match in the fixture
+        labeled_row = all_rows[0]
+        labeled_file = w5_dir / "labels.jsonl"
+        _write_jsonl(labeled_file, [labeled_row])
+
+        args = _make_amend1_args(
+            corpus_file, router_data_file, w5_dir,
+            exclude_hashes_files=[str(labeled_file)],
+        )
+        prompt_corpus.cmd_label_set_p3(args)
+
+        out_rows = [
+            json.loads(line)
+            for line in (w5_dir / "labeled-set-p3.jsonl").read_text().splitlines()
+            if line.strip()
+        ]
+        output_hashes = {r["_hash"] for r in out_rows}
+        assert labeled_row["_hash"] not in output_hashes, (
+            f"Rule 1 fail: hash {labeled_row['_hash']} from labels.jsonl appears in output"
+        )
+
+    # ── Rule 2: every hash in sample.jsonl is excluded ───────────────────────
+    def test_rule2_sample_hashes_excluded(self, p3_corpus, monkeypatch):
+        """Hashes passed via exclude_hashes (sample.jsonl source) must not appear in output."""
+        corpus_file, router_data_file, _, _, w5_dir = p3_corpus
+        monkeypatch.setattr(prompt_corpus, "CORPUS_FILE", corpus_file)
+
+        all_rows = make_p3_fixture_rows()
+        # Second routing-text row: another guaranteed router_match row
+        sample_row = all_rows[1]
+        sample_file = w5_dir / "sample.jsonl"
+        _write_jsonl(sample_file, [sample_row])
+
+        args = _make_amend1_args(
+            corpus_file, router_data_file, w5_dir,
+            exclude_hashes_files=[str(sample_file)],
+        )
+        prompt_corpus.cmd_label_set_p3(args)
+
+        out_rows = [
+            json.loads(line)
+            for line in (w5_dir / "labeled-set-p3.jsonl").read_text().splitlines()
+            if line.strip()
+        ]
+        output_hashes = {r["_hash"] for r in out_rows}
+        assert sample_row["_hash"] not in output_hashes, (
+            f"Rule 2 fail: hash {sample_row['_hash']} from sample.jsonl appears in output"
+        )
+
+    # ── Rule 3: 08-eyeballed rows excluded (current fires, baseline doesn't) ─
+    def test_rule3_08_eyeballed_rows_excluded(self, p3_corpus, monkeypatch, tmp_path):
+        """Rows where current router fires but baseline router doesn't must be excluded."""
+        corpus_file, router_data_file, _, _, w5_dir = p3_corpus
+
+        # Build a corpus with one extra row that matches a current-only pattern
+        # but NOT the baseline router stored in router_data_file.
+        current_only_text = "open a pr for this feature right now please"
+        current_only_row = _make_row(current_only_text, preceding_turns=[], idx=999)
+
+        all_rows = make_p3_fixture_rows()
+        all_rows.append(current_only_row)
+        aug_corpus = tmp_path / "aug_corpus.jsonl"
+        _write_jsonl(aug_corpus, all_rows)
+        monkeypatch.setattr(prompt_corpus, "CORPUS_FILE", aug_corpus)
+
+        # Current router data fires on "open a pr" (ticket 08 build pattern)
+        current_router = {
+            "keyword_patterns": [
+                {
+                    "order": 10,
+                    "intent": "build",
+                    "pattern": r"\bopen (a|the) pr\b",
+                    "nudge": "-> /sir-albert:build",
+                },
+            ],
+            "hebrew_patterns": [],
+        }
+        current_router_file = tmp_path / "current_router.json"
+        current_router_file.write_text(json.dumps(current_router), encoding="utf-8")
+
+        # Baseline router (router_data_file) does NOT have the "open a pr" pattern,
+        # so this row: current fires, baseline silent → should be excluded.
+        args = _make_amend1_args(
+            aug_corpus, router_data_file, w5_dir,
+            current_router_data=str(current_router_file),
+        )
+        prompt_corpus.cmd_label_set_p3(args)
+
+        out_rows = [
+            json.loads(line)
+            for line in (w5_dir / "labeled-set-p3.jsonl").read_text().splitlines()
+            if line.strip()
+        ]
+        output_hashes = {r["_hash"] for r in out_rows}
+        assert current_only_row["_hash"] not in output_hashes, (
+            "Rule 3 fail: 08-eyeballed row (current fires, baseline silent) appears in output"
+        )
+
+    # ── Rule 4: rows from session 6834d4ec are excluded ──────────────────────
+    def test_rule4_planning_session_excluded(self, p3_corpus, monkeypatch, tmp_path):
+        """Rows whose session_id starts with session_prefix must be excluded."""
+        corpus_file, router_data_file, _, _, w5_dir = p3_corpus
+
+        # Add a corpus row from the planning session
+        session_text = "what should we work on next for the W5 outperform experiment"
+        session_row = {
+            "_hash": "aabbccdd11223344",
+            "session_id": "6834d4ec-planning-session",
+            "timestamp": "2026-09-27T10:00:00Z",
+            "cwd": "/tmp/test",
+            "project": "test",
+            "text": session_text,
+            "preceding_turns": [],
+            "label": None,
+        }
+        all_rows = make_p3_fixture_rows()
+        all_rows.append(session_row)
+        aug_corpus = tmp_path / "aug_corpus2.jsonl"
+        _write_jsonl(aug_corpus, all_rows)
+        monkeypatch.setattr(prompt_corpus, "CORPUS_FILE", aug_corpus)
+
+        args = _make_amend1_args(
+            aug_corpus, router_data_file, w5_dir,
+            session_prefix="6834d4ec",
+        )
+        prompt_corpus.cmd_label_set_p3(args)
+
+        out_rows = [
+            json.loads(line)
+            for line in (w5_dir / "labeled-set-p3.jsonl").read_text().splitlines()
+            if line.strip()
+        ]
+        output_hashes = {r["_hash"] for r in out_rows}
+        assert session_row["_hash"] not in output_hashes, (
+            f"Rule 4 fail: session row {session_row['_hash']} from 6834d4ec session appears in output"
+        )

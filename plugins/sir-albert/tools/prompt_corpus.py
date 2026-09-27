@@ -1339,19 +1339,38 @@ _P3_TASK_INITIATING_N = 25
 _P3_NEGATIVE_CONTROL_N = 10
 
 
+_P3_SESSION_EXCLUDE_PREFIX = "6834d4ec"
+
+
 def cmd_label_set_p3(args):
-    """Slice corpus into a P3 held-out labeling set, excluding all W4 hashes.
+    """Slice corpus into a P3 held-out labeling set, using Amendment 1 exclusion rules.
+
+    Amendment 1 exclusion rules (applied in this order):
+      Rule 1: every _hash in --exclude-hashes files (labels.jsonl source)
+      Rule 2: every _hash in --exclude-hashes files (sample.jsonl source)
+              (rules 1 and 2 share the same --exclude-hashes flag)
+      Rule 3: rows where the current live router fires AND baseline (1b88127) doesn't
+      Rule 4: every row from session whose session_id starts with --session-prefix
 
     args:
-      exclude     list of JSONL files; every _hash in them is excluded
-      seed        random seed (default 7)
-      router_data optional path override for baseline router JSON
-      out_dir     output directory (default W5_DIR)
+      exclude_hashes     list of JSONL files; every _hash in them is excluded
+      current_router_data optional path to current router JSON (default: live ROUTER_DATA)
+      session_prefix     session_id prefix to exclude (default: "6834d4ec")
+      seed               random seed (default 7)
+      router_data        optional path override for baseline router JSON
+      out_dir            output directory (default W5_DIR)
     """
     seed = getattr(args, "seed", 7)
     router_data_override = getattr(args, "router_data", None)
     out_dir = Path(getattr(args, "out_dir", None) or W5_DIR)
-    exclude_files = getattr(args, "exclude", []) or []
+    # Support both old --exclude and new --exclude-hashes for backward compat
+    exclude_files = (
+        getattr(args, "exclude_hashes", None)
+        or getattr(args, "exclude", None)
+        or []
+    )
+    current_router_data_path = getattr(args, "current_router_data", None)
+    session_prefix = getattr(args, "session_prefix", None) or _P3_SESSION_EXCLUDE_PREFIX
 
     # ── Load baseline router ──────────────────────────────────────────────────
     router_data = _load_baseline_router_data(router_data_override)
@@ -1363,7 +1382,20 @@ def cmd_label_set_p3(args):
                 return intent
         return None
 
-    # ── Load exclude hashes ───────────────────────────────────────────────────
+    # ── Load current (live/ticket-08) router for rule 3 ──────────────────────
+    if current_router_data_path:
+        current_router_data = json.loads(Path(current_router_data_path).read_text(encoding="utf-8"))
+    else:
+        current_router_data = json.loads(ROUTER_DATA.read_text(encoding="utf-8"))
+    current_patterns = _compile_patterns_from_data(current_router_data)
+
+    def _current_route(text: str) -> str | None:
+        for intent, compiled, _ in current_patterns:
+            if compiled.search(text):
+                return intent
+        return None
+
+    # ── Rules 1 + 2: load exclude hashes from JSONL files ────────────────────
     exclude_hashes: set[str] = set()
     for fpath in exclude_files:
         for row in load_jsonl(fpath):
@@ -1373,6 +1405,20 @@ def cmd_label_set_p3(args):
 
     # ── Load corpus ───────────────────────────────────────────────────────────
     all_rows = list(load_jsonl(str(CORPUS_FILE)))
+
+    # ── Build full exclude set: rules 1+2 (files) + rule 3 (08-eyeballed) + rule 4 (session) ──
+    for row in all_rows:
+        h = row.get("_hash", "")
+        if not h:
+            continue
+        text = row.get("text", "")
+        session_id = row.get("session_id", "")
+        # Rule 3: current router fires AND baseline router doesn't (ticket 08 eyeballed)
+        if _current_route(text) is not None and _baseline_route(text) is None:
+            exclude_hashes.add(h)
+        # Rule 4: row from the W5 planning session
+        if session_id and session_id.startswith(session_prefix):
+            exclude_hashes.add(h)
 
     # ── Slice 1: router_match (baseline router fires, not excluded) ───────────
     router_match_rows: list[dict] = []
@@ -1612,15 +1658,25 @@ def main():
 
     p_label_set_p3 = sub.add_parser("label-set-p3")
     p_label_set_p3.add_argument(
-        "--exclude", nargs="+", default=[],
+        "--exclude-hashes", nargs="+", default=[], dest="exclude_hashes",
         metavar="FILE",
-        help="JSONL files whose _hashes are excluded from the output",
+        help="JSONL files whose _hashes are excluded (Amendment 1 rules 1+2: labels.jsonl, sample.jsonl)",
     )
     p_label_set_p3.add_argument("--seed", type=int, default=7)
     p_label_set_p3.add_argument(
         "--router-data", default=None, dest="router_data",
         metavar="FILE",
-        help=f"Path to router_data.json override (default: git show {BASELINE_ROUTER_SHA}:...)",
+        help=f"Baseline router_data.json override (default: git show {BASELINE_ROUTER_SHA}:...)",
+    )
+    p_label_set_p3.add_argument(
+        "--current-router-data", default=None, dest="current_router_data",
+        metavar="FILE",
+        help="Current (live) router_data.json override for rule 3 (default: live hooks/router_data.json)",
+    )
+    p_label_set_p3.add_argument(
+        "--session-prefix", default=_P3_SESSION_EXCLUDE_PREFIX, dest="session_prefix",
+        metavar="PREFIX",
+        help=f"Exclude rows whose session_id starts with this prefix (default: {_P3_SESSION_EXCLUDE_PREFIX})",
     )
     p_label_set_p3.add_argument(
         "--out-dir", default=None, dest="out_dir",
