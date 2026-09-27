@@ -616,7 +616,7 @@ def cmd_label_set(args):
         "- **Task-initiating:** write a route name, `none`, or `ambiguous`.",
         "- **Negative controls:** `y` = should NOT route (`none`). Otherwise write the route it *should* take.",
         "",
-        "**Question to ask per prompt:** read alone, as the first message of a session — should the router nudge a skill?",
+        "**Question to ask per prompt:** given the earlier turns shown above it (if any), should a skill be invoked for this message?",
         "",
         "## Valid route names",
         "| Route | Nudges toward | Route | Nudges toward |",
@@ -1293,6 +1293,28 @@ def cmd_sample_p2(args):
 
 
 # ── label-set-p3 ──────────────────────────────────────────────────────────────
+_ANSI_RE = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
+
+
+def _p3_quote(text: str, n: int = 400) -> list[str]:
+    """Blockquote every line so prompt text can't start a heading or an importer line."""
+    text = _ANSI_RE.sub("", text)
+    text = (text[:n] + "…") if len(text) > n else text
+    return [f"> {line}" if line.strip() else ">" for line in text.splitlines() or [""]]
+
+
+def _p3_fmt_turns(turns: list) -> list[str]:
+    """Earlier turns as nested quotes; pure tool-call turns (empty text) are skipped."""
+    out = []
+    for t in turns:
+        txt = t.get("text", "")
+        if not txt.strip():
+            continue
+        body = _p3_quote(txt, 200)
+        out.append(f"> **{t.get('role', '?')}:** {body[0][2:]}")
+        out.extend(f">{line}" for line in body[1:])
+    return out
+
 
 def _load_baseline_router_data(path_override: str | None = None) -> dict:
     """Load router_data.json from the 1b88127 baseline commit, or from a file override."""
@@ -1549,7 +1571,7 @@ def cmd_label_set_p3(args):
         "- **Task-initiating:** write a route name, `none`, or `ambiguous`.",
         "- **Negative controls:** `y` = should NOT route (`none`). Otherwise write the route it *should* take.",
         "",
-        "**Question to ask per prompt:** read alone, as the first message of a session — should the router nudge a skill?",
+        "**Question to ask per prompt:** given the earlier turns shown above it (if any), should a skill be invoked for this message?",
         "",
         "## Valid labels",
         "| Label | Nudges toward |",
@@ -1572,11 +1594,13 @@ def cmd_label_set_p3(args):
         text = row.get("text", "")
         route = _baseline_route(text)
         cl_lines.append(f"### [{i + 1}] hash={h} slice=router_match")
-        prec = row.get("preceding_turns", [])
+        prec = _p3_fmt_turns(row.get("preceding_turns", []))
         if prec:
-            cl_lines.append("**Preceding turns:**")
-            cl_lines.extend(_fmt_preceding(prec))
-        cl_lines.append(f"> {_trunc(text)}")
+            cl_lines.append("**Earlier turns:**")
+            cl_lines.extend(prec)
+            cl_lines.append("")
+        cl_lines.append("**Prompt:**")
+        cl_lines.extend(_p3_quote(text))
         cl_lines.append(f"predicted: {route}")
         cl_lines.append("**Label:** ___  **Notes:** ___")
         cl_lines.append("")
@@ -1588,11 +1612,13 @@ def cmd_label_set_p3(args):
         h = row.get("_hash", "")
         text = row.get("text", "")
         cl_lines.append(f"### [{offset + i + 1}] hash={h} slice=task_initiating")
-        prec = row.get("preceding_turns", [])
+        prec = _p3_fmt_turns(row.get("preceding_turns", []))
         if prec:
-            cl_lines.append("**Preceding turns:**")
-            cl_lines.extend(_fmt_preceding(prec))
-        cl_lines.append(f"> {_trunc(text)}")
+            cl_lines.append("**Earlier turns:**")
+            cl_lines.extend(prec)
+            cl_lines.append("")
+        cl_lines.append("**Prompt:**")
+        cl_lines.extend(_p3_quote(text))
         cl_lines.append("**Label:** ___  **Notes:** ___")
         cl_lines.append("")
 
@@ -1603,11 +1629,13 @@ def cmd_label_set_p3(args):
         h = row.get("_hash", "")
         text = row.get("text", "")
         cl_lines.append(f"### [{offset2 + i + 1}] hash={h} slice=negative_control")
-        prec = row.get("preceding_turns", [])
+        prec = _p3_fmt_turns(row.get("preceding_turns", []))
         if prec:
-            cl_lines.append("**Preceding turns:**")
-            cl_lines.extend(_fmt_preceding(prec))
-        cl_lines.append(f"> {_trunc(text)}")
+            cl_lines.append("**Earlier turns:**")
+            cl_lines.extend(prec)
+            cl_lines.append("")
+        cl_lines.append("**Prompt:**")
+        cl_lines.extend(_p3_quote(text))
         cl_lines.append("**Label:** ___  **Notes:** ___")
         cl_lines.append("")
 

@@ -572,3 +572,23 @@ class TestAmendment1ExclusionRules:
         assert session_row["_hash"] not in output_hashes, (
             f"Rule 4 fail: session row {session_row['_hash']} from 6834d4ec session appears in output"
         )
+
+
+class TestP3ChecklistRendering:
+    """Prompt/context text must be contained: no line of it may start a markdown
+    heading or the importer's header/label lines (Gal-readable and parse-safe)."""
+
+    def test_quote_contains_every_line(self):
+        out = prompt_corpus._p3_quote("first\n## 1. heading in a prompt\n**Label:** x")
+        assert all(line.startswith("> ") or line == ">" for line in out)
+
+    def test_quote_strips_ansi(self):
+        out = prompt_corpus._p3_quote("Opus \x1b[1m4.8\x1b[22m done")
+        assert "\x1b" not in "".join(out)
+
+    def test_turns_skip_empty_and_quote(self):
+        out = prompt_corpus._p3_fmt_turns([{"role": "user", "text": ""},
+                                           {"role": "assistant", "text": "a\n## b"}])
+        assert out[0].startswith("> **assistant:**")
+        assert all(line.startswith(">") for line in out)
+        assert not any("**user:**" in line for line in out)
