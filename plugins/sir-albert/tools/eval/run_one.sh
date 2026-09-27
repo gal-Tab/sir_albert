@@ -62,13 +62,15 @@ lines = [
     " (replayed for evaluation; each truncated to 500 chars) were:"
 ]
 for t in turns:
+    if not t.get("text", "").strip():
+        continue  # pure tool-call turns carry no text
     role = t.get("role", "").capitalize()
     text = t.get("text", "")[:500]
     lines.append(f"{role}: {text}")
 print("\n".join(lines))
 PY
   )
-  CTX_TURNS=$(/usr/local/bin/python3.13 -c "import json; print(len(json.load(open('$CONTEXT_FILE'))))")
+  CTX_TURNS=$(/usr/local/bin/python3.13 -c "import json,sys; print(sum(1 for t in json.load(open(sys.argv[1])) if t.get('text','').strip()))" "$CONTEXT_FILE")
 fi
 
 # Build command array. CLAUDE_BIN may be "command claude" (two tokens), so split it.

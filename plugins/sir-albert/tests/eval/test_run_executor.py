@@ -350,3 +350,32 @@ def test_no_context_arg_is_unchanged(tmp_path):
     recorded_args = json.loads(args_file.read_text())
     assert "--append-system-prompt" not in recorded_args, \
         f"--append-system-prompt appeared without a context file: {recorded_args}"
+
+
+def test_context_skips_empty_turns(tmp_path):
+    # Corpus turns that were pure tool calls have empty text; rendering them as a bare
+    # "Assistant:" line is noise, and they must not count toward context_turns.
+    ctx = [{"role": "assistant", "text": ""}, {"role": "assistant", "text": "earlier A"}]
+    ctx_file = tmp_path / "ctx.json"
+    ctx_file.write_text(json.dumps(ctx))
+    args_file = tmp_path / "recorded_args.json"
+    stdin_file = tmp_path / "recorded_stdin.txt"
+    stream_file = _minimal_stream(tmp_path)
+    rundir = _make_manifest(tmp_path)
+    art_dir = tmp_path / "runs"
+    art_dir.mkdir()
+    stub = _make_recording_stub(rundir, args_file, stdin_file, stream_file)
+    fake_settings = rundir / "guard-settings.json"
+    fake_settings.write_text(json.dumps({"model": EXPECTED_MODEL, "hooks": {}}))
+    env = dict(os.environ, W4_CLAUDE_BIN=str(stub), W4_SETTINGS_FILE=str(fake_settings),
+               W4_ARTIFACT_DIR=str(art_dir))
+    result = subprocess.run(["bash", str(RUN_ONE_SH), "b", "h1", "1", "bare prompt text",
+                             str(rundir), str(ctx_file)], capture_output=True, text=True, env=env)
+    assert result.returncode == 0, result.stderr
+    args = json.loads(args_file.read_text())
+    ctx_value = args[args.index("--append-system-prompt") + 1]
+    assert "Assistant: earlier A" in ctx_value
+    assert "Assistant: \n" not in ctx_value + "\n" and not ctx_value.rstrip().endswith("Assistant:")
+    assert ctx_value.count("Assistant:") == 1
+    artifact = json.loads(next(art_dir.glob("*.json")).read_text())
+    assert artifact["context_turns"] == 1

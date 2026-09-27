@@ -9,6 +9,7 @@ A cheap arm-B-only replay of the 15 W4 tuning prompts, with context, meets the d
 1. Write the failing tests in `plugins/sir-albert/tests/eval/test_run_tranche.py`:
    - `test_arms_flag_b_only`: `run_tranche.py --arms b --rows all --reps 1 …` schedules 15 jobs, all arm b.
    - `test_context_passed`: jobs whose sample row has `preceding_turns` pass a context file as arg 6 to `run_one.sh`.
+   - `test_context_from_corpus_when_row_lacks_it`: the W4 `sample.jsonl` rows predate ticket 01 and carry no `preceding_turns`, so the runner looks them up by `_hash` in `~/.claude/sir-albert-corpus/corpus.jsonl` (with a `W4_CORPUS_FILE` override for tests). Coordinator review of 01, 2026-09-27.
    - `test_legacy_positional_unchanged`: `run_tranche.py RUNDIR SAMPLE 2` still schedules W4 tranche 2 exactly.
 2. Run: `/usr/local/bin/python3.13 -m pytest -q plugins/sir-albert/tests/eval/test_run_tranche.py`. Expected: new FAIL.
 3. Implement in `plugins/sir-albert/tools/eval/run_tranche.py`: argparse with the legacy positional form kept, plus `--arms` (default `a,b`), `--rows all|1|2`, `--reps` (default 2), and `--expected N`. Write the context files to `docs/plans/2026-09-27-w5-outperform/context/<hash>.json` (gitignored).
