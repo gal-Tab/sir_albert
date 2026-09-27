@@ -278,6 +278,24 @@ class TestP1ScoreFFDenominator:
         assert "GATE FAIL" not in out
 
 
+def test_out_flag_writes_elsewhere(tmp_path, monkeypatch):
+    """--out <path> must write the scorecard to that path, not to the default EVAL_DIR path."""
+    rows = make_pass_fixture()
+    default_scorecard = tmp_path / "p1-scorecard-2026-09-26.md"
+    out_dir = tmp_path / "custom_out"
+    out_dir.mkdir()
+    out_path = out_dir / "scorecard.md"
+
+    f = tmp_path / "labeled-set.jsonl"
+    _write(f, rows)
+    monkeypatch.setattr(prompt_corpus, "EVAL_DIR", tmp_path)
+    args = argparse.Namespace(file=str(f), out=str(out_path))
+    prompt_corpus.cmd_p1_score(args)
+
+    assert out_path.exists(), "scorecard must be written to --out path"
+    assert not default_scorecard.exists(), "default EVAL_DIR scorecard must NOT be written when --out is given"
+
+
 def test_empty_negative_controls_block_the_gate(tmp_path, monkeypatch, capsys):
     """Regression: with 0 controls labelled, false-fire printed '0.0% (PASS)'.
     An empty denominator is INSUFFICIENT and must exit 2, never pass."""

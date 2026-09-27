@@ -1080,8 +1080,14 @@ def cmd_p1_score(args):
     scorecard_text = "\n".join(scorecard_sections)
 
     # Write scorecard regardless of pass/fail (review correction 2)
-    EVAL_DIR.mkdir(parents=True, exist_ok=True)
-    scorecard_path = EVAL_DIR / "p1-scorecard-2026-09-26.md"
+    # --out overrides the default EVAL_DIR path so re-runs don't overwrite the W4 record
+    _out = getattr(args, "out", None)
+    if _out:
+        scorecard_path = Path(_out)
+        scorecard_path.parent.mkdir(parents=True, exist_ok=True)
+    else:
+        EVAL_DIR.mkdir(parents=True, exist_ok=True)
+        scorecard_path = EVAL_DIR / "p1-scorecard-2026-09-26.md"
     scorecard_path.write_text(scorecard_text, encoding="utf-8")
 
     # Print summary
@@ -1305,6 +1311,8 @@ def main():
 
     p_p1 = sub.add_parser("p1-score")
     p_p1.add_argument("--file", default=str(EVAL_DIR / "labeled-set.jsonl"))
+    p_p1.add_argument("--out", default=None,
+                      help="Write scorecard to this path instead of the default EVAL_DIR location")
 
     p_sample_p2 = sub.add_parser("sample-p2")
     p_sample_p2.add_argument("--file", default=str(EVAL_DIR / "labeled-set.jsonl"))
