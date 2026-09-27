@@ -462,3 +462,16 @@ def test_single_result_unchanged_except_result_count(tmp_path):
     assert artifact["result_event"]["result"] == "done"
     assert artifact["cost_usd"] == pytest.approx(0.05)
     assert artifact["truncated"] is False
+
+
+def test_final_text_joins_all_result_texts(tmp_path):
+    # Probe C (real stream): the last result can be a meta-reply ("Already reported…"),
+    # so the judge must see every result message in order, as the user would.
+    fixture = FIXTURES_DIR / "multi-result.jsonl"
+    rundir = _make_manifest(tmp_path)
+    art_dir = tmp_path / "runs"
+    art_dir.mkdir()
+    result = _run_stub(fixture, "b", "mr009", 1, "x", rundir, art_dir)
+    assert result.returncode == 0, result.stderr
+    artifact = json.loads((art_dir / "b-mr009-rep1.json").read_text())
+    assert artifact["final_text"] == "status line\n\nfinal answer"

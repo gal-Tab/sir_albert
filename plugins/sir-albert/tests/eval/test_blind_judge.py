@@ -386,3 +386,9 @@ def test_default_summarize_never_marks_cutoff():
     art = _make_artifact("a", "h1", 1, result_text="Partial work done.")
     art["truncated"] = True
     assert bj.summarize(art) == "Partial work done."
+
+
+def test_summarize_prefers_final_text():
+    art = _make_artifact("b", "h1", 1, result_text="Already reported.")
+    art["final_text"] = "status line\n\nthe real synthesis\n\nAlready reported."
+    assert "the real synthesis" in bj.summarize(art, max_chars=6000)

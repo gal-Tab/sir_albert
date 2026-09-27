@@ -80,7 +80,7 @@ def summarize(artifact: dict, max_chars: int = 1500, mark_cutoff: bool = False) 
     """Extract and anonymize the final response text from an artifact."""
     # Final response text lives in the result event (verified against the probe stream).
     # A run cut off by --max-turns / budget has no result; fall back to its assistant text.
-    final_text = ((artifact.get("result_event") or {}).get("result") or artifact.get("assistant_text") or "")
+    final_text = (artifact.get("final_text") or (artifact.get("result_event") or {}).get("result") or artifact.get("assistant_text") or "")
     if not final_text.strip():
         raise ValueError(
             f"empty response in {artifact['arm']}-{artifact['prompt_hash']}-rep{artifact['rep']}"

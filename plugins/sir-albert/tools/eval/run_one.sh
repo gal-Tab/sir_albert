@@ -178,6 +178,8 @@ artifact = {
     'assistant_text': assistant_text,
     'truncated': result_ev is None or 'result' not in (result_ev or {}),
     'result_count': len(result_events),
+    # Every result message in order: the last one can be a meta-reply (probe C).
+    'final_text': '\n\n'.join(e['result'] for e in result_events if e.get('result')),
     'context_turns': int(ctx_turns_str),
     'init_event': init_ev,
     'result_event': result_ev,
