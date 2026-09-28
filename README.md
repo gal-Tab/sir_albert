@@ -63,9 +63,16 @@ Every skill is namespaced: `/sir-albert:<skill-name>` or `/kb:<skill-name>`. See
 claude plugin marketplace add /path/to/sir_albert
 claude plugin install sir-albert@sir-albert
 claude plugin install kb@sir-albert
+bash plugins/sir-albert/bootstrap.sh
 ```
 
-Then add the `--plugin-dir` alias to `~/.zshrc` for live edits, or rely on `claude plugin update` after each version bump.
+A plugin can't install `CLAUDE.md` or user-level hooks, so `bootstrap.sh` does the machine setup once (every step is idempotent and backs up what it replaces):
+
+- adds the `--plugin-dir` alias to `~/.zshrc` (live edits)
+- **asks** whether to use Sir Albert's `CLAUDE.md`; yes → `~/.claude/CLAUDE.md` becomes a one-line `@import` of `os/CLAUDE.global.md` (old file → `CLAUDE.md.backup-w3`). Non-interactive: `SIR_ALBERT_CLAUDE_MD=yes|no`
+- symlinks `guard.sh` to `~/.claude/hooks/` and registers it as a `PreToolUse` hook in `~/.claude/settings.json`
+
+Without the alias, rely on `claude plugin update` after each version bump.
 
 ## Knowledge Base pipeline
 
