@@ -1,0 +1,122 @@
+<svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="star-glow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2"/>
+    </filter>
+    <filter id="title-glow" x="-30%" y="-80%" width="160%" height="260%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="10"/>
+    </filter>
+    <radialGradient id="nebula" cx="72%" cy="28%" r="32%">
+      <stop offset="0%" stop-color="#6161FF" stop-opacity="0.07"/>
+      <stop offset="100%" stop-color="#6161FF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background: deep space black -->
+  <rect width="900" height="300" fill="#000000"/>
+  <rect width="900" height="300" fill="url(#nebula)"/>
+
+  <!-- Starfield: deterministic positions, varying size and opacity -->
+  <circle cx="45"  cy="23"  r="0.5" fill="#FFFFFF" opacity="0.35"/>
+  <circle cx="123" cy="67"  r="0.6" fill="#FFFFFF" opacity="0.3"/>
+  <circle cx="78"  cy="145" r="0.7" fill="#FFFFFF" opacity="0.4"/>
+  <circle cx="200" cy="18"  r="0.5" fill="#FFFFFF" opacity="0.32"/>
+  <circle cx="267" cy="88"  r="0.6" fill="#FFFFFF" opacity="0.38"/>
+  <circle cx="310" cy="34"  r="0.4" fill="#FFFFFF" opacity="0.28"/>
+  <circle cx="389" cy="52"  r="0.5" fill="#FFFFFF" opacity="0.33"/>
+  <circle cx="423" cy="12"  r="0.7" fill="#FFFFFF" opacity="0.42"/>
+  <circle cx="501" cy="38"  r="0.5" fill="#FFFFFF" opacity="0.3"/>
+  <circle cx="567" cy="22"  r="0.6" fill="#FFFFFF" opacity="0.36"/>
+  <circle cx="634" cy="71"  r="0.5" fill="#FFFFFF" opacity="0.31"/>
+  <circle cx="712" cy="18"  r="0.7" fill="#FFFFFF" opacity="0.45"/>
+  <circle cx="789" cy="44"  r="0.5" fill="#FFFFFF" opacity="0.33"/>
+  <circle cx="845" cy="82"  r="0.6" fill="#FFFFFF" opacity="0.38"/>
+  <circle cx="867" cy="24"  r="0.4" fill="#FFFFFF" opacity="0.28"/>
+  <circle cx="34"  cy="192" r="0.5" fill="#FFFFFF" opacity="0.3"/>
+  <circle cx="89"  cy="267" r="0.6" fill="#FFFFFF" opacity="0.36"/>
+  <circle cx="156" cy="234" r="0.5" fill="#FFFFFF" opacity="0.31"/>
+  <circle cx="234" cy="178" r="0.7" fill="#FFFFFF" opacity="0.4"/>
+  <circle cx="290" cy="256" r="0.5" fill="#FFFFFF" opacity="0.33"/>
+  <circle cx="356" cy="198" r="0.6" fill="#FFFFFF" opacity="0.36"/>
+  <circle cx="412" cy="272" r="0.4" fill="#FFFFFF" opacity="0.28"/>
+  <circle cx="534" cy="212" r="0.5" fill="#FFFFFF" opacity="0.3"/>
+  <circle cx="601" cy="249" r="0.6" fill="#FFFFFF" opacity="0.37"/>
+  <circle cx="656" cy="188" r="0.5" fill="#FFFFFF" opacity="0.31"/>
+  <circle cx="723" cy="265" r="0.7" fill="#FFFFFF" opacity="0.43"/>
+  <circle cx="801" cy="213" r="0.5" fill="#FFFFFF" opacity="0.33"/>
+  <circle cx="856" cy="247" r="0.6" fill="#FFFFFF" opacity="0.37"/>
+  <circle cx="167" cy="112" r="1.0" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="345" cy="156" r="0.9" fill="#FFFFFF" opacity="0.55"/>
+  <circle cx="590" cy="134" r="0.9" fill="#FFFFFF" opacity="0.58"/>
+  <circle cx="745" cy="155" r="1.0" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="820" cy="102" r="1.2" fill="#FFFFFF" opacity="0.68"/>
+  <circle cx="67"  cy="68"  r="1.0" fill="#FFFFFF" opacity="0.6"/>
+  <!-- Bright stars with soft glow -->
+  <circle cx="52"  cy="134" r="1.6" fill="#FFFFFF" opacity="0.9"  filter="url(#star-glow)"/>
+  <circle cx="278" cy="45"  r="1.4" fill="#FFFFFF" opacity="0.85" filter="url(#star-glow)"/>
+  <circle cx="478" cy="89"  r="1.5" fill="#FFFFFF" opacity="0.9"  filter="url(#star-glow)"/>
+  <circle cx="674" cy="37"  r="1.6" fill="#FFFFFF" opacity="0.88" filter="url(#star-glow)"/>
+  <circle cx="838" cy="156" r="1.4" fill="#FFFFFF" opacity="0.85" filter="url(#star-glow)"/>
+  <!-- Twinkling stars (SMIL) -->
+  <circle cx="183" cy="56" r="1.2" fill="#FFFFFF" opacity="0.8">
+    <animate attributeName="opacity" values="0.8;0.15;0.8" dur="3.2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="547" cy="74" r="1.0" fill="#FFFFFF" opacity="0.7">
+    <animate attributeName="opacity" values="0.7;0.12;0.7" dur="4.1s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="762" cy="92" r="1.3" fill="#FFFFFF" opacity="0.85">
+    <animate attributeName="opacity" values="0.85;0.2;0.85" dur="2.8s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="134" cy="198" r="0.9" fill="#FFFFFF" opacity="0.6">
+    <animate attributeName="opacity" values="0.6;0.1;0.6" dur="5.0s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Opening crawl line: italic, light blue -->
+  <text x="450" y="88" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="14" font-weight="400" font-style="italic" fill="#8A99FF">A long time ago, in a terminal far, far away&#x2026;</text>
+
+  <!-- Title glow layer (blurred behind, not on crisp text) -->
+  <text x="450" y="151" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="60" font-weight="700" fill="#FFCC00" letter-spacing="8"
+        filter="url(#title-glow)" opacity="0.45">SIR ALBERT</text>
+
+  <!-- Title crisp — yellow fill, no blur filter -->
+  <text x="450" y="151" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="60" font-weight="700" fill="#FFCC00" stroke="#8B6A00" stroke-width="0.6"
+        letter-spacing="8">SIR ALBERT</text>
+
+  <!-- Tagline -->
+  <text x="450" y="178" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="15" font-weight="400" fill="#C3CED8">Gal&#x2019;s operating system for Claude Code</text>
+
+  <!-- Badge pills: yellow/purple outline on black, centred row -->
+  <!-- 4 pills: widths ~92 82 74 88, gaps 12, total 372, start x=264 -->
+  <g transform="translate(264,206)">
+    <rect width="92" height="26" rx="13" fill="rgba(0,0,0,0.7)" stroke="#FFCC00" stroke-width="1.2"/>
+    <text x="46" y="17" text-anchor="middle"
+          font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+          font-size="11" font-weight="600" fill="#FFCC00">28 skills</text>
+  </g>
+  <g transform="translate(368,206)">
+    <rect width="82" height="26" rx="13" fill="rgba(0,0,0,0.7)" stroke="#6161FF" stroke-width="1.2"/>
+    <text x="41" y="17" text-anchor="middle"
+          font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+          font-size="11" font-weight="600" fill="#8A99FF">kb plugin</text>
+  </g>
+  <g transform="translate(462,206)">
+    <rect width="74" height="26" rx="13" fill="rgba(0,0,0,0.7)" stroke="#6161FF" stroke-width="1.2"/>
+    <text x="37" y="17" text-anchor="middle"
+          font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+          font-size="11" font-weight="600" fill="#8A99FF">6 hooks</text>
+  </g>
+  <g transform="translate(548,206)">
+    <rect width="88" height="26" rx="13" fill="rgba(0,0,0,0.7)" stroke="#FFCC00" stroke-width="1.2"/>
+    <text x="44" y="17" text-anchor="middle"
+          font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+          font-size="11" font-weight="600" fill="#FFCC00">264 tests</text>
+  </g>
+</svg>

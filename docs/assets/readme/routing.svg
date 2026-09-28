@@ -1,0 +1,167 @@
+<svg viewBox="0 0 900 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#000000"/>
+      <stop offset="100%" stop-color="#0a0a1a"/>
+    </linearGradient>
+    <pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="10" cy="10" r="0.8" fill="rgba(255,255,255,0.04)"/>
+    </pattern>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5"
+            markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6161FF"/>
+    </marker>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <rect width="900" height="400" fill="url(#bg)"/>
+  <rect width="900" height="400" fill="url(#dots)"/>
+
+  <!-- Sparse starfield -->
+  <circle cx="38"  cy="16"  r="0.5" fill="#FFFFFF" opacity="0.32"/>
+  <circle cx="145" cy="42"  r="0.6" fill="#FFFFFF" opacity="0.38"/>
+  <circle cx="267" cy="22"  r="0.5" fill="#FFFFFF" opacity="0.3"/>
+  <circle cx="412" cy="35"  r="0.6" fill="#FFFFFF" opacity="0.36"/>
+  <circle cx="589" cy="14"  r="0.4" fill="#FFFFFF" opacity="0.28"/>
+  <circle cx="723" cy="38"  r="0.5" fill="#FFFFFF" opacity="0.33"/>
+  <circle cx="845" cy="19"  r="0.7" fill="#FFFFFF" opacity="0.42"/>
+  <circle cx="56"  cy="370" r="0.5" fill="#FFFFFF" opacity="0.3"/>
+  <circle cx="234" cy="378" r="0.6" fill="#FFFFFF" opacity="0.35"/>
+  <circle cx="712" cy="372" r="0.5" fill="#FFFFFF" opacity="0.31"/>
+  <circle cx="856" cy="382" r="0.4" fill="#FFFFFF" opacity="0.28"/>
+  <circle cx="178" cy="28"  r="1.1" fill="#FFFFFF" opacity="0.7">
+    <animate attributeName="opacity" values="0.7;0.15;0.7" dur="3.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="650" cy="24"  r="1.0" fill="#FFFFFF" opacity="0.65"/>
+  <circle cx="820" cy="360" r="1.2" fill="#FFFFFF" opacity="0.75">
+    <animate attributeName="opacity" values="0.75;0.2;0.75" dur="4.2s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Title -->
+  <text x="450" y="32" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="16" font-weight="600" fill="#FFFFFF">How a prompt finds its skill</text>
+  <text x="450" y="50" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="12" font-weight="400" fill="#A0A0A0">session lifecycle</text>
+
+  <!-- ── STAGE 1: SessionStart ── x=30, y=80, w=160 -->
+  <g filter="url(#shadow)">
+    <rect x="30" y="80" width="160" height="90" rx="8" fill="#232427" stroke="#6161FF" stroke-width="1.5"/>
+  </g>
+  <rect x="30" y="80" width="160" height="4" rx="4" fill="#6161FF"/>
+  <text x="110" y="104" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="12" font-weight="600" fill="#FFFFFF">SessionStart</text>
+  <text x="110" y="122" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="10" font-weight="400" fill="#8A99FF">session_start.py</text>
+  <text x="110" y="141" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="10" font-weight="400" fill="#C3CED8">injects use-the-skill</text>
+  <text x="110" y="156" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="10" font-weight="400" fill="#C3CED8">contract + skill table</text>
+
+  <!-- connector 1→2 -->
+  <line x1="190" y1="125" x2="228" y2="125" stroke="#6161FF" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ── STAGE 2: UserPromptSubmit ── x=230, y=80, w=175 -->
+  <g filter="url(#shadow)">
+    <rect x="230" y="80" width="175" height="90" rx="8" fill="#232427" stroke="#6161FF" stroke-width="1.5"/>
+  </g>
+  <rect x="230" y="80" width="175" height="4" rx="4" fill="#6161FF"/>
+  <text x="317" y="104" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="12" font-weight="600" fill="#FFFFFF">UserPromptSubmit</text>
+  <text x="317" y="122" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="10" font-weight="400" fill="#8A99FF">prompt_router.py</text>
+  <text x="317" y="141" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="10" font-weight="400" fill="#C3CED8">keyword router · &lt;50 ms</text>
+  <text x="317" y="156" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="10" font-weight="400" fill="#C3CED8">emits invoke directive</text>
+
+  <!-- connector 2→3 -->
+  <line x1="405" y1="125" x2="443" y2="125" stroke="#6161FF" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ── STAGE 3: Skill tool ── x=445, y=80, w=145 -->
+  <g filter="url(#shadow)">
+    <rect x="445" y="80" width="145" height="90" rx="8" fill="#232427" stroke="#6161FF" stroke-width="1.5"/>
+  </g>
+  <rect x="445" y="80" width="145" height="4" rx="4" fill="#6161FF"/>
+  <text x="517" y="104" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="12" font-weight="600" fill="#FFFFFF">Skill tool</text>
+  <text x="517" y="122" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="10" font-weight="400" fill="#8A99FF">loads SKILL.md</text>
+  <text x="517" y="141" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="10" font-weight="400" fill="#C3CED8">instructions injected</text>
+  <text x="517" y="156" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="10" font-weight="400" fill="#C3CED8">into context</text>
+
+  <!-- connector 3→4 -->
+  <line x1="590" y1="125" x2="628" y2="125" stroke="#6161FF" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ── STAGE 4: Work + Guards ── x=630, y=80, w=240 -->
+  <g filter="url(#shadow)">
+    <rect x="630" y="80" width="240" height="90" rx="8" fill="#232427" stroke="#6161FF" stroke-width="1.5"/>
+  </g>
+  <rect x="630" y="80" width="240" height="4" rx="4" fill="#6161FF"/>
+  <text x="750" y="104" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="12" font-weight="600" fill="#FFFFFF">Work · PreToolUse Guards</text>
+  <text x="750" y="122" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="10" font-weight="400" fill="#8A99FF">validate-skill.py · freeze-guard.sh</text>
+  <text x="750" y="141" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="10" font-weight="400" fill="#C3CED8">checks SKILL.md spec +</text>
+  <text x="750" y="156" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="10" font-weight="400" fill="#C3CED8">scope lock + guard.sh</text>
+
+  <!-- ── STAGE 5: SessionEnd ── bottom center ── -->
+  <!-- Down arrow from stage 4 -->
+  <line x1="750" y1="170" x2="750" y2="255" stroke="#6161FF" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="750" y1="255" x2="452" y2="255" stroke="#6161FF" stroke-width="2" stroke-dasharray="6 4"/>
+  <line x1="452" y1="255" x2="452" y2="288" stroke="#6161FF" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="302" y="290" width="300" height="80" rx="8" fill="#1a1a2e" stroke="#6161FF" stroke-width="1" stroke-opacity="0.7"/>
+  </g>
+  <rect x="302" y="290" width="300" height="4" rx="4" fill="#6161FF" opacity="0.7"/>
+  <text x="452" y="314" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="12" font-weight="600" fill="#FFFFFF">SessionEnd</text>
+  <text x="452" y="332" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="10" font-weight="400" fill="#8A99FF">session-record.sh</text>
+  <text x="452" y="358" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="10" font-weight="400" fill="#C3CED8">session log → prompt corpus</text>
+
+  <!-- step labels -->
+  <text x="110" y="78" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="10" font-weight="600" fill="#6161FF">① BOOT</text>
+  <text x="317" y="78" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="10" font-weight="600" fill="#6161FF">② ROUTE</text>
+  <text x="517" y="78" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="10" font-weight="600" fill="#6161FF">③ LOAD</text>
+  <text x="750" y="78" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="10" font-weight="600" fill="#6161FF">④ GUARD + EXECUTE</text>
+  <text x="452" y="288" text-anchor="middle"
+        font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+        font-size="10" font-weight="600" fill="#6161FF">⑤ RECORD</text>
+</svg>

@@ -1,0 +1,258 @@
+<svg viewBox="0 0 1260 552" xmlns="http://www.w3.org/2000/svg">
+<defs><radialGradient id="neb" cx="85%" cy="15%" r="45%"><stop offset="0%" stop-color="#6161FF" stop-opacity="0.10"/><stop offset="100%" stop-color="#6161FF" stop-opacity="0"/></radialGradient>
+<filter id="tglow" x="-20%" y="-60%" width="140%" height="220%"><feGaussianBlur stdDeviation="7"/></filter></defs>
+<rect width="1260" height="552" fill="#000000"/><rect width="1260" height="552" fill="url(#neb)"/>
+<circle cx="408" cy="83" r="0.4" fill="#FFFFFF" opacity="0.29"><animate attributeName="opacity" values="0.29;0.1;0.29" dur="4.6s" repeatCount="indefinite"/></circle>
+<circle cx="461" cy="32" r="1.0" fill="#FFFFFF" opacity="0.37"/>
+<circle cx="108" cy="231" r="0.5" fill="#FFFFFF" opacity="0.3"/>
+<circle cx="535" cy="456" r="0.4" fill="#FFFFFF" opacity="0.77"/>
+<circle cx="795" cy="322" r="0.4" fill="#FFFFFF" opacity="0.57"/>
+<circle cx="500" cy="539" r="0.4" fill="#FFFFFF" opacity="0.56"/>
+<circle cx="168" cy="231" r="1.0" fill="#FFFFFF" opacity="0.31"/>
+<circle cx="389" cy="451" r="0.5" fill="#FFFFFF" opacity="0.31"/>
+<circle cx="720" cy="104" r="0.4" fill="#FFFFFF" opacity="0.55"/>
+<circle cx="79" cy="33" r="0.5" fill="#FFFFFF" opacity="0.52"/>
+<circle cx="670" cy="429" r="0.8" fill="#FFFFFF" opacity="0.57"/>
+<circle cx="571" cy="165" r="0.5" fill="#FFFFFF" opacity="0.63"/>
+<circle cx="308" cy="317" r="1.0" fill="#FFFFFF" opacity="0.52"/>
+<circle cx="433" cy="248" r="1.0" fill="#FFFFFF" opacity="0.79"/>
+<circle cx="149" cy="231" r="0.6" fill="#FFFFFF" opacity="0.33"/>
+<circle cx="616" cy="22" r="0.4" fill="#FFFFFF" opacity="0.67"><animate attributeName="opacity" values="0.67;0.1;0.67" dur="4.7s" repeatCount="indefinite"/></circle>
+<circle cx="1103" cy="173" r="0.6" fill="#FFFFFF" opacity="0.58"/>
+<circle cx="731" cy="252" r="0.4" fill="#FFFFFF" opacity="0.77"/>
+<circle cx="597" cy="367" r="0.4" fill="#FFFFFF" opacity="0.65"/>
+<circle cx="390" cy="319" r="0.8" fill="#FFFFFF" opacity="0.41"/>
+<circle cx="486" cy="369" r="0.4" fill="#FFFFFF" opacity="0.77"/>
+<circle cx="448" cy="337" r="0.8" fill="#FFFFFF" opacity="0.28"/>
+<circle cx="968" cy="71" r="0.5" fill="#FFFFFF" opacity="0.47"/>
+<circle cx="1155" cy="274" r="0.5" fill="#FFFFFF" opacity="0.5"/>
+<circle cx="692" cy="488" r="0.8" fill="#FFFFFF" opacity="0.73"/>
+<circle cx="351" cy="229" r="0.6" fill="#FFFFFF" opacity="0.63"/>
+<circle cx="479" cy="127" r="0.4" fill="#FFFFFF" opacity="0.35"/>
+<circle cx="292" cy="129" r="0.8" fill="#FFFFFF" opacity="0.71"/>
+<circle cx="230" cy="156" r="0.5" fill="#FFFFFF" opacity="0.48"/>
+<circle cx="465" cy="313" r="0.5" fill="#FFFFFF" opacity="0.63"/>
+<circle cx="650" cy="341" r="0.4" fill="#FFFFFF" opacity="0.5"><animate attributeName="opacity" values="0.5;0.1;0.5" dur="5.6s" repeatCount="indefinite"/></circle>
+<circle cx="1199" cy="376" r="1.0" fill="#FFFFFF" opacity="0.47"/>
+<circle cx="503" cy="57" r="0.8" fill="#FFFFFF" opacity="0.28"/>
+<circle cx="85" cy="115" r="0.5" fill="#FFFFFF" opacity="0.31"/>
+<circle cx="757" cy="57" r="1.0" fill="#FFFFFF" opacity="0.33"/>
+<circle cx="128" cy="201" r="0.4" fill="#FFFFFF" opacity="0.29"/>
+<circle cx="262" cy="208" r="0.6" fill="#FFFFFF" opacity="0.78"/>
+<circle cx="759" cy="262" r="0.4" fill="#FFFFFF" opacity="0.72"/>
+<circle cx="1251" cy="257" r="0.8" fill="#FFFFFF" opacity="0.42"/>
+<circle cx="182" cy="414" r="0.6" fill="#FFFFFF" opacity="0.51"/>
+<circle cx="872" cy="285" r="0.5" fill="#FFFFFF" opacity="0.77"/>
+<circle cx="666" cy="81" r="1.0" fill="#FFFFFF" opacity="0.75"/>
+<circle cx="955" cy="165" r="0.4" fill="#FFFFFF" opacity="0.63"/>
+<circle cx="329" cy="202" r="0.5" fill="#FFFFFF" opacity="0.45"/>
+<circle cx="281" cy="299" r="1.0" fill="#FFFFFF" opacity="0.43"/>
+<circle cx="281" cy="448" r="0.5" fill="#FFFFFF" opacity="0.69"><animate attributeName="opacity" values="0.69;0.1;0.69" dur="5.5s" repeatCount="indefinite"/></circle>
+<circle cx="932" cy="125" r="1.0" fill="#FFFFFF" opacity="0.52"/>
+<circle cx="921" cy="546" r="0.6" fill="#FFFFFF" opacity="0.51"/>
+<circle cx="244" cy="334" r="0.6" fill="#FFFFFF" opacity="0.5"/>
+<circle cx="1181" cy="545" r="0.6" fill="#FFFFFF" opacity="0.29"/>
+<circle cx="129" cy="259" r="0.6" fill="#FFFFFF" opacity="0.36"/>
+<circle cx="786" cy="497" r="0.4" fill="#FFFFFF" opacity="0.51"/>
+<circle cx="823" cy="441" r="0.4" fill="#FFFFFF" opacity="0.71"/>
+<circle cx="151" cy="214" r="0.5" fill="#FFFFFF" opacity="0.51"/>
+<circle cx="225" cy="436" r="0.6" fill="#FFFFFF" opacity="0.3"/>
+<circle cx="1192" cy="398" r="0.8" fill="#FFFFFF" opacity="0.47"/>
+<circle cx="1193" cy="400" r="0.5" fill="#FFFFFF" opacity="0.8"/>
+<circle cx="35" cy="326" r="0.8" fill="#FFFFFF" opacity="0.69"/>
+<circle cx="184" cy="456" r="0.8" fill="#FFFFFF" opacity="0.61"/>
+<circle cx="442" cy="303" r="0.5" fill="#FFFFFF" opacity="0.26"/>
+<circle cx="1007" cy="401" r="0.4" fill="#FFFFFF" opacity="0.54"><animate attributeName="opacity" values="0.54;0.1;0.54" dur="5.8s" repeatCount="indefinite"/></circle>
+<circle cx="547" cy="481" r="0.5" fill="#FFFFFF" opacity="0.27"/>
+<circle cx="268" cy="277" r="1.0" fill="#FFFFFF" opacity="0.43"/>
+<circle cx="686" cy="460" r="0.4" fill="#FFFFFF" opacity="0.75"/>
+<circle cx="446" cy="253" r="1.0" fill="#FFFFFF" opacity="0.7"/>
+<circle cx="651" cy="457" r="1.0" fill="#FFFFFF" opacity="0.32"/>
+<circle cx="191" cy="282" r="0.8" fill="#FFFFFF" opacity="0.68"/>
+<circle cx="767" cy="428" r="0.5" fill="#FFFFFF" opacity="0.34"/>
+<circle cx="597" cy="400" r="1.0" fill="#FFFFFF" opacity="0.28"/>
+<circle cx="860" cy="293" r="0.8" fill="#FFFFFF" opacity="0.68"/>
+<circle cx="134" cy="309" r="0.5" fill="#FFFFFF" opacity="0.36"/>
+<circle cx="53" cy="54" r="0.8" fill="#FFFFFF" opacity="0.56"/>
+<circle cx="958" cy="504" r="0.8" fill="#FFFFFF" opacity="0.43"/>
+<circle cx="1226" cy="335" r="0.5" fill="#FFFFFF" opacity="0.63"/>
+<circle cx="570" cy="294" r="0.8" fill="#FFFFFF" opacity="0.53"/>
+<circle cx="312" cy="289" r="0.6" fill="#FFFFFF" opacity="0.76"><animate attributeName="opacity" values="0.76;0.1;0.76" dur="5.7s" repeatCount="indefinite"/></circle>
+<circle cx="255" cy="247" r="0.8" fill="#FFFFFF" opacity="0.32"/>
+<circle cx="557" cy="40" r="0.5" fill="#FFFFFF" opacity="0.49"/>
+<circle cx="268" cy="167" r="0.4" fill="#FFFFFF" opacity="0.74"/>
+<circle cx="195" cy="395" r="0.6" fill="#FFFFFF" opacity="0.33"/>
+<circle cx="1112" cy="534" r="0.5" fill="#FFFFFF" opacity="0.66"/>
+<circle cx="119" cy="488" r="0.5" fill="#FFFFFF" opacity="0.79"/>
+<circle cx="1049" cy="89" r="0.8" fill="#FFFFFF" opacity="0.8"/>
+<circle cx="509" cy="233" r="0.6" fill="#FFFFFF" opacity="0.43"/>
+<circle cx="910" cy="11" r="1.0" fill="#FFFFFF" opacity="0.5"/>
+<circle cx="886" cy="212" r="1.0" fill="#FFFFFF" opacity="0.59"/>
+<circle cx="645" cy="35" r="0.5" fill="#FFFFFF" opacity="0.78"/>
+<circle cx="132" cy="147" r="0.4" fill="#FFFFFF" opacity="0.75"/>
+<circle cx="229" cy="417" r="0.8" fill="#FFFFFF" opacity="0.72"/>
+<circle cx="852" cy="522" r="0.8" fill="#FFFFFF" opacity="0.33"/>
+<text x="630.0" y="60" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="34" font-weight="700" fill="#FFCC00" text-anchor="middle" letter-spacing="8" filter="url(#tglow)" opacity="0.45">SKILL MAP</text>
+<text x="630.0" y="60" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="34" font-weight="700" fill="#FFCC00" text-anchor="middle" letter-spacing="8">SKILL MAP</text>
+<text x="630.0" y="88" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#C3CED8" text-anchor="middle">28 skills · 5 systems + the kb plugin</text>
+<g transform="translate(24.0,112)">
+<rect width="192.0" height="384" rx="10" fill="#0E0F14" stroke="#FFCC00" stroke-opacity="0.45"/>
+<rect width="192.0" height="3" rx="1.5" fill="#FFCC00"/>
+<ellipse cx="26" cy="33" rx="17" ry="4.5" fill="none" stroke="#FFCC00" stroke-opacity="0.55" stroke-width="1.2" transform="rotate(-18 26 33)"/>
+<circle cx="26" cy="33" r="9" fill="#FFCC00"/><circle cx="23" cy="30" r="3" fill="#FFFFFF" opacity="0.25"/>
+<text x="50" y="30" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" fill="#FFCC00" >core</text>
+<text x="50" y="47" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#A0A0A0" >11 skills</text>
+<line x1="12" y1="56" x2="180.0" y2="56" stroke="#FFFFFF" stroke-opacity="0.1"/>
+<rect x="12" y="66" width="168.0" height="22" rx="4" fill="#FFCC00" fill-opacity="0.12"/>
+<rect x="12" y="66" width="2" height="22" fill="#FFCC00" opacity="0.8"/>
+<text x="22" y="81" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >brainstorm</text>
+<rect x="12" y="94" width="168.0" height="22" rx="4" fill="#FFCC00" fill-opacity="0.12"/>
+<rect x="12" y="94" width="2" height="22" fill="#FFCC00" opacity="0.8"/>
+<text x="22" y="109" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >plan</text>
+<rect x="12" y="122" width="168.0" height="22" rx="4" fill="#FFCC00" fill-opacity="0.12"/>
+<rect x="12" y="122" width="2" height="22" fill="#FFCC00" opacity="0.8"/>
+<text x="22" y="137" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >execute</text>
+<rect x="12" y="150" width="168.0" height="22" rx="4" fill="#FFCC00" fill-opacity="0.12"/>
+<rect x="12" y="150" width="2" height="22" fill="#FFCC00" opacity="0.8"/>
+<text x="22" y="165" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >debug</text>
+<rect x="12" y="178" width="168.0" height="22" rx="4" fill="#FFCC00" fill-opacity="0.12"/>
+<rect x="12" y="178" width="2" height="22" fill="#FFCC00" opacity="0.8"/>
+<text x="22" y="193" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >build</text>
+<rect x="12" y="206" width="168.0" height="22" rx="4" fill="#FFCC00" fill-opacity="0.12"/>
+<rect x="12" y="206" width="2" height="22" fill="#FFCC00" opacity="0.8"/>
+<text x="22" y="221" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >handoff</text>
+<rect x="12" y="234" width="168.0" height="22" rx="4" fill="#FFCC00" fill-opacity="0.12"/>
+<rect x="12" y="234" width="2" height="22" fill="#FFCC00" opacity="0.8"/>
+<text x="22" y="249" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >resume</text>
+<rect x="12" y="262" width="168.0" height="22" rx="4" fill="#FFCC00" fill-opacity="0.12"/>
+<rect x="12" y="262" width="2" height="22" fill="#FFCC00" opacity="0.8"/>
+<text x="22" y="277" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >decide</text>
+<rect x="12" y="290" width="168.0" height="22" rx="4" fill="#FFCC00" fill-opacity="0.12"/>
+<rect x="12" y="290" width="2" height="22" fill="#FFCC00" opacity="0.8"/>
+<text x="22" y="305" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >freeze</text>
+<rect x="12" y="318" width="168.0" height="22" rx="4" fill="#FFCC00" fill-opacity="0.12"/>
+<rect x="12" y="318" width="2" height="22" fill="#FFCC00" opacity="0.8"/>
+<text x="22" y="333" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >init</text>
+<rect x="12" y="346" width="168.0" height="22" rx="4" fill="#FFCC00" fill-opacity="0.12"/>
+<rect x="12" y="346" width="2" height="22" fill="#FFCC00" opacity="0.8"/>
+<text x="22" y="361" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >retro</text>
+</g>
+<g transform="translate(228.0,112)">
+<rect width="192.0" height="384" rx="10" fill="#0E0F14" stroke="#8A99FF" stroke-opacity="0.45"/>
+<rect width="192.0" height="3" rx="1.5" fill="#8A99FF"/>
+<ellipse cx="26" cy="33" rx="17" ry="4.5" fill="none" stroke="#8A99FF" stroke-opacity="0.55" stroke-width="1.2" transform="rotate(-18 26 33)"/>
+<circle cx="26" cy="33" r="9" fill="#8A99FF"/><circle cx="23" cy="30" r="3" fill="#FFFFFF" opacity="0.25"/>
+<text x="50" y="30" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" fill="#8A99FF" >dev</text>
+<text x="50" y="47" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#A0A0A0" >5 skills</text>
+<line x1="12" y1="56" x2="180.0" y2="56" stroke="#FFFFFF" stroke-opacity="0.1"/>
+<rect x="12" y="66" width="168.0" height="22" rx="4" fill="#8A99FF" fill-opacity="0.12"/>
+<rect x="12" y="66" width="2" height="22" fill="#8A99FF" opacity="0.8"/>
+<text x="22" y="81" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >create-skill</text>
+<rect x="12" y="94" width="168.0" height="22" rx="4" fill="#8A99FF" fill-opacity="0.12"/>
+<rect x="12" y="94" width="2" height="22" fill="#8A99FF" opacity="0.8"/>
+<text x="22" y="109" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >git-guardrails</text>
+<rect x="12" y="122" width="168.0" height="22" rx="4" fill="#8A99FF" fill-opacity="0.12"/>
+<rect x="12" y="122" width="2" height="22" fill="#8A99FF" opacity="0.8"/>
+<text x="22" y="137" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >github-repo-analyzer</text>
+<rect x="12" y="150" width="168.0" height="22" rx="4" fill="#8A99FF" fill-opacity="0.12"/>
+<rect x="12" y="150" width="2" height="22" fill="#8A99FF" opacity="0.8"/>
+<text x="22" y="165" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >prototype</text>
+<rect x="12" y="178" width="168.0" height="22" rx="4" fill="#8A99FF" fill-opacity="0.12"/>
+<rect x="12" y="178" width="2" height="22" fill="#8A99FF" opacity="0.8"/>
+<text x="22" y="193" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >readme-svg-generator</text>
+</g>
+<g transform="translate(432.0,112)">
+<rect width="192.0" height="384" rx="10" fill="#0E0F14" stroke="#00CA72" stroke-opacity="0.45"/>
+<rect width="192.0" height="3" rx="1.5" fill="#00CA72"/>
+<ellipse cx="26" cy="33" rx="17" ry="4.5" fill="none" stroke="#00CA72" stroke-opacity="0.55" stroke-width="1.2" transform="rotate(-18 26 33)"/>
+<circle cx="26" cy="33" r="9" fill="#00CA72"/><circle cx="23" cy="30" r="3" fill="#FFFFFF" opacity="0.25"/>
+<text x="50" y="30" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" fill="#00CA72" >packs</text>
+<text x="50" y="47" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#A0A0A0" >6 skills</text>
+<line x1="12" y1="56" x2="180.0" y2="56" stroke="#FFFFFF" stroke-opacity="0.1"/>
+<rect x="12" y="66" width="168.0" height="22" rx="4" fill="#00CA72" fill-opacity="0.12"/>
+<rect x="12" y="66" width="2" height="22" fill="#00CA72" opacity="0.8"/>
+<text x="22" y="81" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >gtm-gate</text>
+<rect x="12" y="94" width="168.0" height="22" rx="4" fill="#00CA72" fill-opacity="0.12"/>
+<rect x="12" y="94" width="2" height="22" fill="#00CA72" opacity="0.8"/>
+<text x="22" y="109" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >ga4-regex</text>
+<rect x="12" y="122" width="168.0" height="22" rx="4" fill="#00CA72" fill-opacity="0.12"/>
+<rect x="12" y="122" width="2" height="22" fill="#00CA72" opacity="0.8"/>
+<text x="22" y="137" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >data-review</text>
+<rect x="12" y="150" width="168.0" height="22" rx="4" fill="#00CA72" fill-opacity="0.12"/>
+<rect x="12" y="150" width="2" height="22" fill="#00CA72" opacity="0.8"/>
+<text x="22" y="165" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >monday-data-viz-vibe</text>
+<rect x="12" y="178" width="168.0" height="22" rx="4" fill="#00CA72" fill-opacity="0.12"/>
+<rect x="12" y="178" width="2" height="22" fill="#00CA72" opacity="0.8"/>
+<text x="22" y="193" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >hubspot-safety</text>
+<rect x="12" y="206" width="168.0" height="22" rx="4" fill="#00CA72" fill-opacity="0.12"/>
+<rect x="12" y="206" width="2" height="22" fill="#00CA72" opacity="0.8"/>
+<text x="22" y="221" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >n8n-triage</text>
+</g>
+<g transform="translate(636.0,112)">
+<rect width="192.0" height="384" rx="10" fill="#0E0F14" stroke="#6161FF" stroke-opacity="0.45"/>
+<rect width="192.0" height="3" rx="1.5" fill="#6161FF"/>
+<ellipse cx="26" cy="33" rx="17" ry="4.5" fill="none" stroke="#6161FF" stroke-opacity="0.55" stroke-width="1.2" transform="rotate(-18 26 33)"/>
+<circle cx="26" cy="33" r="9" fill="#6161FF"/><circle cx="23" cy="30" r="3" fill="#FFFFFF" opacity="0.25"/>
+<text x="50" y="30" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" fill="#6161FF" >docs</text>
+<text x="50" y="47" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#A0A0A0" >3 skills</text>
+<line x1="12" y1="56" x2="180.0" y2="56" stroke="#FFFFFF" stroke-opacity="0.1"/>
+<rect x="12" y="66" width="168.0" height="22" rx="4" fill="#6161FF" fill-opacity="0.12"/>
+<rect x="12" y="66" width="2" height="22" fill="#6161FF" opacity="0.8"/>
+<text x="22" y="81" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >monday-brand-guidelines</text>
+<rect x="12" y="94" width="168.0" height="22" rx="4" fill="#6161FF" fill-opacity="0.12"/>
+<rect x="12" y="94" width="2" height="22" fill="#6161FF" opacity="0.8"/>
+<text x="22" y="109" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >monday-presentation-v2</text>
+<rect x="12" y="122" width="168.0" height="22" rx="4" fill="#6161FF" fill-opacity="0.12"/>
+<rect x="12" y="122" width="2" height="22" fill="#6161FF" opacity="0.8"/>
+<text x="22" y="137" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >to-prd</text>
+</g>
+<g transform="translate(840.0,112)">
+<rect width="192.0" height="384" rx="10" fill="#0E0F14" stroke="#FB275D" stroke-opacity="0.45"/>
+<rect width="192.0" height="3" rx="1.5" fill="#FB275D"/>
+<ellipse cx="26" cy="33" rx="17" ry="4.5" fill="none" stroke="#FB275D" stroke-opacity="0.55" stroke-width="1.2" transform="rotate(-18 26 33)"/>
+<circle cx="26" cy="33" r="9" fill="#FB275D"/><circle cx="23" cy="30" r="3" fill="#FFFFFF" opacity="0.25"/>
+<text x="50" y="30" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" fill="#FB275D" >biz</text>
+<text x="50" y="47" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#A0A0A0" >3 skills</text>
+<line x1="12" y1="56" x2="180.0" y2="56" stroke="#FFFFFF" stroke-opacity="0.1"/>
+<rect x="12" y="66" width="168.0" height="22" rx="4" fill="#FB275D" fill-opacity="0.12"/>
+<rect x="12" y="66" width="2" height="22" fill="#FB275D" opacity="0.8"/>
+<text x="22" y="81" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >slack-in-my-voice</text>
+<rect x="12" y="94" width="168.0" height="22" rx="4" fill="#FB275D" fill-opacity="0.12"/>
+<rect x="12" y="94" width="2" height="22" fill="#FB275D" opacity="0.8"/>
+<text x="22" y="109" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >linkedin-in-my-voice</text>
+<rect x="12" y="122" width="168.0" height="22" rx="4" fill="#FB275D" fill-opacity="0.12"/>
+<rect x="12" y="122" width="2" height="22" fill="#FB275D" opacity="0.8"/>
+<text x="22" y="137" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >monday-mops-triage</text>
+</g>
+<g transform="translate(1044.0,112)">
+<rect width="192.0" height="384" rx="10" fill="#0E0F14" stroke="#C3CED8" stroke-opacity="0.45"/>
+<rect width="192.0" height="3" rx="1.5" fill="#C3CED8"/>
+<ellipse cx="26" cy="33" rx="17" ry="4.5" fill="none" stroke="#C3CED8" stroke-opacity="0.55" stroke-width="1.2" transform="rotate(-18 26 33)"/>
+<circle cx="26" cy="33" r="9" fill="#C3CED8"/><circle cx="23" cy="30" r="3" fill="#FFFFFF" opacity="0.25"/>
+<text x="50" y="30" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" fill="#C3CED8" >kb plugin</text>
+<text x="50" y="47" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#A0A0A0" >7 items</text>
+<line x1="12" y1="56" x2="180.0" y2="56" stroke="#FFFFFF" stroke-opacity="0.1"/>
+<rect x="12" y="66" width="168.0" height="22" rx="4" fill="#C3CED8" fill-opacity="0.12"/>
+<rect x="12" y="66" width="2" height="22" fill="#C3CED8" opacity="0.8"/>
+<text x="22" y="81" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >wiki-init</text>
+<rect x="12" y="94" width="168.0" height="22" rx="4" fill="#C3CED8" fill-opacity="0.12"/>
+<rect x="12" y="94" width="2" height="22" fill="#C3CED8" opacity="0.8"/>
+<text x="22" y="109" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >wiki-compile</text>
+<rect x="12" y="122" width="168.0" height="22" rx="4" fill="#C3CED8" fill-opacity="0.12"/>
+<rect x="12" y="122" width="2" height="22" fill="#C3CED8" opacity="0.8"/>
+<text x="22" y="137" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >wiki-query</text>
+<rect x="12" y="150" width="168.0" height="22" rx="4" fill="#C3CED8" fill-opacity="0.12"/>
+<rect x="12" y="150" width="2" height="22" fill="#C3CED8" opacity="0.8"/>
+<text x="22" y="165" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >kw-compound</text>
+<rect x="12" y="178" width="168.0" height="22" rx="4" fill="#C3CED8" fill-opacity="0.12"/>
+<rect x="12" y="178" width="2" height="22" fill="#C3CED8" opacity="0.8"/>
+<text x="22" y="193" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >learn-capture</text>
+<rect x="12" y="206" width="168.0" height="22" rx="4" fill="#C3CED8" fill-opacity="0.12"/>
+<rect x="12" y="206" width="2" height="22" fill="#C3CED8" opacity="0.8"/>
+<text x="22" y="221" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >learn-recall</text>
+<rect x="12" y="234" width="168.0" height="22" rx="4" fill="#C3CED8" fill-opacity="0.12"/>
+<rect x="12" y="234" width="2" height="22" fill="#C3CED8" opacity="0.8"/>
+<text x="22" y="249" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="11.5" font-weight="400" fill="#E6EAF0" >learn-research</text>
+</g>
+<text x="630.0" y="532" font-family="'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#A0A0A0" text-anchor="middle">/sir-albert:&lt;skill&gt; · /kb:&lt;skill&gt; · full index in REGISTRY.md</text>
+</svg>
