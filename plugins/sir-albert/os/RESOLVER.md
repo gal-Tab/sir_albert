@@ -16,6 +16,7 @@ Every sir-albert skill boots from [`os/PREAMBLE.md`](PREAMBLE.md): it loads iden
 
 ## Core — loaded everywhere
 - **Continuity:** `/handoff` (writes the doc **and** a paste-able restart prompt) · `/resume` (reload latest handoff, state plan back in ≤5 bullets) · `/sync` (post-merge git; safe `-d` cleanup only).
+- **Second opinion:** `second-opinion` — ask Codex/GPT (read-only, via `/opt/homebrew/bin/codex`) to review a plan, diff, or question; router in `skills/core/second-opinion/references/models.md`.
 - **Memory:** `/decide` → `os/state/decisions.jsonl` — a settled question is **auto-applied, not re-asked**.
 - **Safety:** `guard.sh` (blocks destructive cmds) · `/freeze [path]` (scope edits during investigation) · autonomy tiers → `rules/autonomy.md`.
 - **Voice / anti-slop:** `slack-in-my-voice`, `linkedin-in-my-voice` (channels resolved from `USER.md`) · TLDR-first, bullets, tables for comparisons, no re-explaining what I know.
