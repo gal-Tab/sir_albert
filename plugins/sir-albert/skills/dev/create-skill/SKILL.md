@@ -43,7 +43,7 @@ The tier follows the rigor level ([`os/rules/rigor.md`](../../../os/rules/rigor.
 | **T1** | New technique skill at ship — single-angle smoke run |
 | **T2** | Rigor is deep (Gal said so, or a new discipline skill) — full panel loop |
 
-Don't escalate past the table on your own — "it's shared" or "it's high-value" is not a reason; say what T1/T2 would buy and let Gal pick `deep:`. Skills outside `sir_albert` (e.g. tag's `agent_home/**`) use their repo's own gate instead of this loop.
+Don't escalate past the table on your own — "it's shared" or "it's high-value" is not a reason; say what T1/T2 would buy and let Gal pick `deep:`. Skills outside `sir_albert` (e.g. tag's `agent_home/**`) use their repo's own gate instead of this loop; if the repo has none (e.g. gal-va), run this skill at T0.
 
 ### Step 6 — Measured loop (T1/T2)
 

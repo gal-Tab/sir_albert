@@ -20,5 +20,5 @@ Pick the level per step, silently. Rule of thumb: **the lowest level whose failu
 
 - **Override:** a prompt starting `fast:` / `ship:` / `deep:` sets the level for the rest of the session; `auto:` hands it back to you. An override beats your pick.
 - **Precedence:** skill-internal gates ("non-negotiable", "never skip", "full suite") scale with this level. ASK gates in `autonomy.md` and `guard.sh` never scale.
-- **One gate per change.** If the repo has its own eval gate (e.g. tag's `agent_home/**` skills), that is the gate — don't stack create-skill on top.
+- **One gate per change.** If the repo has its own eval gate (e.g. tag's `agent_home/**` skills), that is the gate — don't stack create-skill on top. No repo gate (e.g. gal-va) → create-skill at T0.
 - **Escalate, don't stall.** In fast, if the same fix fails twice or the change becomes irreversible, step up to ship and say so in one line.

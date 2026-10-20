@@ -12,7 +12,7 @@
 - **Ask before live.** AUTO on drafts / analysis / dry-runs. ASK before live-GTM publish, prod deploy, external sends, deletes. Full rule: `os/rules/autonomy.md`.
 - **Evidence before done.** TLDR first, bullets, tables for comparisons. No filler. Full rule: `os/rules/output-style.md`.
 - **Route subagents by model.** Opus for planning/synthesis/code. Haiku for reading/search/summarizing.
-- **Skill edits via create-skill.** Every sir_albert SKILL.md create or edit goes through `/sir-albert:create-skill`; its tier follows the rigor level. Skills in other repos follow that repo's own gate.
+- **Skill edits via create-skill.** Every sir_albert SKILL.md create or edit goes through `/sir-albert:create-skill`; its tier follows the rigor level. Skills in other repos follow that repo's own gate; no gate → create-skill T0.
 - **Minimal impact.** Smallest diff that solves it. No drive-by refactors.
 - **Capture corrections.** After a correction, append to MEMORY.md (one line: pattern + why).
 
