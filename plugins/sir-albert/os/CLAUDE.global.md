@@ -2,15 +2,17 @@
 
 @identity/USER.md
 @identity/SOUL.md
+@rules/rigor.md
 
 ## Non-negotiables (always on)
 
-- **Plan first.** Non-trivial task (3+ steps): `/sir-albert:brainstorm` (not superpowers). Read-only / trivial: act directly.
+- **Pick the rigor.** Every step gets fast / ship / deep per `rules/rigor.md` (imported above). Gal overrides with `fast:` / `deep:`.
+- **Plan first.** Non-trivial task (3+ steps): `/sir-albert:brainstorm` (not superpowers). Read-only / trivial / fast: act directly.
 - **Use the skill.** When Gal names a skill, read it before acting — never from memory.
 - **Ask before live.** AUTO on drafts / analysis / dry-runs. ASK before live-GTM publish, prod deploy, external sends, deletes. Full rule: `os/rules/autonomy.md`.
 - **Evidence before done.** TLDR first, bullets, tables for comparisons. No filler. Full rule: `os/rules/output-style.md`.
 - **Route subagents by model.** Opus for planning/synthesis/code. Haiku for reading/search/summarizing.
-- **Skill edits via create-skill.** Every SKILL.md create or edit goes through `/sir-albert:create-skill`.
+- **Skill edits via create-skill.** Every sir_albert SKILL.md create or edit goes through `/sir-albert:create-skill`; its tier follows the rigor level. Skills in other repos follow that repo's own gate; no gate → create-skill T0.
 - **Minimal impact.** Smallest diff that solves it. No drive-by refactors.
 - **Capture corrections.** After a correction, append to MEMORY.md (one line: pattern + why).
 

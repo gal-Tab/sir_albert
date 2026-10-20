@@ -199,3 +199,48 @@ class TestSystemInjectedText:
 
     def test_user_text_still_routes(self):
         assert "sir-albert:plan" in _nudge("write me a plan for this")
+
+
+class TestRigorOverride:
+    """`fast:`/`ship:`/`deep:` prefix sticks per session (os/rules/rigor.md); fast mutes directives."""
+
+    def _run_s(self, prompt, session, rigor_dir):
+        import os
+        env = {
+            "PATH": os.environ.get("PATH", ""),
+            "CLAUDE_PLUGIN_ROOT": str(PLUGIN_ROOT),
+            "SIR_ALBERT_RIGOR_DIR": str(rigor_dir),
+        }
+        r = subprocess.run(
+            ["python3", str(HOOK)],
+            input=json.dumps({"prompt": prompt, "session_id": session}),
+            capture_output=True, text=True, env=env,
+        )
+        assert r.returncode == 0, r.stderr
+        return r.stdout.strip()
+
+    def test_fast_prefix_announces_and_mutes(self, tmp_path):
+        out = self._run_s("fast: write me a plan for this", "s1", tmp_path)
+        assert "rigor: Gal set fast" in out
+        assert "sir-albert:plan" not in out
+
+    def test_fast_sticks_for_session(self, tmp_path):
+        self._run_s("fast: ok", "s1", tmp_path)
+        assert self._run_s("write me a plan for this", "s1", tmp_path) == ""
+
+    def test_fast_does_not_leak_to_other_session(self, tmp_path):
+        self._run_s("fast: ok", "s1", tmp_path)
+        assert "sir-albert:plan" in self._run_s("write me a plan for this", "s2", tmp_path)
+
+    def test_auto_clears_fast(self, tmp_path):
+        self._run_s("fast: ok", "s1", tmp_path)
+        assert "rigor: auto" in self._run_s("auto: back to normal", "s1", tmp_path)
+        assert "sir-albert:plan" in self._run_s("write me a plan for this", "s1", tmp_path)
+
+    def test_deep_keeps_directives(self, tmp_path):
+        out = self._run_s("deep: write me a plan for this", "s1", tmp_path)
+        assert "rigor: Gal set deep" in out and "sir-albert:plan" in out
+
+    def test_no_prefix_unchanged(self, tmp_path):
+        assert "sir-albert:plan" in self._run_s("write me a plan for this", "s1", tmp_path)
+        assert not list(tmp_path.iterdir())

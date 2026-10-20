@@ -13,6 +13,9 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).parent
 DATA_FILE = SCRIPT_DIR / "router_data.json"
+RIGOR_DIR = Path(os.environ.get("SIR_ALBERT_RIGOR_DIR", Path.home() / ".claude" / "sir-albert" / "rigor"))
+
+_RIGOR_RE = re.compile(r"^\s*(fast|ship|deep|auto)\s*:", re.IGNORECASE)
 
 _NUDGE_RE = re.compile(r"^→ /sir-albert:(\S+)(?:\s+(.+))?$")
 
@@ -41,6 +44,30 @@ def format_directive(nudge: str) -> str:
     )
 
 
+def rigor_level(prompt: str, session_id: str):
+    """Return (level, changed). A `fast:`/`ship:`/`deep:` prefix sticks per session; `auto:` clears it."""
+    state = RIGOR_DIR / f"{session_id}.txt" if session_id else None
+    m = _RIGOR_RE.match(prompt)
+    if m:
+        level = m.group(1).lower()
+        if state:
+            try:
+                if level == "auto":
+                    state.unlink(missing_ok=True)
+                else:
+                    state.parent.mkdir(parents=True, exist_ok=True)
+                    state.write_text(level, encoding="utf-8")
+            except OSError:
+                pass
+        return (None if level == "auto" else level), True
+    if state and state.exists():
+        try:
+            return state.read_text(encoding="utf-8").strip() or None, False
+        except OSError:
+            pass
+    return None, False
+
+
 def load_patterns(data: dict) -> list:
     patterns = []
     for entry in sorted(data.get("keyword_patterns", []), key=lambda e: e["order"]):
@@ -63,6 +90,7 @@ def main():
         raw = sys.stdin.read()
         payload = json.loads(raw) if raw.strip() else {}
         prompt = payload.get("prompt", "")
+        session_id = str(payload.get("session_id", ""))
     except Exception:
         sys.exit(0)
 
@@ -73,6 +101,16 @@ def main():
     # hook; a match there would force a skill load nobody asked for.
     head = prompt.lstrip()[:200]
     if head.startswith(("<task-notification", "<system-reminder")) or "[SYSTEM NOTIFICATION" in head:
+        sys.exit(0)
+
+    level, changed = rigor_level(prompt, session_id)
+    if changed:
+        print(
+            f"sir-albert rigor: Gal set {level} for this session (os/rules/rigor.md)."
+            if level else "sir-albert rigor: auto — pick the level per step (os/rules/rigor.md)."
+        )
+    if level == "fast":
+        # Fast mode: no skill directives — they're exactly the per-turn overhead fast removes.
         sys.exit(0)
 
     try:
