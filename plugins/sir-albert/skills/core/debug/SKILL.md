@@ -13,6 +13,16 @@ Adapted from Pocock `skills/engineering/diagnosing-bugs` (MIT); see `THIRD_PARTY
 
 ---
 
+## Fast path (rigor: fast)
+
+When Gal is driving a live repro turn by turn ([`os/rules/rigor.md`](../../../os/rules/rigor.md)):
+- **That repro is the Phase 1 loop.** Don't build a second one; state the command and its last output in one line.
+- **One hypothesis at a time** — the most likely one, with its prediction. Skip the ranked list.
+- **Defer Phase 4's regression test to Close**, once the fix holds.
+- Same fix fails twice → step up to the full phases and say so.
+
+---
+
 ## Redact
 
 Show commands, outputs, and captured artifacts only after redacting secrets. Write `<REDACTED>` in place of any credential, token, API key, or auth header. Build loops against env vars so credentials stay in the environment. If the redacted output is not enough to diagnose the bug, say so and ask the user.
