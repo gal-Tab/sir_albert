@@ -1,7 +1,14 @@
 /* story.js — EVERYTHING that changes between explainers lives in this file (theme, copy, object positions).
    This is a worked EXAMPLE ("How our bakery works") mapped onto the placeholder assets/hero.svg.
    For a new explainer: replace the image, then re-map every `cam`, `spot` and `fx` number (tools/map-objects.html helps) and rewrite the copy.
-   Coordinates: fractions (0..1) for cam.f / cam.a, percentages (0..100) of the image for spot and fx. */
+   Coordinates: fractions (0..1) for cam.f / cam.a, percentages (0..100) of the image for spot, fx and box.
+
+   Conventions the engine understands:
+   - Links: refs: [['Label', 'https://…']]. Use null as the URL for a dashed "link TBD" chip (never invent a link). Same for finale.links.
+   - Demo data: append THEME.ui.demo to any invented number or sentence, e.g. 'About 3 a day ' + THEME.ui.demo, and set reveal.demo = true.
+   - box: [x0, y0, x1, y1] (percent of the image) is optional. tools/check-camera.js uses it to check that cards do not cover the object.
+   - One reveal chapter (kind: 'reveal') per page. numbered: false makes a chapter without a step number (like "Next").
+   - Hebrew: copy THEME and STORY from story.he.example.js over this file, then delete the example. */
 
 const THEME = {
   lang: 'en', dir: 'ltr',                      // Hebrew: lang 'he', dir 'rtl' (see story.he.example.js)
@@ -41,6 +48,7 @@ const STORY = {
       refs: [['Shop handbook', 'https://example.com/handbook']],
       cam: { f: [.50, .40], s: 1.25, a: [.72, .45], side: 'left' },
       spot: [50, 14, 'Baker'],
+      box: [41.7, 16.6, 58.3, 67.4],   // percent of the image: x0, y0, x1, y1 (tools/check-camera.js reads it)
       bubble: { at: [60, 8], text: 'Morning! 3 orders came in overnight. Say yes and I start the dough.' },
       fx: [['ring', 50, 32, 22, 'rgba(255,206,110,.95)', 0, 3600, { b: .5, s0: .5, s1: 2.8 }], ['ring', 50, 32, 22, 'rgba(255,206,110,.95)', 1200, 3600, { b: .5, s0: .5, s1: 2.8 }], ['ring', 50, 32, 22, 'rgba(255,206,110,.95)', 2400, 3600, { b: .5, s0: .5, s1: 2.8 }]]
     },
@@ -54,6 +62,7 @@ const STORY = {
       refs: [['Recipe index', 'https://example.com/recipes']],
       cam: { f: [.23, .81], s: 1.05, a: [.28, .75], side: 'right' },
       spot: [23, 66.5, 'Recipe book'],
+      box: [4.6, 68.4, 41.0, 92.8],   // percent of the image: x0, y0, x1, y1 (tools/check-camera.js reads it)
       fx: [['spark', 10, 80, 0], ['spark', 17, 75.5, 520], ['spark', 24, 81, 1040], ['spark', 30, 76.5, 1560], ['spark', 14, 83, 2080]]
     },
     {
@@ -65,17 +74,19 @@ const STORY = {
       refs: [['The menu', 'https://example.com/menu']],
       cam: { f: [.20, .25], s: 1.05, a: [.20, .40], side: 'right' },
       spot: [20.6, 43, 'Menu board'],
+      box: [4.0, 6.1, 35.0, 40.0],   // percent of the image: x0, y0, x1, y1 (tools/check-camera.js reads it)
       fx: [['ring', 6, 12, 4.5, 'rgba(255,200,80,.95)', 0, 2600, { b: .35, s0: .4, s1: 2.6 }], ['ring', 34, 12, 4.5, 'rgba(255,200,80,.95)', 650, 2600, { b: .35, s0: .4, s1: 2.6 }], ['ring', 6, 36, 4.5, 'rgba(255,200,80,.95)', 1300, 2600, { b: .35, s0: .4, s1: 2.6 }]]
     },
     {
       key: 'timer', nav: '4 Oven timer', title: 'The oven timer',
       body: ['The timer is an alarm clock: at a set time the oven wakes up and runs a bake on its own. A person still checks every tray before it is sold.'],
-      blocks: [{ type: 'rows', items: [['04:30', 'First bake', 'Bread for the morning rush.'], ['09:00', 'Pastries', 'Croissants, ready for coffee.'], ['13:00', 'Restock', 'One tray, counted and logged.']], note: 'Times are local.' }],
+      blocks: [{ type: 'rows', items: [['04:30', 'First bake', 'Bread for the morning rush.'], ['09:00', 'Pastries', 'Croissants, ready for coffee.'], ['13:00', 'Restock', 'One tray, counted and logged.']], note: 'Example times ' + THEME.ui.demo + '.' }],
       why: 'the boring daily work is done before the doors open.',
       todo: ['Pick one small, safe job.', 'Set the timer.', 'Keep a person’s yes before anything is sold.'],
-      refs: [['Bake schedule', 'https://example.com/schedule']],
+      refs: [['Bake schedule', null]],
       cam: { f: [.84, .50], s: 1.10, a: [.72, .50], side: 'left' },
       spot: [84.3, 33, 'Oven timer'],
+      box: [77.5, 40.0, 90.8, 64.3],   // percent of the image: x0, y0, x1, y1 (tools/check-camera.js reads it)
       fx: [['ring', 84.3, 52.7, 7.5, '#0081c0', 0, 1700, { b: .22, s0: .5, s1: 1.9, o: .7 }]]
     },
     {
@@ -87,6 +98,7 @@ const STORY = {
       refs: [['Counter rules', 'https://example.com/counter']],
       cam: { f: [.85, .80], s: 1.05, a: [.72, .70], side: 'left' },
       spot: [79, 69, 'Counter bell'],
+      box: [71.0, 70.3, 99.2, 85.9],   // percent of the image: x0, y0, x1, y1 (tools/check-camera.js reads it)
       fx: [['ring', 96.2, 81, 10, 'rgba(255,200,90,.95)', 0, 2200], ['ring', 96.2, 81, 10, 'rgba(255,200,90,.95)', 1100, 2200]],
       reveal: {
         kicker: 'Counter, side by side', heading: 'Before the bell, or after.',
@@ -112,7 +124,7 @@ const STORY = {
       ['Start the recipe book:', 'drop in one note. [See the book](https://example.com/recipes).'],
       ['Pin one card:', 'one product, step by step.']
     ],
-    links: [['Shop handbook', 'https://example.com/handbook'], ['Menu', 'https://example.com/menu']],
+    links: [['Shop handbook', 'https://example.com/handbook'], ['Menu', null]],
     cam: { f: [.50, .50], s: 1.00, a: [.50, .50], side: 'left' }
   }
 };

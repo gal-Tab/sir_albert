@@ -2,7 +2,10 @@
    Layers are listed OUTERMOST first. Layer i (i > 0) is drawn inside a rectangle ("frame") of layer i-1.
    frame = [x, y, w, h] as fractions of the parent image. For 3:2 images keep w == h in fractions so the child keeps its 3:2 shape.
    The parent image must have a blank screen/window at exactly that rectangle (ask for it in the image prompt).
-   direction: 'in' = start outside and zoom into the nested scenes; 'out' = start in the innermost scene and zoom out (Banyai's "Zoom"). */
+   direction: 'in' = start outside and zoom into the nested scenes; 'out' = start in the innermost scene and zoom out (Banyai's "Zoom").
+   hero: true goes on the layer you see FIRST: the outermost layer for 'in', the innermost layer for 'out'. Its caption is centred, with no step number.
+   Optional THEME.ui keys: step, scrollHint, tbd, tbdTitle, demo. Links: refs: [['Label', 'https://…']], url null gives a "link TBD" chip. Mark invented numbers with THEME.ui.demo.
+   This template has captions only (no finale, to-do list, reveal or pills); use scroll-film for those. */
 const THEME = {
   lang: 'en', dir: 'ltr', direction: 'in',
   title: 'Zoom example',

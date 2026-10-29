@@ -27,6 +27,7 @@ In the paths below, `<skill>` is the folder this `SKILL.md` sits in (`skills/doc
 | `templates/scroll-film/` | Camera-travels-around-one-image film. Edit `story.js` only | Grammar scroll-film |
 | `templates/zoom-nest/` | Banyai-style nested zoom (in or out). Edit `story.js` only | Grammar zoom-nest |
 | `tools/map-objects.html` | Click-and-drag helper that measures object positions on an image | Step 3 |
+| `tools/check-camera.js` | Console script: how much of each object its chapter card covers (scroll-film) | Step 5 |
 | `scripts/pack-single-file.py` | Packs a template folder into one self-contained `.html` | Step 6 |
 
 ## Steps
@@ -39,14 +40,15 @@ Use `AskUserQuestion`, at most 4 questions per round. Round A, the frame:
 - **Language**: English or Hebrew (Hebrew sets `dir: 'rtl'`, see `rtl-hebrew.md`).
 - **Grammar**: recommend one from the table in `grammars.md`, with the reason, and let Gal pick or name something else.
 - **Theme image**: does it exist? If not, say you will write the prompts first.
+- zoom-nest only: **direction**, `in` (start outside, zoom into the nested scenes) or `out` (start in the innermost, zoom out).
 
-Round B, the story (only after A):
+Round B, the story (only after A). Ask only what the chosen template supports: scroll-film has chapters, to-do lists, a reveal, a WIP beat and a finale; zoom-nest has scenes with a title, text and links only.
 
-- The **chapters**: one idea per chapter, each tied to a physical object. 5 to 7 is the sweet spot.
-- The **real sources** for each chapter (links, repos, boards). Never invent one; a missing link becomes a "link TBD" chip.
-- Is there a **before/after** contrast worth a reveal slider? Is there a **work-in-progress** beat?
-- The **finale**: the 3 first moves the reader should take.
+- The **chapters/scenes**: one idea each, tied to a physical object (scroll-film: 5 to 7 is the sweet spot, 4 works).
+- The **real sources** for each (links, repos, boards). Never invent one; a missing link is `null` and renders as a "link TBD" chip.
+- scroll-film: a **before/after** contrast worth a reveal slider? a **work-in-progress** beat? the **finale**, the 3 first moves.
 - Which numbers or examples are **demo data** (they get a visible "(Demo)").
+- If there is no image yet, also ask for the image brief: palette or look, the main subject (look, outfit, pose), exact sign or label text, and the reference images Gal can attach.
 
 ### 2. Pick the grammar
 
@@ -54,36 +56,37 @@ Read `references/grammars.md`. If the idea fits two grammars, ask which feeling 
 
 ### 3. Theme image
 
-- **No image yet:** write the prompts from `references/theme-image.md` (hero, plus the reveal pair or zoom scenes if the story needs them), tell Gal the references to attach and the exact size, then **stop and wait** for the image. Keep working on the copy meanwhile.
-- **Image exists:** check it against the acceptance list in `theme-image.md`, open `tools/map-objects.html` (serve the folder or drop the file on it), measure each object, and record the map in a table next to the project.
-- For a quick start, a placeholder image from the template is fine: build and verify the flow on it, then swap the real image and re-map.
+- **No image yet:** write the prompts from `references/theme-image.md` into `IMAGE-PROMPTS.md` in the project (hero, plus the reveal pair or zoom scenes if the story needs them), tell Gal the references to attach and the exact size, then **stop and wait** for the image. Keep working on the copy meanwhile.
+- **Image exists:** check it against the acceptance list in `theme-image.md`. Measure each object with `tools/map-objects.html` (copy it into the project, serve the project, open `map-objects.html?img=assets/<file>`, or drop the file on the page; type a name and press Enter) and record the numbers in `OBJECT-MAP.md`.
+- **Quick start:** the bakery placeholder in the template is only an example. For a new topic, draw a simple placeholder of that topic (3:2, same object layout) so the flow can be built and verified first; then swap the real image and re-map.
 
 ### 4. Build
 
 1. Copy the template into a project folder, default `~/Development/prototypes/<slug>/` (ask if Gal prefers elsewhere):
    `cp -R <skill>/templates/<grammar> <project>`
-2. Edit **`story.js` only**: `THEME` (image, fonts, colour tokens, UI strings, language), then the chapters (copy, `cam`, `spot`, `fx`), the reveal, the finale.
+2. Edit **`story.js` only**: `THEME` (image, fonts, colour tokens, UI strings, language), then the chapters (copy, `cam`, `spot`, `fx`, `box`), the reveal, the finale. Its header comment lists the conventions (`null` link = TBD chip, demo marker, one reveal per page). Hebrew: copy `THEME` and `STORY` from `story.he.example.js` over `story.js`, then delete the example.
 3. Copy rules (full list in `lessons.md`): plain English, analog metaphors, no AI-ish hype; every numbered step ends with a 3-item "Do this to copy it" and real reference chips; links open in a new tab; human-in-the-loop wording; WIP shown as WIP.
 4. Effects: rings and sparks, round and calm (`motion-tools.md`).
 5. Touch `engine.js` or `index.html` only for a real engine change, and then say so to Gal.
 
 ### 5. Verify (BLOCKING before you show it)
 
-Serve the project folder (`python3 -m http.server -d <project> 4310`) and open it. Check:
+Serve the project folder (`python3 -m http.server -d <project> 4310`; stop it when done) and open it. Check:
 
-- Hero shows the **whole picture**; scrolling focuses on details.
-- Every stop is reachable with ↑/↓ and the dots; the reveal has its own stop; Home to end has no jump.
-- Cards do not cover the main face or the object; pills sit on their objects; the echo effect hugs the active object.
-- Sizes: 1440x900, 2200x900, and a phone portrait view.
-- Console clean; every link opens in a new tab; no invented link.
-- Hebrew only: text and lists flow right to left, the slider keys move the handle the way they point.
-- `prefers-reduced-motion` turns the camera spring and effects off.
+- Hero: the **whole picture** is visible except the bottom band under the title card. On a portrait phone the hero is a cover crop by design; the title and "How it works" must stay readable and tappable.
+- Stepping with ↓ from the first to the last stop visits every stop in order (the reveal has its own stop); ↑ walks back; the dots do the same.
+- scroll-film: run `tools/check-camera.js` at 1440x900 and again at 375x812. Any chapter with `covered` above 0.15 or `offscreen` above 0.1: lower `s`, move `a`, or switch `side`. Also look at the main face yourself.
+- Pills sit on their objects; the echo effect hugs the active object.
+- Sizes: 1440x900, 2200x900, 375x812.
+- Console clean; every link opens in a new tab; no invented link; TBD chips are in the page's language.
+- Hebrew only: text, lists and chips flow right to left; the slider keys move the handle the way they point.
+- Reduced motion: the pane cannot emulate it. Use DevTools (Rendering, emulate `prefers-reduced-motion`) or a throwaway copy that overrides `matchMedia` in `<head>`. Expect: camera jumps, effects off, cards appear without flying in.
 
-In an automated browser pane use `scrollTo({ top, behavior: 'instant' })`; smooth scroll does not run in a hidden pane.
+In an automated browser pane: use `scrollTo({ top, behavior: 'instant' })` (smooth scroll does not run), then wait 1.5 s or take a screenshot, because animations and observers only advance when frames render. For exact numbers read page state (`current`, `target(k)`, `geom()`; zoom-nest `curF`).
 
 ### 6. Pack, preview, ask before sharing
 
-1. `python3 <skill>/scripts/pack-single-file.py <project> <project>/dist/page.html` → one file, works offline except the Google Fonts link.
+1. `python3 <skill>/scripts/pack-single-file.py <project> <project>/dist/page.html` → one file, works offline except the Google Fonts link. It fails loudly if any relative path is left; fix it and re-run.
 2. To put it on Zero to Hero, follow `lessons.md` § Publishing: go through `z2h:zero-to-hero`, show the **private** preview link, say plainly that only Gal's account can open it.
 3. **Ask Gal before going live or making it public** (`os/rules/autonomy.md`: ASK before external sends and publishing). Nothing outward without a yes.
 

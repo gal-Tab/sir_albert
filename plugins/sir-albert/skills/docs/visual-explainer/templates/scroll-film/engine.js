@@ -3,7 +3,7 @@
 const { animate, scroll, inView, hover, stagger } = Motion;
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const rtl = THEME.dir === 'rtl';
-const UI = THEME.ui;
+const UI = Object.assign({ tbd: 'link TBD', tbdTitle: 'Link not available yet', demo: '(Demo)' }, THEME.ui);   // defaults, so a theme can leave them out
 
 /* ---------- tiny helpers ---------- */
 const $ = (s, r = document) => r.querySelector(s);
@@ -32,7 +32,7 @@ function rich(text) {
 }
 const link = (label, url) => url
   ? el('a', { class: 'chip', href: url, target: '_blank', rel: 'noopener noreferrer' }, label)
-  : el('span', { class: 'chip tbd', title: 'Link not available yet' }, label + ' · link TBD');   // never invent a link: a missing one shows as TBD
+  : el('span', { class: 'chip tbd', title: UI.tbdTitle }, label + ' · ' + UI.tbd);   // never invent a link: a missing one shows as TBD
 
 /* value tween: Motion spring when available, rAF ease otherwise */
 function tween(from, to, onUpdate, opts = {}) {
@@ -50,7 +50,7 @@ function tween(from, to, onUpdate, opts = {}) {
    pct = how much of the TOP ("before") image is visible, measured from the start edge (left in LTR, right in RTL). */
 function initReveal(root, { start = 50 } = {}) {
   const top = $('.rv-top', root), handle = $('.rv-handle', root), tagB = $('.rv-b', root), tagA = $('.rv-a', root);
-  let pct = start, anim = null, dragging = false;
+  let pct = start, goal = start, anim = null, dragging = false;
   function render(p) {
     pct = Math.max(0, Math.min(100, p));
     top.style.clipPath = rtl ? `inset(0 0 0 ${100 - pct}%)` : `inset(0 ${100 - pct}% 0 0)`;
@@ -60,16 +60,16 @@ function initReveal(root, { start = 50 } = {}) {
     if (tagB) tagB.style.opacity = pct < 14 ? 0 : 1;      // a tag fades when its image is almost covered
     if (tagA) tagA.style.opacity = pct > 86 ? 0 : 1;
   }
-  const glide = (to, opts) => { if (anim && anim.stop) anim.stop(); anim = tween(pct, to, render, opts); return anim; };
+  const glide = (to, opts) => { goal = Math.max(0, Math.min(100, to)); if (anim && anim.stop) anim.stop(); anim = tween(pct, goal, render, opts); return anim; };
   const fromEvent = e => { const r = root.getBoundingClientRect(); return (rtl ? (r.right - e.clientX) : (e.clientX - r.left)) / r.width * 100; };
-  root.addEventListener('pointerdown', e => { if (anim && anim.stop) anim.stop(); dragging = true; root.setPointerCapture(e.pointerId); root.classList.add('dragging'); render(fromEvent(e)); handle.focus({ preventScroll: true }); });
+  root.addEventListener('pointerdown', e => { if (anim && anim.stop) anim.stop(); dragging = true; root.setPointerCapture(e.pointerId); root.classList.add('dragging'); render(fromEvent(e)); goal = pct; handle.focus({ preventScroll: true }); });
   root.addEventListener('pointermove', e => { if (dragging) render(fromEvent(e)); });
   const end = () => { dragging = false; root.classList.remove('dragging'); };
   root.addEventListener('pointerup', end); root.addEventListener('pointercancel', end);
   handle.addEventListener('keydown', e => {
     const step = (e.shiftKey ? 25 : 8) * (rtl ? -1 : 1);   // arrows move the handle in the direction they point
-    if (e.key === 'ArrowLeft') { e.preventDefault(); glide(pct - step); }
-    else if (e.key === 'ArrowRight') { e.preventDefault(); glide(pct + step); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); glide(goal - step); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); glide(goal + step); }
     else if (e.key === 'Home') { e.preventDefault(); glide(rtl ? 100 : 0); }
     else if (e.key === 'End') { e.preventDefault(); glide(rtl ? 0 : 100); }
   });
@@ -217,7 +217,7 @@ CHAPS.forEach(c => {
     el('div', { class: 'card' },
       el('h2', {}, f.title),
       el('ol', {}, ...f.items.map(([b, t]) => el('li', {}, el('b', {}, b), ' ', ...rich(t)))),
-      el('div', {}, ...(f.links || []).map(([l, u]) => el('a', { class: 'lk', href: u, target: '_blank', rel: 'noopener noreferrer' }, l + ' ↗'))))));
+      el('div', {}, ...(f.links || []).map(([l, u]) => u ? el('a', { class: 'lk', href: u, target: '_blank', rel: 'noopener noreferrer' }, l + (rtl ? ' ↖' : ' ↗')) : el('span', { class: 'lk tbd', title: UI.tbdTitle }, l + ' · ' + UI.tbd))))));
 }
 
 /* ---------- hotspots + bubbles (live in camera space) ---------- */
@@ -250,7 +250,8 @@ function target(k) {
   const a = m && k !== 'hero' && k !== 'finale' ? [0.5, 0.28] : c.a;
   let tx = a[0] * vw - s * c.f[0] * W, ty = a[1] * vh - s * c.f[1] * H;
   tx = s * W <= vw ? (vw - s * W) / 2 : Math.min(0, Math.max(vw - s * W, tx));
-  ty = s * H <= vh ? (vh - s * H) / 2 : Math.min(0, Math.max(vh - s * H, ty));
+  /* phones: the card takes the bottom half, so let the object ride up into the top half even if the image's lower edge rises above the screen bottom (the blurred copy behind fills the gap) */
+  ty = m && k !== 'hero' && k !== 'finale' ? Math.min(0, ty) : s * H <= vh ? (vh - s * H) / 2 : Math.min(0, Math.max(vh - s * H, ty));
   return { tx, ty, s, a };
 }
 function paint(st) {
@@ -284,8 +285,8 @@ function setActive(k) {
   Object.entries(spotEls).forEach(([kk, o]) => o.wrap.classList.toggle('on', kk === k));
   syncDots();
   { const v = $('.vig'), a = target(k).a; v.style.setProperty('--vx', (a[0] * 100) + '%'); v.style.setProperty('--vy', (a[1] * 100) + '%'); }
-  if (bubbles[k]) animate(bubbles[k], { opacity: [0, 1], y: [10, 0], scale: [0.8, 1] }, { type: 'spring', bounce: .4, delay: .5 });
-  if (bubbles[prev]) animate(bubbles[prev], { opacity: 0 }, { duration: .25 });
+  if (bubbles[k]) { if (reduce) bubbles[k].style.opacity = 1; else animate(bubbles[k], { opacity: [0, 1], y: [10, 0], scale: [0.8, 1] }, { type: 'spring', bounce: .4, delay: .5 }); }
+  if (bubbles[prev]) { if (reduce) bubbles[prev].style.opacity = 0; else animate(bubbles[prev], { opacity: 0 }, { duration: .25 }); }
   fxSwitch(k);
   if (k === 'finale') animate(spots, { opacity: 0 }, { duration: .4 }); else if (prev === 'finale') animate(spots, { opacity: 1 }, { duration: .4 });
   animate('#dim', { opacity: k === 'finale' ? .35 : 0 }, { duration: .5 });
@@ -298,6 +299,7 @@ ORDER.forEach(k => inView(chap(k), () => { setActive(k); return () => {}; }, { m
 /* card + content entrance */
 $$('.card:not(.hero-card)').forEach((card, i) => {
   inView(card, () => {
+    if (reduce) { card.style.opacity = 1; $$('[data-in]', card).forEach(b => { b.style.opacity = 1; }); return; }   // reduced motion: appear, do not fly in
     animate(card, { opacity: [0, 1], y: [50, 0], rotate: [i % 2 ? 1.6 : -1.6, 0] }, { type: 'spring', stiffness: 130, damping: 16 });
     const bits = $$('[data-in]', card);
     if (bits.length) animate(bits, { opacity: [0, 1], y: [16, 0] }, { delay: stagger(.07, { startDelay: .12 }), duration: .55, ease: 'easeOut' });
@@ -367,6 +369,9 @@ addEventListener('keydown', e => {
 /* ---------- boot ---------- */
 state = target('hero'); paint(state);
 addEventListener('resize', () => { state = target(current); paint(state); });
-animate('.pill', { opacity: [0, 1], scale: [0.3, 1], y: [10, 0] }, { delay: stagger(.14, { startDelay: reduce ? 0 : 1.1 }), type: 'spring', bounce: .5 });
-animate('.hero-stack [data-in]', { opacity: [0, 1], y: [28, 0] }, { delay: stagger(.14, { startDelay: .2 }), duration: .8, ease: 'easeOut' });
+if (reduce) $$('.pill, .hero-stack [data-in]').forEach(e => { e.style.opacity = 1; });
+else {
+  animate('.pill', { opacity: [0, 1], scale: [0.3, 1], y: [10, 0] }, { delay: stagger(.14, { startDelay: reduce ? 0 : 1.1 }), type: 'spring', bounce: .5 });
+  animate('.hero-stack [data-in]', { opacity: [0, 1], y: [28, 0] }, { delay: stagger(.14, { startDelay: .2 }), duration: .8, ease: 'easeOut' });
+}
 if (location.hash && ORDER.includes(location.hash.slice(1))) setTimeout(() => chap(location.hash.slice(1)).scrollIntoView({ block: 'center' }), 50);

@@ -33,7 +33,7 @@ def data_uri(path: Path) -> str:
         print(f'  {path.name}: PNG -> JPEG q{a.jpeg_quality} ({len(data) // 1024} KB)')
     return f'data:{mime};base64,' + base64.b64encode(data).decode()
 
-IMG = re.compile(r"""(['"])(assets/[^'"]+\.(?:png|jpe?g|webp|gif|svg))\1""")
+IMG = re.compile(r"""(['"])((?:\./)?assets/[^'"]+\.(?:png|jpe?g|webp|gif|svg))\1""")
 def inline_images(text: str) -> str:
     def sub(m):
         p = root / m.group(2)
@@ -63,8 +63,10 @@ html = re.sub(r'<script src="((?!https?:)[^"]+\.js)"></script>', local, html)
 # 3. images written directly in the HTML
 html = inline_images(html)
 
-left = re.findall(r'(?:src|href)="(?:assets/|[^"]*\.js")', html)
-if left: sys.exit(f'unresolved local references: {left}')
+left = re.findall(r'(?:src|href)="(?:\./)?(?:assets/|[^"]*\.js")', html)
+# any quoted image path that is not a data: or http(s) URL is still a relative reference (Motion's own code has none)
+left += re.findall(r"""['"]((?!data:|https?:|//)[^'"\s]*\.(?:png|jpe?g|webp|gif|svg))['"]""", html)
+if left: sys.exit(f'unresolved local references (the page would break outside this folder): {left}')
 Path(a.out).parent.mkdir(parents=True, exist_ok=True)
 Path(a.out).write_text(html)
 size = os.path.getsize(a.out)

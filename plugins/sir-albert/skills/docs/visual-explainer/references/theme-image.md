@@ -6,7 +6,7 @@ The whole explainer is built around **one illustrated image per theme**. The fir
 
 - One **physical place** with 5 to 7 **objects you can point at**. Each object = one chapter. The objects should already be in the copy's vocabulary (gal-va: new colleague, notebook, job cards, alarm clock, front desk).
 - Avoid generic "AI art": neon, purple gradients, chrome robots, glowing circuits, brain icons. It reads as AI-ish and fights the copy. Warm, slightly imperfect, analog objects work.
-- Plan an empty zone on both sides of the picture where a card can sit without covering an object.
+- Remember how it is used: a card covers roughly the left or right third of the screen, and the camera moves the active object into the other half. So the picture needs no empty zone, but keep the **bottom 20%** calm (floor, counter): the title card sits there on the first screen.
 
 ## 2. Hero prompt template (GPT image / Nano Banana)
 
@@ -15,13 +15,13 @@ Attach references if you have them (a character, the brand look, a previous imag
 ```
 Same 3D animated-film look: warm soft lighting, rounded forms, shallow depth of field, [palette: e.g. cream and wood tones with deep blue accents and brass]. No neon, no purple, no glowing circuits, no brain icons.
 A single wide scene, 3:2, straight-on camera: [PLACE].
-Objects, each clearly separate and readable:
-1. [object A] at the upper left
-2. [CHARACTER / main subject] in the centre, [outfit], [pose]
-3. [object C] at the lower left
-4. [object D] at the right middle
-5. [object E + a small sign] at the lower right
-Leave calm, uncluttered space around the edges of the picture.
+Objects, each clearly separate and readable, one per chapter (4 to 7 of them; add or drop lines):
+- [object A] at the left
+- [MAIN SUBJECT] in the centre, [outfit], [pose], face well inside the picture, not near an edge
+- [object C] at the lower left, above the bottom band
+- [object D] at the right
+- [object E + a small sign] at the right, above the bottom band
+Keep the bottom 20% of the picture a calm floor or counter with nothing important on it.
 All text must be crisp and legible, spelled exactly as given: [exact words for signs and labels]. No extra text.
 ```
 
@@ -37,7 +37,7 @@ Use `tools/map-objects.html` (drop the image, drag a box around each object, nam
 | `spot`, `fx` x and y | percent 0..100 of the image width / height |
 | `fx` ring width | percent of the image **width** (heights are in the same unit, so a "square" is square) |
 
-Record the map in a table in the project (object, meaning, x range, y range). The gal-va one looked like this:
+Record the map in `OBJECT-MAP.md` in the project (object, meaning, x range, y range), and put each object's box in its chapter as `box: [x0, y0, x1, y1]` so `tools/check-camera.js` can use it. The gal-va one looked like this:
 
 | Object | Meaning | x % | y % |
 |---|---|---|---|
@@ -47,7 +47,7 @@ Record the map in a table in the project (object, meaning, x range, y range). Th
 | Alarm clock | Loops | 76-93 | 35-65 |
 | Sign + bell | #ask-tracking | 70-98 | 68-90 |
 
-Tuning the camera per chapter: start from `s: 1.05 to 1.25`, `a` at the opposite side from the card (`side: 'left'` → `a.x ≈ 0.72`). Keep `s` modest: gal-va's agent chapter looked wrong at higher zoom ("less zoom and bigger circles").
+Tuning the camera per chapter: start from `s: 1.05 to 1.25`, `a` at the opposite side from the card (`side: 'left'` → `a.x ≈ 0.72`). Keep `s` modest: gal-va's agent chapter looked wrong at higher zoom ("less zoom and bigger circles"). At 1.05 to 1.25 the image can only travel `(s - 1) * W` pixels, so an object near an edge barely moves whatever `a` says; and a centred subject with a card on one side is easily clipped. Do not eyeball it: run `tools/check-camera.js` and fix every chapter it flags. On phones the engine lifts the object into the top half above the card, so the phone numbers differ from desktop; check both.
 
 ## 4. The before/after reveal pair
 

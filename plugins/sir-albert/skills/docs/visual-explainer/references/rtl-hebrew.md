@@ -1,6 +1,6 @@
 # Hebrew and right-to-left
 
-Set `THEME.lang = 'he'` and `THEME.dir = 'rtl'`. `templates/scroll-film/story.he.example.js` is a full Hebrew example; copy its `THEME.fonts` and `THEME.ui`.
+Set `THEME.lang = 'he'` and `THEME.dir = 'rtl'`. `templates/scroll-film/story.he.example.js` is a full Hebrew example: copy its `THEME` and `STORY` over your `story.js` and delete the example (story.js stays the only file you edit).
 
 ## What the templates already do
 
@@ -10,7 +10,7 @@ Set `THEME.lang = 'he'` and `THEME.dir = 'rtl'`. `templates/scroll-film/story.he
 - Fonts: use a Hebrew-capable pair, e.g. Frank Ruhl Libre (serif) + Heebo (sans). Fraunces and Inter have no Hebrew glyphs, so the browser would fall back unpredictably.
 - Before/after slider: it measures from the **right** edge, so "before" is on the right and the arrow keys move the handle in the direction they point. The corner tags swap sides with it.
 - Progress bar grows from the right. The dots column and its tooltips stay on the physical right edge.
-- All fixed UI strings live in `THEME.ui`, so a translation is one object.
+- All fixed UI strings live in `THEME.ui` (including `tbd`, `tbdTitle` and `demo`, which fall back to English if you leave them out), so a translation is one object. The finale's link arrow points `↖` in RTL.
 
 ## What you must do
 

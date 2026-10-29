@@ -1,5 +1,6 @@
 /* story.he.example.js — the same bakery example in Hebrew, to show what RTL needs.
-   To try it: in index.html change <script src="story.js"> to <script src="story.he.example.js">.
+   To use it: copy this file's THEME and STORY over story.js (story.js stays the only file you edit), then delete this example from your project.
+   To just look at it: temporarily point <script src="story.js"> in index.html at this file.
    RTL checklist (all handled by engine.js + index.html once THEME.dir is 'rtl'):
    - lang 'he' + dir 'rtl' on <html>, a Hebrew-capable font pair, no letter-spacing or forced caps
    - cards stay on the side opposite their object (the image is NOT mirrored), only the text inside flips
@@ -19,7 +20,7 @@ const THEME = {
   tokens: { '--accent': '#0081c0', '--highlight': '#e9b44c', '--wall': '#f4f1e6', '--ink': '#171717' },
   ui: {
     step: 'שלב', todo: 'כך עושים את זה', why: 'למה זה שווה: ', next: 'הבא',
-    copyDone: 'הועתק ✅', copyBlocked: 'ההעתקה חסומה בתצוגה הזו',
+    tbd: 'קישור יתווסף', tbdTitle: 'הקישור עדיין לא זמין', copyDone: 'הועתק ✅', copyBlocked: 'ההעתקה חסומה בתצוגה הזו',
     revealHint: 'גררו את הקו, לחצו בכל מקום, או השתמשו במקשי ← →.', demo: '(נתוני דמו)', goTo: 'מעבר אל ', start: 'התחלה'
   }
 };
@@ -42,6 +43,7 @@ const STORY = {
       refs: [['חוברת המאפייה', 'https://example.com/handbook']],
       cam: { f: [.50, .40], s: 1.25, a: [.72, .45], side: 'left' },
       spot: [50, 14, 'האופה'],
+      box: [41.7, 16.6, 58.3, 67.4],   // percent of the image: x0, y0, x1, y1 (tools/check-camera.js reads it)
       bubble: { at: [60, 8], text: 'בוקר טוב! נכנסו 3 הזמנות בלילה. תגידו כן ואני מתחיל בבצק.' },
       fx: [['ring', 50, 32, 22, 'rgba(255,206,110,.95)', 0, 3600, { b: .5, s0: .5, s1: 2.8 }], ['ring', 50, 32, 22, 'rgba(255,206,110,.95)', 1200, 3600, { b: .5, s0: .5, s1: 2.8 }], ['ring', 50, 32, 22, 'rgba(255,206,110,.95)', 2400, 3600, { b: .5, s0: .5, s1: 2.8 }]]
     },
@@ -55,6 +57,7 @@ const STORY = {
       refs: [['אינדקס המתכונים', 'https://example.com/recipes']],
       cam: { f: [.23, .81], s: 1.05, a: [.28, .75], side: 'right' },
       spot: [23, 66.5, 'ספר המתכונים'],
+      box: [4.6, 68.4, 41.0, 92.8],   // percent of the image: x0, y0, x1, y1 (tools/check-camera.js reads it)
       fx: [['spark', 10, 80, 0], ['spark', 17, 75.5, 520], ['spark', 24, 81, 1040], ['spark', 30, 76.5, 1560], ['spark', 14, 83, 2080]]
     },
     {
@@ -66,17 +69,19 @@ const STORY = {
       refs: [['התפריט', 'https://example.com/menu']],
       cam: { f: [.20, .25], s: 1.05, a: [.20, .40], side: 'right' },
       spot: [20.6, 43, 'לוח התפריט'],
+      box: [4.0, 6.1, 35.0, 40.0],   // percent of the image: x0, y0, x1, y1 (tools/check-camera.js reads it)
       fx: [['ring', 6, 12, 4.5, 'rgba(255,200,80,.95)', 0, 2600, { b: .35, s0: .4, s1: 2.6 }], ['ring', 34, 12, 4.5, 'rgba(255,200,80,.95)', 650, 2600, { b: .35, s0: .4, s1: 2.6 }], ['ring', 6, 36, 4.5, 'rgba(255,200,80,.95)', 1300, 2600, { b: .35, s0: .4, s1: 2.6 }]]
     },
     {
       key: 'timer', nav: '4 טיימר התנור', title: 'טיימר התנור',
       body: ['הטיימר הוא שעון מעורר: בשעה קבועה התנור מתעורר ומריץ אפייה לבד. אדם עדיין בודק כל מגש לפני שהוא נמכר.'],
-      blocks: [{ type: 'rows', items: [['04:30', 'אפייה ראשונה', 'לחם לשעת הלחץ של הבוקר.'], ['09:00', 'מאפים', 'קרואסונים, מוכנים לקפה.'], ['13:00', 'חידוש מלאי', 'מגש אחד, נספר ונרשם.']], note: 'השעות לפי שעון מקומי.' }],
+      blocks: [{ type: 'rows', items: [['04:30', 'אפייה ראשונה', 'לחם לשעת הלחץ של הבוקר.'], ['09:00', 'מאפים', 'קרואסונים, מוכנים לקפה.'], ['13:00', 'חידוש מלאי', 'מגש אחד, נספר ונרשם.']], note: 'שעות לדוגמה ' + THEME.ui.demo + '.' }],
       why: 'העבודה המשעממת נעשית לפני שהדלתות נפתחות.',
       todo: ['בחרו משימה קטנה ובטוחה אחת.', 'הגדירו את הטיימר.', 'השאירו "כן" של אדם לפני שמשהו נמכר.'],
-      refs: [['לוח האפייה', 'https://example.com/schedule']],
+      refs: [['לוח האפייה', null]],
       cam: { f: [.84, .50], s: 1.10, a: [.72, .50], side: 'left' },
       spot: [84.3, 33, 'טיימר התנור'],
+      box: [77.5, 40.0, 90.8, 64.3],   // percent of the image: x0, y0, x1, y1 (tools/check-camera.js reads it)
       fx: [['ring', 84.3, 52.7, 7.5, '#0081c0', 0, 1700, { b: .22, s0: .5, s1: 1.9, o: .7 }]]
     },
     {
@@ -88,6 +93,7 @@ const STORY = {
       refs: [['כללי הדלפק', 'https://example.com/counter']],
       cam: { f: [.85, .80], s: 1.05, a: [.72, .70], side: 'left' },
       spot: [79, 69, 'פעמון הדלפק'],
+      box: [71.0, 70.3, 99.2, 85.9],   // percent of the image: x0, y0, x1, y1 (tools/check-camera.js reads it)
       fx: [['ring', 96.2, 81, 10, 'rgba(255,200,90,.95)', 0, 2200], ['ring', 96.2, 81, 10, 'rgba(255,200,90,.95)', 1100, 2200]],
       reveal: {
         kicker: 'הדלפק, צד לצד', heading: 'לפני הפעמון, או אחריו.',
@@ -113,7 +119,7 @@ const STORY = {
       ['התחילו את ספר המתכונים:', 'הוסיפו פתק אחד. [לספר](https://example.com/recipes).'],
       ['תלו כרטיס אחד:', 'מוצר אחד, צעד אחר צעד.']
     ],
-    links: [['חוברת המאפייה', 'https://example.com/handbook'], ['תפריט', 'https://example.com/menu']],
+    links: [['חוברת המאפייה', 'https://example.com/handbook'], ['תפריט', null]],
     cam: { f: [.50, .50], s: 1.00, a: [.50, .50], side: 'left' }
   }
 };

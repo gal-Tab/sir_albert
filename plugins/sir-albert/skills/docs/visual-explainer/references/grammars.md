@@ -20,7 +20,9 @@ If the topic fits two grammars, ask Gal which feeling he wants; do not decide si
 - Chapter detection: Motion `inView` on a band at the viewport centre (`margin: '-48% 0px -48% 0px'`). The callback must **return a function**, otherwise it fires once and scrolling back up never re-activates a chapter.
 - Cards sit opposite the object (`side: 'left'` means the card is on the left, the object lands on the right). Choose `a` so the card never covers a character's face or the object itself.
 - Pills (numbered hotspots) live inside the camera and are counter-scaled with `--inv = 1/scale`, so labels stay the same size while the image zooms.
-- Optional pieces: speech `bubble` per chapter, a `reveal` chapter (before/after slider), a numberless "Next (WIP)" chapter, a finale with the first moves.
+- Optional pieces: speech `bubble` per chapter, a `reveal` chapter (before/after slider; **one per page**), a numberless "Next (WIP)" chapter, a finale with the first moves.
+- Phones: the card takes the bottom half and scrolls inside itself, the camera lifts the object into the top half, speech bubbles are hidden, and the hero is a cover crop (not the whole picture).
+- Reduced motion: no camera spring, no effects, cards appear instead of flying in.
 - Navigation: ↑/↓, PageUp/PageDown, j/k step between **stops**; the dots use the same list. A reveal chapter adds its own stop (`<key>lens`) so ↓ from it does not skip the slider.
 - Echo effects (`fx`) loop around the active object: `ring` (round pulse) and `spark` (✦ drifting up). Plain Web Animations, no library.
 
@@ -30,7 +32,9 @@ If the topic fits two grammars, ask Gal which feeling he wants; do not decide si
 - `frame = [x, y, w, h]` fractions of the parent image. With 3:2 images keep `w == h` in fractions so the child keeps its 3:2 shape (`w*1536 : h*1024 = 3:2`).
 - View rectangle at position `f`: width is interpolated in log space (constant perceived zoom speed); the centre moves linearly with the fraction of width zoomed so far, which keeps the target still on screen as you zoom.
 - Scroll → `f` with Motion `scroll()`; a dwell plateau (30% of scroll at every stop) leaves time to read the caption.
-- `direction: 'in'` starts outside and zooms into the nested scenes. `direction: 'out'` starts in the innermost scene and zooms out to reveal where it sat, like Istvan Banyai's book *Zoom*.
+- `direction: 'in'` starts outside and zooms into the nested scenes. `direction: 'out'` starts in the innermost scene and zooms out to reveal where it sat, like Istvan Banyai's book *Zoom*. `hero: true` goes on the layer shown first (outermost for `in`, innermost for `out`).
+- Captions only: no finale, to-do list, reveal, pills or effects. If the story needs those, use scroll-film.
+- Each child layer bleeds 0.12% past its frame so no hairline of the parent shows at the seam.
 - The image prompt must ask for the blank screen at the exact rectangle (see `theme-image.md`), and the child image should match the screen's colour at its edges so the seam hides.
 - Limits: all scenes should be 3:2; deep nests (4+) get blurry at the outermost layer at max zoom, so give the outer scene a high resolution (up to 4800 x 3200) or keep nests to 3.
 

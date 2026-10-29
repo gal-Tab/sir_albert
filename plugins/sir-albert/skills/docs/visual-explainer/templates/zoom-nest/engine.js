@@ -5,7 +5,7 @@
 const { animate, scroll } = Motion;
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const rtl = THEME.dir === 'rtl';
-const UI = THEME.ui;
+const UI = Object.assign({ step: 'Step', scrollHint: 'Scroll to zoom ↓', tbd: 'link TBD', tbdTitle: 'Link not available yet', demo: '(Demo)' }, THEME.ui);
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -28,7 +28,7 @@ function rich(text) {   // [text](url) in copy becomes a link that opens in a ne
 }
 const link = (label, url) => url
   ? el('a', { class: 'chip', href: url, target: '_blank', rel: 'noopener noreferrer' }, label)
-  : el('span', { class: 'chip tbd' }, label + ' · link TBD');   // never invent a link
+  : el('span', { class: 'chip tbd', title: UI.tbdTitle }, label + ' · ' + UI.tbd);   // never invent a link
 
 /* ---------- theme ---------- */
 {
@@ -54,7 +54,9 @@ const world = $('#world');
 function mount(i, parent) {
   const L = LAYERS[i];
   const box = el('div', { class: 'layer' + (i ? ' framed' : ''), 'data-i': String(i) });
-  if (i) { const [x, y, w, h] = L.frame; box.style.cssText = `left:${x * 100}%;top:${y * 100}%;width:${w * 100}%;height:${h * 100}%`; } else box.style.cssText = 'inset:0';
+  /* bleed 0.12% past the frame so no hairline of the parent shows at the seam */
+  if (i) { const [x, y, w, h] = L.frame, b = 0.12; box.style.cssText = `left:${x * 100 - b}%;top:${y * 100 - b}%;width:${w * 100 + 2 * b}%;height:${h * 100 + 2 * b}%`; }
+  else box.style.cssText = 'inset:0';
   box.append(el('img', { src: L.image, alt: L.alt || '', draggable: 'false' }));
   parent.append(box);
   if (i + 1 < N) mount(i + 1, box);
@@ -62,11 +64,12 @@ function mount(i, parent) {
 mount(0, world);
 
 /* ---------- captions + dots ---------- */
+let stepNo = 0;   // the hero caption is not a numbered step
 const caps = ORDER.map((li, k) => {
   const L = LAYERS[li];
   const hero = L.hero;
   const card = el('div', { class: 'card' },
-    ...(hero ? [] : [el('div', { class: 'label' }, `${UI.step} ${k + 1}`)]),
+    ...(hero ? [] : [el('div', { class: 'label' }, `${UI.step} ${++stepNo}`)]),
     el(hero ? 'h1' : 'h2', {}, L.title),
     ...asList(L.body || []).map(t => el('p', {}, ...rich(t))),
     ...(L.refs ? [el('div', { class: 'refs' }, ...L.refs.map(([l, u]) => link(l, u)))] : []));

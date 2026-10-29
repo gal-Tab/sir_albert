@@ -33,8 +33,8 @@ const { animate, scroll, inView, hover, stagger } = Motion;
 4. **Synthetic key events have `document` as target**, which has no `closest`. Use `e.target.closest?.('input,textarea')`.
 5. **SVG used as `<img>` cannot load external files.** Avatars inside an SVG mock must be embedded as base64 data URIs (with a `clipPath` circle).
 6. **Overlay units.** Echo-effect sizes in `%` of the *height* come out wrong. Put effects in a container the exact size of the image with `container-type: size` and size everything in `cqw` (1% of the image width).
-7. **A smooth scroll does nothing in a hidden browser pane** (no frames). When testing in an automated pane, use `scrollTo({ top, behavior:'instant' })`.
-8. **Reduced motion.** Respect `prefers-reduced-motion`: no camera spring, no effects loop, no smooth scroll.
+7. **A hidden browser pane renders no frames.** Smooth scroll does nothing, and Motion springs, `inView`, `scroll()` callbacks and screenshots lag one step behind. In an automated pane use `scrollTo({ top, behavior:'instant' })`, then wait 1.5 s or take a screenshot to flush frames, and read exact state from the page (`current`, `target(k)`, `geom()`, zoom-nest `curF`) or run `tools/check-camera.js`. A first screenshot after a jump is often stale.
+8. **Reduced motion.** The engines read `prefers-reduced-motion`: no camera spring, no effects loop, no smooth scroll, and cards, pills, bubbles and hero text appear without flying in. The pane has no media emulation; test with DevTools (Rendering) or a throwaway page that overrides `matchMedia` in `<head>`.
 9. **CSS `@property`** (for the animated spotlight vignette `--vx/--vy`) needs a modern browser; it degrades to a static vignette.
 10. **Clipboard inside an iframe** needs `allow="clipboard-write"` on the iframe (Zero to Hero loads the page in one).
 
