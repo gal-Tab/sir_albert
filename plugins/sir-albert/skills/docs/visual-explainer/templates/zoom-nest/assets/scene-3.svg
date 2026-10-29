@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1536 1024" width="1536" height="1024" font-family="Helvetica, Arial, sans-serif">
+  <!-- PLACEHOLDER scene (3:2). The screen rectangle (0.5,0.4,0.001,0.001 as fractions of this image) is where the NEXT scene is placed. Replace with a generated image that has a blank screen at the same spot. -->
+  <rect width="1536" height="1024" fill="#f6e6e2"/>
+  <rect y="700" width="1536" height="324" fill="#e2c3bb"/>
+  <text x="80" y="140" font-size="64" font-weight="700" fill="#171717">Inside the laptop</text>
+  <rect x="744" y="386" width="50" height="49" rx="26" fill="#2c2c2c" stroke="#171717" stroke-width="6"/>
+  <rect x="768" y="410" width="2" height="1" rx="10" fill="#bfe6f5"/>
+  <text x="768" y="540" text-anchor="middle" font-size="90" font-weight="700" fill="#171717">The detail</text>
+</svg>

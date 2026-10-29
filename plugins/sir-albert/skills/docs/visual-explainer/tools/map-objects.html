@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<!-- map-objects · measure where each object sits in a theme image, then paste the numbers into story.js.
+     Open this file in a browser, drop the image on the page (or use the picker), drag a box around an object, name it.
+     Output is in % of the image (0..100), the same unit story.js uses for `spot` and `fx`, and fractions (0..1) for cam.f / cam.a. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>map-objects</title>
+<style>
+body{margin:0;font:15px/1.4 system-ui,sans-serif;background:#1d1d1d;color:#eee;display:grid;grid-template-columns:minmax(0,1fr) 340px;height:100vh}
+#stage{position:relative;overflow:auto;padding:16px}
+#wrap{position:relative;display:inline-block;line-height:0;cursor:crosshair;user-select:none;-webkit-user-select:none;touch-action:none}
+#wrap img{display:block;max-width:100%;height:auto;max-height:calc(100vh - 32px);-webkit-user-drag:none;user-select:none}
+.grid{position:absolute;inset:0;pointer-events:none;background:
+  linear-gradient(to right,rgba(255,255,255,.28) 1px,transparent 1px) 0 0/10% 100%,
+  linear-gradient(to bottom,rgba(255,255,255,.28) 1px,transparent 1px) 0 0/100% 10%}
+.box{position:absolute;border:2px solid #ffcf4a;background:rgba(255,207,74,.15);pointer-events:none}
+.box b{position:absolute;left:0;top:-22px;background:#ffcf4a;color:#111;font:600 12px system-ui;padding:2px 6px;line-height:1.2;white-space:nowrap}
+.dot{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:#ff5a5a;pointer-events:none}
+aside{padding:16px;border-left:1px solid #444;overflow:auto}
+h1{font-size:16px;margin:0 0 8px}
+button{font:inherit;padding:6px 10px;margin:4px 4px 4px 0;border-radius:8px;border:1px solid #666;background:#2d2d2d;color:#eee;cursor:pointer}
+pre{background:#111;padding:10px;border-radius:8px;white-space:pre-wrap;word-break:break-all;font:12px/1.4 ui-monospace,Menlo,monospace}
+.hint{color:#aaa;font-size:13px}
+#pos{position:fixed;left:12px;bottom:12px;background:#000c;padding:4px 8px;border-radius:6px;font:12px ui-monospace,Menlo,monospace}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="wrap"><img id="img" alt=""><div class="grid"></div></div>
+  <div id="pos">x – y –</div>
+</div>
+<aside>
+  <h1>Map the objects</h1>
+  <p class="hint">1. Load the image: drop it on the page, pick it here <input type="file" id="file" accept="image/*">, or copy this file into your project folder, serve the folder (<code>python3 -m http.server</code>) and open <code>map-objects.html?img=assets/hero.png</code>.<br>
+  2. Drag a box around an object, type its name, press Enter. Click without dragging to mark a single point.<br>
+  3. Copy the snippet into the matching chapter in story.js.</p>
+  <form id="namer" hidden><label>Name <input id="nm" autocomplete="off" size="14"></label> <button>Add</button> <button type="button" id="cancel">Cancel</button></form>
+  <button id="copy">Copy snippet</button><button id="undo">Undo last</button><button id="clear">Clear</button>
+  <pre id="out">No objects yet.</pre>
+</aside>
+<script>
+const $ = s => document.querySelector(s), img = $('#img'), wrap = $('#wrap'), out = $('#out');
+const items = [];
+const r1 = n => Math.round(n * 10) / 10, r2 = n => Math.round(n * 100) / 100;
+const q = new URLSearchParams(location.search);
+if (q.get('img')) img.src = q.get('img');
+/* without this the browser treats a drag on the image as image drag-and-drop and cancels the pointer (no pointerup) */
+img.draggable = false; img.addEventListener('dragstart', e => e.preventDefault());
+function load(file) { if (file) img.src = URL.createObjectURL(file); }
+$('#file').onchange = e => load(e.target.files[0]);
+addEventListener('dragover', e => e.preventDefault());
+addEventListener('drop', e => { e.preventDefault(); load(e.dataTransfer.files[0]); });
+
+const pct = e => { const r = img.getBoundingClientRect(); return [Math.max(0, Math.min(100, (e.clientX - r.left) / r.width * 100)), Math.max(0, Math.min(100, (e.clientY - r.top) / r.height * 100))]; };
+addEventListener('pointermove', e => { const [x, y] = pct(e); $('#pos').textContent = `x ${r1(x)}%  y ${r1(y)}%`; });
+let start = null, live = null;
+wrap.addEventListener('pointerdown', e => { start = pct(e); live = document.createElement('div'); live.className = 'box'; wrap.append(live); wrap.setPointerCapture(e.pointerId); });
+wrap.addEventListener('pointermove', e => { if (!start) return; const [x, y] = pct(e); Object.assign(live.style, { left: Math.min(start[0], x) + '%', top: Math.min(start[1], y) + '%', width: Math.abs(x - start[0]) + '%', height: Math.abs(y - start[1]) + '%' }); });
+/* naming uses an inline field, not prompt(): prompt() blocks, and is unavailable in automated browsers */
+let pending = null;
+function ask(b, dflt) { pending = b; $('#namer').hidden = false; $('#nm').value = dflt; $('#nm').focus(); $('#nm').select(); }
+function closeNamer() { pending = null; $('#namer').hidden = true; }
+function dropLive() { if (live) live.remove(); live = null; start = null; }
+wrap.addEventListener('pointerup', e => {
+  if (!start) return;
+  const [x, y] = pct(e), [sx, sy] = start; dropLive();
+  const point = Math.abs(x - sx) < 1 && Math.abs(y - sy) < 1;
+  ask(point ? [x, y, x, y] : [Math.min(sx, x), Math.min(sy, y), Math.max(sx, x), Math.max(sy, y)], (point ? 'point' : 'object') + (items.length + 1));
+});
+wrap.addEventListener('pointercancel', dropLive);
+wrap.addEventListener('lostpointercapture', dropLive);
+$('#namer').onsubmit = e => { e.preventDefault(); const n = $('#nm').value.trim(); if (pending && n) add(n, pending); closeNamer(); };
+$('#cancel').onclick = closeNamer;
+$('#nm').addEventListener('keydown', e => { if (e.key === 'Escape') closeNamer(); });
+function add(name, b) { items.push({ name, b }); render(); }
+function render() {
+  $$('.box,.dot').forEach(n => n.remove());
+  items.forEach(({ name, b }) => {
+    if (b[0] === b[2] && b[1] === b[3]) { const d = document.createElement('div'); d.className = 'dot'; d.style.cssText = `left:${b[0]}%;top:${b[1]}%`; wrap.append(d); return; }
+    const d = document.createElement('div'); d.className = 'box'; d.style.cssText = `left:${b[0]}%;top:${b[1]}%;width:${b[2] - b[0]}%;height:${b[3] - b[1]}%`; d.innerHTML = `<b>${name}</b>`; wrap.append(d);
+  });
+  out.textContent = items.length ? snippet() : 'No objects yet.';
+}
+function $$(s) { return [...document.querySelectorAll(s)]; }
+function snippet() {
+  return items.map(({ name, b }) => {
+    const cx = (b[0] + b[2]) / 2, cy = (b[1] + b[3]) / 2;
+    const left = cx >= 50, side = left ? 'left' : 'right';   // the card sits on the half opposite the object; for a centred subject run tools/check-camera.js
+    return `// ${name}\n` +
+      `box: [${r1(b[0])}, ${r1(b[1])}, ${r1(b[2])}, ${r1(b[3])}],\n` +
+      `cam: { f: [${r2(cx / 100)}, ${r2(cy / 100)}], s: 1.1, a: [${left ? 0.72 : 0.28}, 0.5], side: '${side}' },\n` +
+      `spot: [${r1(cx)}, ${r1(Math.max(2, b[1] - 3))}, '${name}'],   // pill just above the object\n` +
+      `fx: [['ring', ${r1(cx)}, ${r1(cy)}, ${r1(Math.max(4, (b[2] - b[0]) * 0.6))}, 'rgba(255,206,110,.95)', 0, 2600]],`;
+  }).join('\n\n');
+}
+$('#copy').onclick = () => navigator.clipboard.writeText(out.textContent);
+$('#undo').onclick = () => { items.pop(); render(); };
+$('#clear').onclick = () => { items.length = 0; render(); };
+</script>
+</body>
+</html>
