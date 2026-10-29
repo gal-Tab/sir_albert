@@ -43,6 +43,7 @@ Skills that generate interactive HTML documents (plans, specs, PRDs).
 |---|---|---|
 | to-prd | `plugins/sir-albert/skills/docs/to-prd/` | "write a PRD", "create a spec", "document this feature" |
 | monday-presentation-v2 | `plugins/sir-albert/skills/docs/monday-presentation-v2/` | "create a presentation", "build slides", "make a deck", "slide deck with monday branding" |
+| visual-explainer | `plugins/sir-albert/skills/docs/visual-explainer/` | "build an explainer", "scroll film", "zoom presentation", "presentation from an image", "make it like the gal-va explainer", Hebrew/RTL explainer |
 | monday-brand-guidelines | `plugins/sir-albert/skills/docs/monday-brand-guidelines/` | "monday brand", "apply monday colors", "monday design identity", monday branding for HTML/charts/marketing/UI |
 
 Shared design system: `plugins/sir-albert/shared/references/design-tokens.md` and `plugins/sir-albert/shared/references/mermaid-patterns.md`

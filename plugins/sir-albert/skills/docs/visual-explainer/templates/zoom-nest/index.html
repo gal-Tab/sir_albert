@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<!-- zoom-nest template · "Zoom" style (Istvan Banyai): every scene sits inside a screen/window of the previous one.
+     Scroll to zoom into (direction 'in') or out of (direction 'out') the nested scenes. Edit story.js only; engine.js is shared. -->
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explainer</title>
+<script src="https://cdn.jsdelivr.net/npm/motion@14.7.1/dist/motion.js"></script>
+<script src="story.js"></script>
+<style>
+:root{
+  --paper:#fff; --linen:#f9faf7; --ink:#171717; --graphite:#2c2c2c; --charcoal:#444141; --ash:#646464; --mist:#dee2de;
+  --accent:#0081c0; --signal:#41a1cf; --highlight:#e9b44c; --wall:#f4f1e6;
+  --serif:Georgia,serif; --sans:-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;font:400 18px/1.55 var(--sans);color:var(--charcoal);background:var(--wall);-webkit-font-smoothing:antialiased}
+h1,h2{font-family:var(--serif);font-weight:400;letter-spacing:-.02em;color:var(--graphite);line-height:1.08;margin:0}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--signal);outline-offset:3px;border-radius:6px}
+.rtl h1,.rtl h2,.rtl .label{letter-spacing:0;text-transform:none}
+.label{font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--ash)}
+
+#bar{position:fixed;left:0;top:0;height:4px;width:100%;background:var(--accent);transform-origin:0 50%;transform:scaleX(0);z-index:60}
+.rtl #bar{transform-origin:100% 50%}
+#dots{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:55;display:flex;flex-direction:column;gap:12px;direction:ltr}
+#dots button{width:14px;height:14px;border-radius:50%;border:2px solid var(--ink);background:var(--paper);padding:0;cursor:pointer;position:relative}
+#dots button[aria-current="true"]{background:var(--ink)}
+#dots button span{position:absolute;right:26px;top:50%;transform:translateY(-50%);white-space:nowrap;font-size:13px;font-weight:600;background:var(--ink);color:#fff;padding:3px 10px;border-radius:99px;opacity:0;pointer-events:none;transition:opacity .15s;direction:auto}
+#dots button:hover span,#dots button:focus-visible span{opacity:1}
+
+/* scroll length = one screen per stop; the stage stays put */
+.track{position:relative}
+.stage{position:sticky;top:0;height:100vh;overflow:hidden;background:var(--wall);direction:ltr}
+.world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+.layer{position:absolute;overflow:hidden}
+.layer>img{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;user-select:none;-webkit-user-drag:none}
+.layer.framed{border-radius:var(--frame-radius,0)}
+.vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 80% 80% at 50% 50%,transparent 55%,rgba(40,25,10,.28))}
+
+/* captions: one card per stop, faded by distance from the stop */
+.cap{position:absolute;pointer-events:none;width:min(440px,calc(100% - 40px));bottom:6vh;opacity:0}
+.cap.left{left:clamp(20px,5vw,80px)} .cap.right{right:clamp(20px,5vw,80px)} .cap.center{left:50%;transform:translateX(-50%)}
+.cap .card{pointer-events:auto;background:var(--paper);border:2.5px solid var(--ink);border-radius:22px;padding:22px 26px 20px;box-shadow:7px 7px 0 var(--ink)}
+.rtl .cap .card{direction:rtl}
+.cap h2{font-size:clamp(26px,3vw,38px);margin:4px 0 10px}
+.cap p{margin:0 0 10px}
+.inlink{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+.refs{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{display:inline-flex;padding:3px 12px;border-radius:8px;border:1.5px solid var(--signal);color:var(--accent);font-size:14.5px;font-weight:500;text-decoration:none;background:var(--paper)}
+.chip.tbd{border-style:dashed;border-color:var(--ash);color:var(--ash);font-style:italic}
+.cap.hero{bottom:auto;top:50%;transform:translate(-50%,-50%)}
+.cap.hero .card{text-align:center}
+.cap.hero h1{font-size:clamp(32px,4vw,58px);margin:0 0 8px}
+.hint{position:absolute;left:50%;transform:translateX(-50%);bottom:2.2vh;font:600 13px var(--sans);letter-spacing:.08em;text-transform:uppercase;background:var(--ink);color:#fff;border-radius:99px;padding:8px 16px;z-index:5}
+@media (max-width:820px){ #dots{display:none} .cap.left,.cap.right{left:20px;right:20px;width:auto} }
+@media (prefers-reduced-motion:reduce){ .world{transition:none} }
+</style>
+</head>
+<body>
+<div id="bar" aria-hidden="true"></div>
+<nav id="dots" aria-label="Scenes"></nav>
+<main class="track" id="track">
+  <div class="stage" id="stage">
+    <div class="world" id="world"></div>
+    <div class="vig"></div>
+    <div id="caps"></div>
+    <div class="hint" id="hint" aria-hidden="true"></div>
+  </div>
+</main>
+<script src="engine.js"></script>
+</body>
+</html>

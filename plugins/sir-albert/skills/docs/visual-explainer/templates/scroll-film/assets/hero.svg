@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1536 1024" width="1536" height="1024" font-family="Helvetica, Arial, sans-serif">
+  <!-- PLACEHOLDER hero (3:2, 1536x1024). Replace assets/hero.* with the real theme image, then re-map story.js.
+       Objects (fractions of width / height): board x 4-35 y 6-40 | baker x 38-62 y 12-58 | book x 4-36 y 66-92 | clock x 76-93 y 36-64 | sign+bell x 70-96 y 68-90 -->
+  <rect width="1536" height="1024" fill="#f4ead8"/>
+  <rect y="690" width="1536" height="334" fill="#d9bf98"/>
+  <rect y="690" width="1536" height="10" fill="#b99a6c"/>
+
+  <!-- board (top-left) -->
+  <g>
+    <rect x="62" y="62" width="476" height="348" rx="18" fill="#3b4a45" stroke="#171717" stroke-width="5"/>
+    <text x="300" y="150" text-anchor="middle" font-size="46" fill="#f4ead8" font-weight="700">TODAY</text>
+    <g fill="#f4ead8" font-size="30"><text x="110" y="215">Sourdough ........ 18</text><text x="110" y="270">Croissant ........ 12</text><text x="110" y="325">Rye loaf ......... 22</text></g>
+  </g>
+
+  <!-- baker (center) -->
+  <g>
+    <circle cx="768" cy="330" r="120" fill="#f1c9a3" stroke="#171717" stroke-width="5"/>
+    <rect x="662" y="170" width="212" height="86" rx="40" fill="#ffffff" stroke="#171717" stroke-width="5"/>
+    <circle cx="730" cy="330" r="10" fill="#171717"/><circle cx="806" cy="330" r="10" fill="#171717"/>
+    <path d="M722 372 Q768 408 814 372" fill="none" stroke="#171717" stroke-width="6" stroke-linecap="round"/>
+    <rect x="640" y="440" width="256" height="250" rx="40" fill="#ffffff" stroke="#171717" stroke-width="5"/>
+  </g>
+
+  <!-- recipe book (bottom-left) -->
+  <g>
+    <rect x="70" y="700" width="560" height="250" rx="16" fill="#0081c0" stroke="#171717" stroke-width="5"/>
+    <rect x="96" y="722" width="250" height="206" rx="8" fill="#fffdf6" stroke="#171717" stroke-width="3"/>
+    <rect x="354" y="722" width="250" height="206" rx="8" fill="#fffdf6" stroke="#171717" stroke-width="3"/>
+    <g stroke="#9aa" stroke-width="4"><path d="M120 770h200M120 810h200M120 850h160M378 770h200M378 810h200M378 850h160"/></g>
+  </g>
+
+  <!-- oven timer (right) -->
+  <g>
+    <circle cx="1292" cy="512" r="102" fill="#ffffff" stroke="#171717" stroke-width="6"/>
+    <path d="M1292 512V448M1292 512l46 26" stroke="#171717" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="1292" cy="512" r="9" fill="#171717"/>
+    <rect x="1190" y="618" width="204" height="40" rx="8" fill="#b99a6c" stroke="#171717" stroke-width="4"/>
+  </g>
+
+  <!-- counter sign + bell (bottom-right) -->
+  <g>
+    <rect x="1090" y="720" width="260" height="160" rx="14" fill="#ffffff" stroke="#171717" stroke-width="5"/>
+    <text x="1220" y="790" text-anchor="middle" font-size="38" font-weight="700" fill="#171717">Ring for</text>
+    <text x="1220" y="840" text-anchor="middle" font-size="38" font-weight="700" fill="#171717">service</text>
+    <path d="M1420 830a52 52 0 0 1 104 0v14h-104z" fill="#e9b44c" stroke="#171717" stroke-width="5"/>
+    <rect x="1410" y="844" width="124" height="16" rx="8" fill="#b9892b" stroke="#171717" stroke-width="4"/>
+    <circle cx="1472" cy="772" r="9" fill="#e9b44c" stroke="#171717" stroke-width="4"/>
+  </g>
+</svg>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1536 1024" width="1536" height="1024" font-family="Helvetica, Arial, sans-serif">
+  <!-- PLACEHOLDER reveal image (3:2). Replace with the generated before image; keep the same camera and layout in both. -->
+  <rect width="1536" height="1024" fill="#e7e0d3"/>
+  <rect y="690" width="1536" height="334" fill="#d9bf98" opacity=".7"/>
+  <rect x="120" y="150" width="1296" height="520" rx="28" fill="#fffdf6" stroke="#171717" stroke-width="6"/>
+  <text x="768" y="360" text-anchor="middle" font-size="76" font-weight="700" fill="#171717">Orders pile up on a note</text>
+  <text x="768" y="460" text-anchor="middle" font-size="46" fill="#444">Someone has to read it first</text>
+</svg>
